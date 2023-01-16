@@ -1,0 +1,113 @@
+
+.bs-docs-sidebar.affix {
+    position: static;
+}
+
+.bs-docs-sidenav {
+    /*margin-top: 20px;*/
+    /*margin-bottom: 20px;*/
+    max-height:1688px;
+    overflow-y: auto;
+}
+
+.bs-docs-sidenav .section{
+    font-weight: bold;
+}
+
+.tutorial-panel-body {
+    /* padding: 15px; */
+    padding: 0px 0px 10px 15px !important;
+}
+
+
+.tutorial-panel-title {
+    padding-bottom: 10px!important;
+    border-bottom: 2px solid #080808!important;
+    font-weight: 700;
+    font-size: 18px!important;
+    /*color: #03a9f4;*/
+}
+
+.tutorial-pager{
+    margin: 10px 0!important;
+}
+
+.tutorial-panel-heading {
+    padding: 5px 22px!important;
+}
+
+
+.bs-docs-sidebar .nav > li > a {
+    display: block;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #767676;
+}
+
+.bs-docs-sidebar .nav > li > a:hover,
+.bs-docs-sidebar .nav > li > a:focus {
+    padding-left: 19px;
+    color: #03a9f4;
+    text-decoration: none;
+    background-color: transparent;
+    border-left: 1px solid #03a9f4;
+}
+
+.bs-docs-sidebar .nav > .active > a,
+.bs-docs-sidebar .nav > .active:hover > a,
+.bs-docs-sidebar .nav > .active:focus > a {
+    padding-left: 10px;
+    font-weight: 500;
+    color: #03a9f4;
+    background-color: transparent;
+    border-left: 1px solid #03a9f4;
+}
+
+
+.bs-docs-sidebar .nav .nav {
+    display: none;
+/ / Hide by default, but at > 768 px, show it padding-bottom: 10 px;
+}
+
+.bs-docs-sidebar .nav .nav > li > a {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 30px;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.bs-docs-sidebar .nav .nav > li > a:hover,
+.bs-docs-sidebar .nav .nav > li > a:focus {
+    padding-left: 29px;
+}
+
+.bs-docs-sidebar .nav .nav > .active > a,
+.bs-docs-sidebar .nav .nav > .active:hover > a,
+.bs-docs-sidebar .nav .nav > .active:focus > a {
+    padding-left: 28px;
+    font-weight: 500;
+}
+
+
+.back-to-top,
+.bs-docs-theme-toggle {
+    display: none;
+    padding: 4px 10px;
+    margin-top: 10px;
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #999;
+}
+
+.back-to-top:hover,
+.bs-docs-theme-toggle:hover {
+    color: #563d7c;
+    text-decoration: none;
+}
+
+.bs-docs-theme-toggle {
+    margin-top: 0;
+}
