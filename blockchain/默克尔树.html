@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+        <head>
+
+                <meta charset="utf-8">
+                <meta name="baidu-site-verification" content="code-Rc3BczV5lF"/>
+                <meta name="viewport" content="width=device-width,
+                        initial-scale=1.0">
+
+                <title>阿达学习网站</title>
+                <!--  -->
+
+                <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+                <link href="../css/editor.css" rel="stylesheet"/>
+                <link href="../css/style.css" rel="stylesheet"/>
+                <link href="../css/article_side_bar.css" rel="stylesheet"/>
+        </head>
+
+        <body>
+                <div class="wrap">
+                        <!-- Main -->
+                        <div class="container" id="article">
+                                <div class="row main">
+
+                                        <div class="col-xs-12 col-md-9 side-left topics-show">
+                                                <!-- view show -->
+                                                <div class="topic panel panel-default">
+                                                        <div class="infos tutorial-panel-heading panel-heading">
+                                                                <nav aria-label="...">
+                                                                        <ul class="tutorial-pager pager">
+                                                                                <li class="previous"><a href="./矿工激励.html"><span aria-hidden="true">&larr;</span> 矿工激励</a></li>
+                                                                                <li class="next"><a href="./确认付款.html">确认付款 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                        </ul>
+                                                                </nav>
+                                                        </div>
+                                                        <div class="content-body
+                                                                entry-content
+                                                                panel-body ">
+                                                                <div
+                                                                        class="markdown-body">      
+                                                                        <!--内容-->
+<h1>默克尔树</h1>
+<p>Merkle Tree，又称Hash Tree，用来存储hash值的一棵树。Merkle树的叶子是数字块的hash值。非叶节点是其对应子节点串联字符串的hash。</p>
+<h2>Hash</h2>
+<p>Hash是一个把任意长度的数据映射成较短的固定长度数据(比如：256bit)的函数。例如，对于数据完整性校验，最简单的方法是对整个数据做Hash运算得到固定长度的Hash值，然后把得到的Hash值公布到网上，这样用户下载到数据之后，对数据再次进行Hash运算，把运算结果和网上公布的Hash值进行比较，如果两个Hash值相等，说明下载的数据没有损坏。可以这样做是因为输入数据的稍微改变就会引起Hash运算结果的面目全非，而且根据Hash值反推原始输入数据的特征是困难的。</p>
+<p>如果从一个稳定的服务器进行下载，采用单一Hash是可取的。但如果数据源不稳定，一旦数据损坏，就需要重新下载，这种下载的效率是很低的。</p>
+<h2>Hash List</h2>
+<p>在点对点网络中作数据传输的时候，会同时从多个机器上下载数据，而且很多机器可以认为是不稳定或不可信的。为了校验数据的完整性，更好的办法是把大的文件分割成小的数据块(例如，把分割成2K为单位的数据块)。这样的好处是，如果小块数据在传输过程中损坏了，那么只要重新下载这一块数据就行了，不用重新下载整个文件。</p>
+<p>怎么确定小的数据块没有损坏呢？只需要为每个数据块做Hash。BT下载的时候，，在下载到真正数据之前，我们会先下载一个Hash列表。那么问题又来了，怎么确定这个Hash列表本身是正确的呢？答案是把每个小块数据的Hash值拼到一起，然后对这个长字符串再做一次Hash运算，这样就得到Hash列表的根Hash(To Hash or Root Hash)。下载数据的时候，首先从可信的数据源得到正确的根Hash，就可以用它来校验Hash列表了，然后通过校验后的Hash列表校验数据块。</p>
+<p><img src="./picture/默克尔树/默克尔树1.png" alt="默克尔树1"></p>
+<h2>Merkle Tree</h2>
+<p>Merkle Tree可以看作Hash List的泛化(Hash List可以看作一种特殊的Merkle Tree，即树高为2的多叉Merkle Tree)。</p>
+<p>在最底层，和Hash列表一样，我们把数据分成小的数据块，有相应地Hash和它对应。但是往上走，并不是直接去运算根Hash，而是把相邻的两个Hash合并成一个字符串，然后运算这个字符串的Hash，这样两个Hash就结婚生子，得到了一个&rdquo，子Hash&ldquo。如果最低层的Hash总数是单数，那到最后必然出现一个单身Hash，这种情况就直接对它进行Hash运算，所以也能得到它的子Hash。于是往上推，依然是一样的方式，可以得到数目更少的新一级Hash，最终必然形成一棵倒挂的树，到了树根的这个位置，这一代就剩下一个根Hash了，我们把它叫做Merkle Root。</p>
+<p>在p2p网络下载网络之前，先从可信的源获得文件的Merkle Tree树根。一旦获得树根，就可以从其他不可信的源获取Merkle Tree。通过可信的树根来检查接受到的Merkle Tree。如果Merkle Tree是损坏的或虚假的，就从其他源获得另一个Merkle Tree，直到获得一个与可信树根匹配的Merkle Tree。</p>
+<p>Merkle Tree和Hash List的主要区别是，可以直接下载并立即验证Merkle Tree的一个分支。因为可以将文件切分成小的数据块，这样如果有一块数据损坏，仅仅重新下载这个数据块就行了。如果文件非常大，那么Merkle Tree和Hash List都很大，但是Merkle Tree可以一次下载一个分支，然后立即验证这个分支，如果分支验证通过，就可以下载数据了。而Hash List只能下载整个Hash List才能验证。</p>
+<p><img src="./picture/默克尔树/默克尔树2.png" alt="默克尔树2"></p>
+<h2>Merkle Tree的特点</h2>
+<ul>
+    <li>Merkle Tree是一种树，大多数是二叉树，也可以是多叉树，无论是几叉树，它都具有树结构的所有特点。</li>
+    <li>Merkle Tree的叶子节点的value是数据集合的单元数据或者单元数据hash。</li>
+    <li>非叶子节点的value是根据它下面所有的叶子节点值，然后按照hash算法计算而得出的。</li>
+</ul>
+<p>Second Preimage Attack：Merkle Tree的树根并不表示树的深度，这可能会导致second-preimage attack，即攻击者创建一个具有相同Merkle树根的虚假文档。一个简单的解决方法在Certificate Transparency中定义：当前计算叶节点的hash时，在hash数据前加0x00。当计算内部节点时，在前面加0x01。另外一些实现限制hash tree的根，通过在hash值前面加深度前缀。因此，前缀每一步会减少，只有当到达叶子时前缀依然为正，提取的hash链才被定义为有效。</p>
+<h2>区块链Merkle Tree</h2>
+<p>区块链作为分布式账本，原则上网络中的每个节点都应包含整个区块链中全部区块，随着区块链越来越长，节点的硬盘有可能放不下。区块链中引入了默克尔树解决了这个问题。</p>
+<p>区块链中，为节省空间，只保存交易的hash值，不保存交易本身的信息，hash值对于校验来说足够了。</p>
+<p>默克尔树很简单，具体来说，一个区块中的所有交易都会求取hash值，得到的hash值，再两两组合成新文本求取hash值，以此类推，直到生成最后一个hash值，即根hash值，这些hash值组成的二叉树就是默克尔树。如下图所示：</p>
+<p><img src="./picture/默克尔树/默克尔树3.png" alt="默克尔树3"></p>
+<p>区块头现在包含：</p>
+<ul>
+    <li>前一区块的hash值</li>
+    <li>一个Nonce</li>
+    <li>默克尔树的根hash值</li>
+</ul>
+<p>由于这个<strong>根hash值</strong>包含了区块中所有交易的hash值，因此可以去除这些交易以节省存储空间。</p>
+<p>现在您的区块链看起来就像下图：</p>
+<p><img src="./picture/默克尔树/默克尔树4.png" alt="默克尔树4"></p>
+<p>可以看到区块链中，只保存了区块头，这可以大大节省存储空间。这一策略被普通节点使用，普通节点只用于收款，例如虚拟币钱包。但对于矿工节点，就需要保存区块的完整内容。</p>
+
+                                                                </div>
+                                                        </div>
+                                                        <div class="panel-footer operate"></div>
+                                                        <div class="infos tutorial-panel-heading panel-heading">
+                                                                <nav aria-label="...">
+                                                                        <ul class="tutorial-pager pager">
+                                                                                <li class="previous"><a href="./矿工激励.html"><span aria-hidden="true">&larr;</span> 矿工激励</a></li>
+                                                                                <li class="next"><a href="./确认付款.html">确认付款 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                        </ul>
+                                                                </nav>
+                                                        </div>
+                                                </div>
+
+                                                <!-- /view show -->
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-3
+                                                side-right">
+                                                <div class="panel panel-default
+                                                        widget">
+                                                        <div class="panel-heading">
+                                                                <h3 class="panel-title"><i class="fa fa-bars"></i>
+                                                                        目录列表</h3>
+                                                        </div>
+                                                        <div class="panel-body">
+                                                                <nav
+                                                                        class="bs-docs-sidebar
+                                                                        hidden-print
+                                                                        affix">
+                                                                        <ul class="nav bs-docs-sidenav">
+                                                <h5 class="section">区块链</h5>
+                                                <li><a href="">概述</a></li>
+                                                <li><a href="">介绍</a></li>
+                                                <li><a href="">应用发展</a></li>
+                                                <li><a href="">比特币</a></li>
+                                                <li><a href="">非对称加密</a></li>
+                                                <li><a href="">哈希 Hash</a></li>
+                                                <li><a href="">挖矿</a></li>
+                                                <li><a href="">链接区块</a></li>
+                                                <li><a href="">工作量证明</a></li>
+                                                <li><a href="">交易流程与挖矿</a></li>
+                                                <li><a href="">矿工激励</a></li>
+                                                <li class="active"><a href="./默克尔树.html">默克尔树</a></li>
+                                                <li><a href="">付款确认</a></li>
+                                                <li><a href="">处理冲突</a></li>
+                                                <li><a href="">用户隐私</a></li>
+                                                <li><a href="">防范攻击</a></li>
+                                                <li><a href="">入门教程</a></li>
+                                                <li><a href="">BIP</a></li>
+                                                <li><a href="">BIP32</a></li>
+                                                <li><a href="">BIP39</a></li>
+                                                <li><a href="">PWO</a></li>
+                                                <li><a href="">Tornado.Cash 混币器</a></li>
+                                                <li><a href="">Tornado.Cash原理</a></li>
+                                                <li><a href="">Gamefi</a></li>
+                                                                        </ul>
+                                                                </nav>
+
+                                                        </div>
+                                                </div>
+                                        </div>
+
+                                </div>
+
+
+                        </div>
+                </div>
+                <!-- /content -->
+
+                <!-- footer -->
+                <footer class="footer">
+
+                </footer>
+
+
+        </body>
+</html>

@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./工作量证明.html"><span aria-hidden="true">&larr;</span> 工作量证明</a></li>
-                                                                                <li class="next"><a href="./矿工激励.html">矿工激励 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./处理冲突.html"><span aria-hidden="true">&larr;</span> 处理冲突</a></li>
+                                                                                <li class="next"><a href="./防范攻击.html">防范攻击 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,29 +40,19 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>交易流程与挖矿</h1>
-<p>我们总结一下前面章节介绍的交易步骤：</p>
-<ul>
-    <li>区块链网络中，任何想支付的人，需创建一个交易，里面的内容大致是，买家付款给卖家多少钱。</li>
-    <li>在一定时间内，网络中可能会发生多笔交易。</li>
-    <li>所有交易，都会通过网络广播，但交易不一定要达到网络中的每一个节点。</li>
-    <li>接收到新交易的矿工，将多个新交易组装成一个块。注意，多个矿工之间新建区块中的交易集有可能是不一样的，这是没关系的，系统确保在合理的时间内，网络上广播的交易都包含在某个块中。通常，发送方会向矿工提供一定数量的比特币作为激励，矿工可能会优先选择那些激励高的交易放进区块。</li>
-    <li>矿工接下来的工作是为新区块计算工作证明。</li>
-    <li>当矿工计算好工作证明后，他将把组装好的新区块向网络广播。</li>
-    <li>接收到新区块的其他节点，会验证新区块中的所有交易是否有效，比特币是否重复支付，没有问题才会接受。</li>
-    <li>如果该区块被接收为有效，其他矿工必须对自己正在组建的区块重新组装，删除与已接受区块重复的交易，另外，这些矿工会把已接受区块的哈希值作为自己区块的前向哈希值。</li>
-    <li>类似地，一个区块一个区块就这样被添加到区块链上。</li>
-</ul>
-<p>现在，我们已经看到了整个区块链系统是如何工作的，接下来让我们来看看这套机制的一些缺陷已经弥补措施。</p>
-
+<h1>用户隐私</h1>
+<p>区块链是一个公开的账本，为了保护用户隐私，区块链是匿名的，否则世界上任何人都能知道谁有多少钱，谁付钱给谁了。而传统的银行系统是通过对其记录保密来维护这种隐私。</p>
+<p>区块链中的账户用一个用户的公钥表示，这个公钥是匿名的，区块链网络中没有记录这个公钥与用户的关系。</p>
+<p>例如，你是收款方，当有人问你要将付款发送到哪里时，你只需要将你的公钥发送给他。此公钥与你的关联没有记录在区块链网络的任何位置。这样，交易之外的任何人只知道交易了多少钱，以及向哪个公钥支付了这笔钱。</p>
+<p>为了达到更高的私密性，你可以为每个交易生成一个新的私钥/公钥对，临时使用。</p>
                                                                 </div>
                                                         </div>
                                                         <div class="panel-footer operate"></div>
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./工作量证明.html"><span aria-hidden="true">&larr;</span> 工作量证明</a></li>
-                                                                                <li class="next"><a href="./矿工激励.html">矿工激励 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./处理冲突.html"><span aria-hidden="true">&larr;</span> 处理冲突</a></li>
+                                                                                <li class="next"><a href="./防范攻击.html">防范攻击 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -95,12 +85,12 @@
                                                 <li><a href="">挖矿</a></li>
                                                 <li><a href="">链接区块</a></li>
                                                 <li><a href="">工作量证明</a></li>
-                                                <li class="active"><a href="./交易流程与挖矿.html">交易流程与挖矿</a></li>
+                                                <li><a href="">交易流程与挖矿</a></li>
                                                 <li><a href="">矿工激励</a></li>
                                                 <li><a href="">默克尔树</a></li>
                                                 <li><a href="">付款确认</a></li>
                                                 <li><a href="">处理冲突</a></li>
-                                                <li><a href="">用户隐私</a></li>
+                                                <li class="active"><a href="./用户隐私.html">用户隐私</a></li>
                                                 <li><a href="">防范攻击</a></li>
                                                 <li><a href="">入门教程</a></li>
                                                 <li><a href="">BIP</a></li>
