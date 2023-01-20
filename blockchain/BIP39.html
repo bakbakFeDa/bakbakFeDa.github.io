@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+        <head>
+
+                <meta charset="utf-8">
+                <meta name="baidu-site-verification" content="code-Rc3BczV5lF"/>
+                <meta name="viewport" content="width=device-width,
+                        initial-scale=1.0">
+
+                <title>阿达学习网站</title>
+                <!--  -->
+
+                <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+                <link href="../css/editor.css" rel="stylesheet"/>
+                <link href="../css/style.css" rel="stylesheet"/>
+                <link href="../css/article_side_bar.css" rel="stylesheet"/>
+        </head>
+
+        <body>
+                <div class="wrap">
+                        <!-- Main -->
+                        <div class="container" id="article">
+                                <div class="row main">
+
+                                        <div class="col-xs-12 col-md-9 side-left topics-show">
+                                                <!-- view show -->
+                                                <div class="topic panel panel-default">
+                                                        <div class="infos tutorial-panel-heading panel-heading">
+                                                                <nav aria-label="...">
+                                                                        <ul class="tutorial-pager pager">
+                                                                                <li class="previous"><a href="./BIP32.html"><span aria-hidden="true">&larr;</span> BIP32</a></li>
+                                                                                <li class="next"><a href="./pow.html">PWO <span aria-hidden="true">&rarr;</span></a></li>
+                                                                        </ul>
+                                                                </nav>
+                                                        </div>
+                                                        <div class="content-body
+                                                                entry-content
+                                                                panel-body ">
+                                                                <div
+                                                                        class="markdown-body">      
+                                                                        <!--内容-->
+<h1>BIP39 钱包助记词规范</h1>
+<pre>BIP：39
+层级：应用级
+链接：https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
+创建时间：2013-09-10
+</pre>
+<h2>摘要</h2>
+<p>BIP39 描述了一个助记码或助记句（一组容易记住的单词）的实现，用于生成确定性钱包。目前是业界通用的助记词规范。</p>
+<p>它由两部分组成：生成助记符，并将其转换为二进制种子。这个种子稍后可以使用 BIP32 或类似的方法来生成确定性钱包。</p>
+<h2>动机</h2>
+<p>与处理钱包种子的原始二进制或十六进制表示相比，助记码或句子更适合于人类交互。这个句子可以写在纸上，也可以在电话里说明。</p>
+<p>本规范旨在用人类可读的转录来传输计算机生成的随机性。它不是一种将用户创建的句子（也称为脑钱包）处理成钱包种子的方法。</p>
+<h2>生成助记词</h2>
+<p>我们将随机数叫做熵。助记词必须将熵编码为32位的倍数，随着熵的增加，安全性提高，但助记词的句子长度增加。我们将初始熵长度称为ENT。允许的ENT大小为128-256位。</p>
+<p>生成步骤为：</p>
+<ul>
+    <li>生成ENT位的初始熵</li>
+    <li>生成校验和，校验和的长度为ENT/32，取熵hash后的前ENT/32位作为校验和</li>
+    <li>将这个校验和附加到初始熵的末尾</li>
+    <li>将步骤3 组成的串按每11位进行切割，编码为0-2047的数字（因为BIP39的词库是2048个，即2的11次方）</li>
+    <li>根据步骤4 得到的每11位的数字索引匹配词库中的相应单词</li>
+    <li>根据步骤5 得到的单词连接起来即得到最终的助记词串。</li>
+</ul>
+<p>下表描述了初始熵长度（ENT）、校验和长度（CS）和生成的助记词句子长度（MS）之间的关系。</p>
+<pre>CS = ENT / 32
+MS = (ENT + CS) / 11
+
+|  ENT  | CS | ENT+CS |  MS  |
++-------+----+--------+------+
+|  128  |  4 |   132  |  12  |
+|  160  |  5 |   165  |  15  |
+|  192  |  6 |   198  |  18  |
+|  224  |  7 |   231  |  21  |
+|  256  |  8 |   264  |  24  |
+</pre>
+<h2>单词表</h2>
+<p>理想的单词表具有以下的特点：</p>
+<h3>巧妙选词</h3>
+<pre>- 单词表的创建方式为键入前四个字母足以来明确地标识单词
+</pre>
+<h3>类似的词避免</h3>
+<pre>- 像"build"和"built"，"woman"和"women"，或"quick"和"quick"这样的词对不仅使记忆句子变得困难，而且更容易出错，更难猜测
+</pre>
+<h3>分类词库</h3>
+<pre>- wordlist是排序的，这样可以更有效地查找代码(即实现可以使用二进制搜索代替线性搜索)
+- 也允许使用trie(前缀树)，例如为了更好的压缩
+    </pre>
+<p>单词表可以包含本地化字符，但必须使用规范化表单兼容性分解（NFKD）以UTF-8编码。</p>
+<h2>从助记词生成种子</h2>
+<p>用户可能决定使用密码保护其助记符。如果没有密码，则使用空字符串""。</p>
+<p>为了从助记词中创建二进制种子，我们使用PBKDF2函数，使用助记词（UTF-8 NFKD编码）作为密码，使用字符串"mnemonic"+密码（UTF-8 NFKD编码）作为盐。迭代计数设置为2048，使用HMAC-SHA512作为伪随机函数。期望得到的密钥长度是512位（64字节）。</p>
+<p>这个种子稍后可以使用BIP-0032或类似的方法来生成确定性钱包。将助记句转换为二进制种子与生成句子完全无关。这形成了相当简单的代码；句子结构密钥限制，客户端可以自由地实现自己的单词列表，甚至是整个句子生成器，这使得单词列表在检测错别字或其他目的方面具有灵活性。</p>
+<h2>单词表规范</h2>
+<p>单词表文档</p>
+<h2>各语言的参考实现方案</h2>
+<p>Go:</p>
+<ul dir="auto"><li><a href="https://github.com/tyler-smith/go-bip39">https://github.com/tyler-smith/go-bip39</a></li></ul>
+
+<p>Python:</p>
+<ul dir="auto"><li><a href="https://github.com/meherett/python-hdwallet">https://github.com/meherett/python-hdwallet</a></li></ul>
+
+<p>Elixir:</p>
+<ul dir="auto"><li><a href="https://github.com/aerosol/mnemo">https://github.com/aerosol/mnemo</a></li></ul>
+
+<p>Objective-C:</p>
+<ul dir="auto"><li><a href="https://github.com/nybex/NYMnemonic">https://github.com/nybex/NYMnemonic</a></li></ul>
+
+<p>Haskell:</p>
+<ul dir="auto"><li><a href="https://github.com/haskoin/haskoin">https://github.com/haskoin/haskoin</a></li></ul>
+
+<p>.NET (Standard):</p>
+<ul dir="auto"><li><a href="https://www.nuget.org/packages/dotnetstandard-bip39/" rel="nofollow">https://www.nuget.org/packages/dotnetstandard-bip39/</a></li></ul>
+
+<p>.NET C# (PCL):</p>
+<ul dir="auto"><li><a href="https://github.com/Thashiznets/BIP39.NET">https://github.com/Thashiznets/BIP39.NET</a></li></ul>
+
+<p>.NET C# (PCL):</p>
+<ul dir="auto"><li><a href="https://github.com/NicolasDorier/NBitcoin">https://github.com/NicolasDorier/NBitcoin</a></li></ul>
+
+<p>JavaScript:</p>
+<ul dir="auto"><li><a href="https://github.com/bitpay/bitcore/tree/master/packages/bitcore-mnemonic">https://github.com/bitpay/bitcore/tree/master/packages/bitcore-mnemonic</a></li><li><a href="https://github.com/bitcoinjs/bip39">https://github.com/bitcoinjs/bip39</a> (used by <a href="https://github.com/blockchain/My-Wallet-V3/blob/v3.8.0/src/hd-wallet.js#L121-L146">blockchain.info</a>)</li><li><a href="https://github.com/hujiulong/web-bip39">https://github.com/hujiulong/web-bip39</a></li></ul>
+
+<p>Java:</p>
+<ul dir="auto"><li><a href="https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/crypto/MnemonicCode.java">https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/crypto/MnemonicCode.java</a></li></ul>
+
+<p>Ruby:</p>
+<ul dir="auto"><li><a href="https://github.com/sreekanthgs/bip_mnemonic">https://github.com/sreekanthgs/bip_mnemonic</a></li></ul>
+
+<p>Rust:</p>
+<ul dir="auto"><li><a href="https://github.com/maciejhirsz/tiny-bip39/">https://github.com/maciejhirsz/tiny-bip39/</a></li><li><a href="https://github.com/koushiro/bip0039-rs">https://github.com/koushiro/bip0039-rs</a></li></ul>
+
+<p>Smalltalk:</p>
+<ul dir="auto"><li><a href="https://github.com/eMaringolo/pharo-bip39mnemonic">https://github.com/eMaringolo/pharo-bip39mnemonic</a></li></ul>
+
+<p>Swift:</p>
+<ul dir="auto"><li><a href="https://github.com/CikeQiu/CKMnemonic">https://github.com/CikeQiu/CKMnemonic</a></li><li><a href="https://github.com/yuzushioh/WalletKit">https://github.com/yuzushioh/WalletKit</a></li><li><a href="https://github.com/pengpengliu/BIP39">https://github.com/pengpengliu/BIP39</a></li><li><a href="https://github.com/matter-labs/web3swift/blob/develop/Sources/web3swift/KeystoreManager/BIP39.swift">https://github.com/matter-labs/web3swift/blob/develop/Sources/web3swift/KeystoreManager/BIP39.swift</a></li><li><a href="https://github.com/zcash-hackworks/MnemonicSwift">https://github.com/zcash-hackworks/MnemonicSwift</a></li><li><a href="https://github.com/ShenghaiWang/BIP39">https://github.com/ShenghaiWang/BIP39</a></li></ul>
+
+
+<p>C++:</p>
+<ul dir="auto"><li><a href="https://github.com/libbitcoin/libbitcoin-system/blob/master/include/bitcoin/system/wallet/mnemonic.hpp">https://github.com/libbitcoin/libbitcoin-system/blob/master/include/bitcoin/system/wallet/mnemonic.hpp</a></li></ul>
+
+<p>C (with Python/Java/Javascript bindings):</p>
+<ul dir="auto"><li><a href="https://github.com/ElementsProject/libwally-core">https://github.com/ElementsProject/libwally-core</a></li></ul>
+
+<p>Python:</p>
+<ul dir="auto"><li><a href="https://github.com/scgbckbone/btc-hd-wallet">https://github.com/scgbckbone/btc-hd-wallet</a></li></ul>
+
+<p>Dart:</p>
+<ul dir="auto"><li><a href="https://github.com/dart-bitcoin/bip39">https://github.com/dart-bitcoin/bip39</a></li></ul>
+<h2>Go语言示例代码</h2>
+<pre>package main
+import (
+    "fmt"
+    "github.com/tyler-smith/go-bip32"
+    "github.com/tyler-smith/go-bip39"
+)
+
+func main(){
+    // 生成用于记忆的助记符或用户友好的种子
+    entropy, _ := bip39.NewEntropy(256)
+    mnemonic, _ := bip39.NewMnemonic(entropy)
+
+    // 为助记符和用户提供的密码生成一个Bip32 HD钱包
+    seed := bip39.NewSeed(mnemonic, "Secret Passphrase")
+
+    masterKey, _ := bip32.NewMasterKey(seed)
+    publicKey := masterKey.PublicKey()
+
+    // 显示助记符和键
+    fmt.Println("Mnemonic: ", mnemonic)
+    fmt.Println("Master private key: ", masterKey)
+    fmt.Println("Master public key: ", publicKey)
+}
+</pre>
+
+                                                                </div>
+                                                        </div>
+                                                        <div class="panel-footer operate"></div>
+                                                        <div class="infos tutorial-panel-heading panel-heading">
+                                                                <nav aria-label="...">
+                                                                        <ul class="tutorial-pager pager">
+                                                                                <li class="previous"><a href="./BIP32.html"><span aria-hidden="true">&larr;</span> BIP32</a></li>
+                                                                                <li class="next"><a href="./pow.html">POW <span aria-hidden="true">&rarr;</span></a></li>
+                                                                        </ul>
+                                                                </nav>
+                                                        </div>
+                                                </div>
+
+                                                <!-- /view show -->
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-3
+                                                side-right">
+                                                <div class="panel panel-default
+                                                        widget">
+                                                        <div class="panel-heading">
+                                                                <h3 class="panel-title"><i class="fa fa-bars"></i>
+                                                                        目录列表</h3>
+                                                        </div>
+                                                        <div class="panel-body">
+                                                                <nav
+                                                                        class="bs-docs-sidebar
+                                                                        hidden-print
+                                                                        affix">
+                                                                        <ul class="nav bs-docs-sidenav">
+                                                <h5 class="section">区块链</h5>
+                                                <li><a href="">概述</a></li>
+                                                <li><a href="">介绍</a></li>
+                                                <li><a href="">应用发展</a></li>
+                                                <li><a href="">比特币</a></li>
+                                                <li><a href="">非对称加密</a></li>
+                                                <li><a href="">哈希 Hash</a></li>
+                                                <li><a href="">挖矿</a></li>
+                                                <li><a href="">链接区块</a></li>
+                                                <li><a href="">工作量证明</a></li>
+                                                <li><a href="">交易流程与挖矿</a></li>
+                                                <li><a href="">矿工激励</a></li>
+                                                <li><a href="">默克尔树</a></li>
+                                                <li><a href="">付款确认</a></li>
+                                                <li><a href="">处理冲突</a></li>
+                                                <li><a href="">用户隐私</a></li>
+                                                <li><a href="">防范攻击</a></li>
+                                                <li><a href="">入门教程</a></li>
+                                                <li><a href="">BIP</a></li>
+                                                <li><a href="">BIP32</a></li>
+                                                <li class="active"><a href="./BIP39.html">BIP39</a></li>
+                                                <li><a href="">PWO</a></li>
+                                                <li><a href="">Tornado.Cash 混币器</a></li>
+                                                <li><a href="">Tornado.Cash原理</a></li>
+                                                <li><a href="">Gamefi</a></li>
+                                                                        </ul>
+                                                                </nav>
+
+                                                        </div>
+                                                </div>
+                                        </div>
+
+                                </div>
+
+
+                        </div>
+                </div>
+                <!-- /content -->
+
+                <!-- footer -->
+                <footer class="footer">
+
+                </footer>
+
+
+        </body>
+</html>

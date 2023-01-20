@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+        <head>
+
+                <meta charset="utf-8">
+                <meta name="baidu-site-verification" content="code-Rc3BczV5lF"/>
+                <meta name="viewport" content="width=device-width,
+                        initial-scale=1.0">
+
+                <title>阿达学习网站</title>
+                <!--  -->
+
+                <link href="../css/bootstrap.min.css" rel="stylesheet"/>
+                <link href="../css/editor.css" rel="stylesheet"/>
+                <link href="../css/style.css" rel="stylesheet"/>
+                <link href="../css/article_side_bar.css" rel="stylesheet"/>
+        </head>
+
+        <body>
+                <div class="wrap">
+                        <!-- Main -->
+                        <div class="container" id="article">
+                                <div class="row main">
+
+                                        <div class="col-xs-12 col-md-9 side-left topics-show">
+                                                <!-- view show -->
+                                                <div class="topic panel panel-default">
+                                                        <div class="infos tutorial-panel-heading panel-heading">
+                                                                <nav aria-label="...">
+                                                                        <ul class="tutorial-pager pager">
+                                                                                <li class="previous"><a href="./pow.html"><span aria-hidden="true">&larr;</span> POW</a></li>
+                                                                                <li class="next"><a href="">HTML基础 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                        </ul>
+                                                                </nav>
+                                                        </div>
+                                                        <div class="content-body
+                                                                entry-content
+                                                                panel-body ">
+                                                                <div
+                                                                        class="markdown-body">      
+                                                                        <!--内容-->
+<h1>Tornado.Cash 以太坊混币器</h1>
+<p>Tornado.cash 在 Goerli 测试网上有部署，因此测试时切换到 Georli 测试网即可：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640.png" alt="1"></p>
+<p>首先先进行存款操作，成功之后，需要留&ldquo;凭证&rdquo;，浏览器会自动保存这个凭证到本地的txt文件，该凭证需要提款的时候用：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (1).png" alt="2"></p>
+<p>后续在提款时，只需要输入这个凭证和提款地址，即可把币提出来。</p>
+<p>那么为什么tornado可以混币呢？原理图如下：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (2).png" alt="3"></p>
+<p>熟悉比特币混币器的读者应该可以感受到"有内味了" ：-）</p>
+<p>用户所有的动作都与Proxy合约交互，最终所有的存款操作都流入到tornadoCash.eth池子合约中；当用户提款时，tornadoProxy会内部调用tornado.eth池子合约给用户发起转账。</p>
+<p>所以，从外部角度来看，用户的钱转给了TornadoProxy，而提款逻辑中，用户的钱都从池子合约中流出，并且流出的金额都是等值的，通过这种手段来混淆交易（让存款和取款的关系对应不上）。</p>
+<p>举例说明，比如地址A存入100ETH，然后提到另一个地址B，如果不用混币器，那么A-&gt;B转账的交易就会被追踪分析了；如果是使用TornadoCash，资金链变成了：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (3).png" alt="4"></p>
+<p>因此达到了混淆资金流向的目的。当TornadoCash的用户越多，用户提币时间、提币地址越混杂，分析难度就越高。</p>
+<h2>存款逻辑</h2>
+<p>存款的交互交易如下：</p>
+<p>https://goerli.etherscan.io/tx/0x39a08fd3adbfea863720fa678bf4f172603e9afc42598726db8362182e67919a</p>
+<p>调用了合约的deposit方法，value中指定充值ETH数额：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (4).png" alt="5"></p>
+<p>decode 之后如下：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (5).png" alt="6"></p>
+<p>并且会执行一个内部交易，向第一个参数的地址转移这个ETH：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (6).png" alt="7"></p>
+<p>第一个参数也是tornado.cash的合约（在主网上又称为Tornado.eth1合约），合约的地址（instance）写死在智能合约中，可以看到如果是存ETH对应了四个合约地址，这里用ENS表示：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (7).png" alt="8"></p>
+<p>这里的eth-01：代表存入0.1ETH对应的合约地址，eth-1对应存入1ETH对应的转账合约地址，以此类推。存款的逻辑如下：</p>
+<p>1. 用户和TornadoProxy合约的deposit函数交互</p>
+<p>2. TornadoProxy合约发起内部交易，将用户的钱转到tornadocash.eth合约中</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (8).png" alt="9"></p>
+<p>因此我们通过查看Tornadocash.eth1合约的内部交易就会发现，只要是TornadoCashProxy合约发起的，这个内部交易就是用户入金触发的。</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (9).png" alt="10"></p>
+<h2>取款逻辑</h2>
+<p>取款的时候需要提供存款时生成的一个密钥，每次存款成功都会生成一个，用户在连接到Dapp后也能看到：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (10).png" alt="11"></p>
+<p>提款界面需要提供这个凭证，以及填写想要转到哪个币地址中：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (11).png" alt="12"></p>
+<p>提款之后，提款的交易hash会直接显示出来：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (12).png" alt="13"></p>
+<p>https://goerli.etherscan.io/tx/0x74c8b0b20d54bbf32091fb6ad9f0bc9d7907fd6e70180f55cc8c166db5dd242f</p>
+<p>https://goerli.etherscan.io/tx/0x02e7d380b38d1de1d62fe51ec728542b58504bab31ad7eb3903783562a1ab85c</p>
+<p>本质上是与Proxy合约的withdraw函数进行交互：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (13).png" alt="14"></p>
+<p>参数如下：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (14).png" alt="15"></p>
+<p>提款交易会派生出两个内部交易，分别为提币到目标地址、手续费：</p>
+<p><img src="./picture/Tornado.Cash 以太坊混币器/640 (15).png" alt="16"></p>
+<h2>如何追踪</h2>
+<ul>
+    <li><p>如果一笔取款交易紧跟着一笔存款交易发生，那么这两笔交易就很有可能来自同一个人。我们建议用户在存入资金之后，等待其他人存入几笔资金，然后再考虑要不要取款。</p></li>
+    <li><p><strong>如果某个地址发起多次存款，而另一个地址多次发起同样资金规模的取款交易，则这些交易很可能是有关联的。</strong>如果你希望多次取款，请尝试打乱资金数额并取出到互不关联的多个地址。</p></li>
+    <li><p>存入资金后，记得等待一段时间。即便在你之后已有躲避存入资金的交易，它们也很有可能来自同一个人、TA 试图通过发送大量交易来欺骗用户，让用户相信匿名集已经很大，但实际并非如此（也就是所谓的 &ldquo;女巫攻击&rdquo;）译者注：在 Tornado.cash 及类似的混币器解决方案中，都有一个匿名集的概念，就是混币资金池中资金来源的多样性，资金来源越多，外部观察者越难跟踪并将交易跟某个身份关联起来，用户的隐私性就越强）。我们建议你至少等待 24 小时，以保证在你存入和取出之间有足够多不同的参与者都在合约中存入了资金。使用 Tornado.cash 时记得看看旁边的统计信息。</p></li>
+    <li><p>你要是总在所在时区的同一时间段存钱和取钱，也会削弱你的匿名性。一个简单的办法是尽可能打乱存取款的时间，甚至分散到一天的 24 小时中。</p></li>
+    <li><p>Tornado.cash 的统计数据中显示的匿名集大小就是存入给定实例的资金总额。实际上，匿名集大小可能会因为各种各样神奇、难以概括的链外因素而下降，比如，某个人可能用推特发了一条关于自己的隐蔽交易的信息&mdash;&mdash;这就意味着该笔交易不再匿名了，匿名集变小了。就跟所有其它用户自己取消匿名性的情况一样，TA 的存款对大家的匿名性没有任何贡献。因此，不要公开自己存款的数额、数据和时间（尤其是取款交易的），这不仅仅是在保护你自己，也是在保护所有 Tornado.cash 的用户。</p></li>
+</ul>
+<h3>总结一下，我们可以得出针对混币器的资金追踪方案：</h3>
+<p>1）收集所有转到Tornado的地址和金额，进行金额聚合。</p>
+<ul><li><p>只需要分析TornadoCashProxy合约关联的deposit交易即可</p></li></ul>
+<p>2）收集所有从Tornado转出的目的地址和金额，进行金额聚合。</p>
+<ul><li><p>只需要分析TornadoCashProxy合约关联的withdraw交易即可</p></li></ul>
+<p>3）对比1、2的结果，比如地址A -&gt; TornadoCash存入200ETH，同时又监控到同一个临近时间段，又有一个地址B接收了TornadoCash 200ETH的资金，那么有理由相信A和B可能有某种关联（当然也存在某种程度的误差）。</p>
+<p>&nbsp;</p>
+
+                                                                </div>
+                                                        </div>
+                                                        <div class="panel-footer operate"></div>
+                                                        <div class="infos tutorial-panel-heading panel-heading">
+                                                                <nav aria-label="...">
+                                                                        <ul class="tutorial-pager pager">
+                                                                                <li class="previous"><a href="./pow.html"><span aria-hidden="true">&larr;</span> POW</a></li>
+                                                                                <li class="next"><a href="">HTML基础 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                        </ul>
+                                                                </nav>
+                                                        </div>
+                                                </div>
+
+                                                <!-- /view show -->
+                                        </div>
+
+                                        <div class="col-xs-12 col-md-3
+                                                side-right">
+                                                <div class="panel panel-default
+                                                        widget">
+                                                        <div class="panel-heading">
+                                                                <h3 class="panel-title"><i class="fa fa-bars"></i>
+                                                                        目录列表</h3>
+                                                        </div>
+                                                        <div class="panel-body">
+                                                                <nav
+                                                                        class="bs-docs-sidebar
+                                                                        hidden-print
+                                                                        affix">
+                                                                        <ul class="nav bs-docs-sidenav">
+                                                <h5 class="section">区块链</h5>
+                                                <li><a href="">概述</a></li>
+                                                <li><a href="">介绍</a></li>
+                                                <li><a href="">应用发展</a></li>
+                                                <li><a href="">比特币</a></li>
+                                                <li><a href="">非对称加密</a></li>
+                                                <li><a href="">哈希 Hash</a></li>
+                                                <li><a href="">挖矿</a></li>
+                                                <li><a href="">链接区块</a></li>
+                                                <li><a href="">工作量证明</a></li>
+                                                <li><a href="">交易流程与挖矿</a></li>
+                                                <li><a href="">矿工激励</a></li>
+                                                <li><a href="">默克尔树</a></li>
+                                                <li><a href="">付款确认</a></li>
+                                                <li><a href="">处理冲突</a></li>
+                                                <li><a href="">用户隐私</a></li>
+                                                <li><a href="">防范攻击</a></li>
+                                                <li><a href="">入门教程</a></li>
+                                                <li><a href="">BIP</a></li>
+                                                <li><a href="">BIP32</a></li>
+                                                <li><a href="">BIP39</a></li>
+                                                <li><a href="">PWO</a></li>
+                                                <li class="active"><a href="./Tornado.Cash 以太坊混币器.html">Tornado.Cash 混币器</a></li>
+                                                <li><a href="">Tornado.Cash原理</a></li>
+                                                <li><a href="">Gamefi</a></li>
+                                                                        </ul>
+                                                                </nav>
+
+                                                        </div>
+                                                </div>
+                                        </div>
+
+                                </div>
+
+
+                        </div>
+                </div>
+                <!-- /content -->
+
+                <!-- footer -->
+                <footer class="footer">
+
+                </footer>
+
+
+        </body>
+</html>
