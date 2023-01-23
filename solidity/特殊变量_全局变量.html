@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./数据类型.html"><span aria-hidden="true">&larr;</span> 数据类型</a></li>
-                                                                                <li class="next"><a href="./特殊变量_全局变量.html">特殊变量 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./变量.html"><span aria-hidden="true">&larr;</span> 变量</a></li>
+                                                                                <li class="next"><a href="./变量默认值.html">变量默认值 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,59 +40,8 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>变量</h1>
-<p>Solidity 支持三种类型的变量：</p>
-<ul>
-<li><strong>状态变量</strong> &ndash; 变量值永久保存在智能合约存储空间中的变量。</li>
-<li><strong>局部变量</strong> &ndash; 变量值仅在函数执行过程中有效的变量，函数退出后，变量无效。</li>
-<li><strong>全局变量</strong> &ndash; 保存在全局命名空间，用于获取整个区块链相关信息的特殊变量，与当前合约无关，比如：时间戳、块高等。</li>
-</ul>
-<p>Solidity 是一种静态类型语言，这意味着需要在声明期间指定变量类型。</p>
-<p>每个变量声明时，都有一个基于其类型的默认值。没有 undefined 或 null 的概念。比如 int 类型的默认值为 0。</p>
-<p>&nbsp;</p>
-<h2>1. 状态变量</h2>
-<p>状态变量是变量值永久保存在合约存储空间中的变量。状态变量的定义形式类似于类中的成员变量。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract SolidityTest {
-   uint storedData;      // 状态变量
-   constructor() {
-      storedData = 10;   // 使用状态变量
-   }
-}
-</pre>
-<p>&nbsp;</p>
-<h2>2. 局部变量</h2>
-<p>局部变量是变量值仅在函数执行过程中有效的变量，函数退出后，变量无效。函数参数也是局部变量。</p>
-<p>局部变量不会上链，只存在于所处函数的生命周期。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract SolidityTest {
-   function sum() public view returns(uint){
-      uint a = 1; // 局部变量
-      uint b = 2;
-      uint result = a + b;
-      return result; // 访问局部变量
-   }
-}
-</pre>
-<p>运行上述程序，输出：</p>
-<pre>0: uint256: 3</pre>
-<p>&nbsp;</p>
-<h2>3. 全局变量</h2>
-<p>全局变量是指全局工作区中存在的特殊变量，提供有关区块链和交易属性的信息。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract SolidityTest {
-   // 获取当前区块号、时间戳、调用者地址
-   function getGlobalVars() public view returns(uint,uint,address){
-     return (block.number,block.timestamp,msg.sender);
-   }
-}
-</pre>
+<h1>特殊变量/全局变量</h1>
+<p>特殊变量/全局变量，是全局可用的变量，提供关于区块链的信息。下面列出了常用的特殊变量：</p>
 <table class="reference">
     <tbody>
     <tr>
@@ -100,24 +49,8 @@ contract SolidityTest {
     <th>返回</th>
     </tr>
     <tr>
-    <td>abi.encode(...) returns (bytes)</td>
-    <td>对给定的参数进行ABI编码</td>
-    </tr>
-    <tr>
-    <td>abi.encodePacked(...) returns (bytes)</td>
-    <td>对给定参数执行打包编码</td>
-    </tr>
-    <tr>
-    <td>abi.encodeWithSelector(bytes4 selector, ...) returns (bytes)</td>
-    <td>对给定的参数进行ABI编码 &ndash;&ndash; 从第二个预置给定的四字节选择器开始</td>
-    </tr>
-    <tr>
-    <td>abi.encodeWithSignature(string signature, ...) returns (bytes)</td>
-    <td>相当于abi.encodeWithSelector(bytes4(keccak256(signature), ...)</td>
-    </tr>
-    <tr>
-    <td>block.blockhash(uint blockNumber) returns (bytes32)</td>
-    <td>给定区块的哈希值 &ndash; 只有最近工作的256个块的hash值, 不包含当前区块。在 0.4.22 后请使用blockhash(uint blockNumber).</td>
+    <td>blockhash(uint blockNumber) returns (bytes32)</td>
+    <td>给定区块的哈希值 – 只适用于256最近区块, 不包含当前区块。</td>
     </tr>
     <tr>
     <td>block.coinbase (address payable)</td>
@@ -133,7 +66,7 @@ contract SolidityTest {
     </tr>
     <tr>
     <td>block.number (uint)</td>
-    <td>当前区块的数量</td>
+    <td>当前区块的number</td>
     </tr>
     <tr>
     <td>block.timestamp (uint)</td>
@@ -148,10 +81,6 @@ contract SolidityTest {
     <td>完成 calldata</td>
     </tr>
     <tr>
-    <td>msg.gas(uint)</td>
-    <td>剩余 gas &ndash; 0.4.21后请使用 gasleft()</td>
-    </tr>
-    <tr>
     <td>msg.sender (address payable)</td>
     <td>消息发送者 (当前 caller)</td>
     </tr>
@@ -161,11 +90,11 @@ contract SolidityTest {
     </tr>
     <tr>
     <td>msg.value (uint)</td>
-    <td>和消息一起发送的wei的数量</td>
+    <td>当前消息的wei值</td>
     </tr>
     <tr>
     <td>now (uint)</td>
-    <td>当前块的时间戳（block.timestamp的别名）</td>
+    <td>当前块的时间戳</td>
     </tr>
     <tr>
     <td>tx.gasprice (uint)</td>
@@ -173,99 +102,39 @@ contract SolidityTest {
     </tr>
     <tr>
     <td>tx.origin (address payable)</td>
-    <td>交易的发送方（全调用链）</td>
-    </tr>
-    <tr>
-    <td>assert(bool condition)</td>
-    <td>如果条件为假，则中止执行并恢复状态更改（用于内部错误）</td>
-    </tr>
-    <tr>
-    <td>require(bool condition)</td>
-    <td>如果条件为假，则中止执行并恢复状态更改（用于输入错误或外部组件的错误）</td>
-    </tr>
-    <tr>
-    <td>require(bool condition, string message)</td>
-    <td>如果条件为假，则中止执行并恢复状态更改（用于输入错误或外部组件的错误），并提供错误信息</td>
-    </tr>
-    <tr>
-    <td>revert()</td>
-    <td>中止执行并还原状态更改</td>
-    </tr>
-    <tr>
-    <td>revert(string message)</td>
-    <td>中止执行并还原状态更改，提供解释字符串</td>
-    </tr>
-    <tr>
-    <td>blockhash(uint blockNumber) returns (bytes32)</td>
-    <td>给定的块的哈希值, 只有最近工作的256个块的哈希值</td>
-    </tr>
-    <tr>
-    <td>keccak256(...) returns (bytes32)</td>
-    <td>计算（紧凑排列的）参数的 Ethereum-SHA3 哈希值</td>
-    </tr>
-    <tr>
-    <td>sha3(...) returns (bytes32)</td>
-    <td>keccak256的别名</td>
-    </tr>
-    <tr>
-    <td>sha256(...) returns (bytes32)</td>
-    <td>计算（紧凑排列的）参数的SHA256 哈希值</td>
-    </tr>
-    <tr>
-    <td>ripemd160(...) returns (bytes20)</td>
-    <td>计算 256个（紧凑排列的）参数的RIPEMD</td>
-    </tr>
-    <tr>
-    <td>ecrecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) returns (address)</td>
-    <td>椭圆曲线签名公钥恢复，错误时返回0</td>
-    </tr>
-    <tr>
-    <td>addmod(uint x, uint y, uint k) returns (uint)</td>
-    <td>compute (x + y) % k where the addition is performed with arbitrary precision and does not wrap around at 2**256. Assert that k != 0 starting from version 0.5.0.</td>
-    </tr>
-    <tr>
-    <td>mulmod(uint x, uint y, uint k) returns (uint)</td>
-    <td>compute (x * y) % k where the multiplication is performed with arbitrary precision and does not wrap around at 2**256. Assert that k != 0 starting from version 0.5.0.</td>
-    </tr>
-    <tr>
-    <td>this (current contract’s type)</td>
-    <td>当前合约，在地址上显式转换</td>
-    </tr>
-    <tr>
-    <td>super</td>
-    <td>在层次关系上一层的合约</td>
-    </tr>
-    <tr>
-    <td>selfdestruct(address recipient)</td>
-    <td>销毁当前的合约，将其资金发送到指定address</td>
-    </tr>
-    <tr>
-    <td>suicide(address recipient)</td>
-    <td>已弃用的自毁别名</td>
-    </tr>
-    <tr>
-    <td>&lt;address&gt;.balance (uint256)</td>
-    <td>address地址中的账户余额（以wei为单位）</td>
-    </tr>
-    <tr>
-    <td>&lt;address&gt;.send(uint256 amount) returns (bool)</td>
-    <td>将一定量wei发送给address地址，若失败返回false</td>
-    </tr>
-    <tr>
-    <td>&lt;address&gt;.transfer(uint256 amount)</td>
-    <td>将一定量wei发送给address地址，若失败抛出异常</td>
+    <td>交易的发送方</td>
     </tr>
     </tbody>
 </table>
 <p>&nbsp;</p>
-<h2>4. Solidity 变量命名规则</h2>
-<p>在为变量命名时，请记住以下规则：</p>
-<ul>
-<li>不应使用 Solidity 保留关键字作为变量名。例如：break 或 boolean 变量名无效。</li>
-<li>不应以数字(0-9)开头，必须以字母或下划线开头。例如：123test 是一个无效的变量名，但是 _123test是一个有效的变量名。</li>
-<li>变量名区分大小写。例如：Name和name是两个不同的变量。</li>
-</ul>
+<h2>1. 示例</h2>
+<p>示例展示如何使用特殊变量msg，该变量在Solidity中用于获取发送者地址。</p>
+<pre>pragma solidity ^0.5.0;
 
+contract LedgerBalance {
+    mapping(address =&gt; uint) public balances;
+
+    function updateBalance(uint newBalance) public {
+        balances[msg.sender] = newBalance;
+    }
+}
+
+contract Updater {
+    function updateBalance() public returns (uint) {
+        LedgerBalance ledgerBalance = new LedgerBalance();
+        ledgerBalance.updateBalance(10);
+        return ledgerBalance.balances(address(this));
+    }
+}
+</pre>
+<p>可以参考Solidity – 第一个程序中的步骤，运行上述程序。</p>
+<p>首先单击updateBalance按钮将值设置为10，然后查看日志输出。</p>
+<p>输出</p>
+<pre>{
+   "0": "uint256: 10"
+}
+</pre>
+    
 
                                                                 </div>
                                                         </div>
@@ -273,8 +142,8 @@ contract SolidityTest {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./数据类型.html"><span aria-hidden="true">&larr;</span> 数据类型</a></li>
-                                                                                <li class="next"><a href="./特殊变量_全局变量.html">特殊变量 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./变量.html"><span aria-hidden="true">&larr;</span> 变量</a></li>
+                                                                                <li class="next"><a href="./变量默认值.html">变量默认值 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -306,8 +175,8 @@ contract SolidityTest {
                                                 <li><a href="./SPDX语法.html">SPDX语法</a></li>
                                                 <li><a href="./数据类型.html">数据类型</a></li>
                                                 <h5 class="section">Solidity 变量</h5>
-                                                <li class="active"><a href="./变量.html">变量</a></li>
-                                                <li><a href="">特殊变量</a></li>
+                                                <li><a href="./变量.html">变量</a></li>
+                                                <li class="active"><a href="./特殊变量_全局变量.html">特殊变量</a></li>
                                                 <li><a href="">变量默认值</a></li>
                                                 <li><a href="">变量作用域</a></li>
                                                 <li><a href="">常量</a></li>
