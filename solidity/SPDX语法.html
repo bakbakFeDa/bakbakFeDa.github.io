@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./教程.html"><span aria-hidden="true">&larr;</span> 教程</a></li>
-                                                                                <li class="next"><a href="./基础语法.html">基础语法 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./代码注释.html"><span aria-hidden="true">&larr;</span> 代码注释</a></li>
+                                                                                <li class="next"><a href="./数据类型.html">数据类型 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,107 +40,46 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>开发环境搭建</h1>
-<p>本章介绍如何搭建 Solidity 开发环境。</p>
-<p>我们推荐使用在线集成开发环境 Remix，来学习 Solidity 语言。</p>
-<p>本教程的所有例子，都将使用 Remix 进行编写、编译和部署运行。</p>
-<p>Remix的地址是 <a href="https://remix.ethereum.org/">https://remix.ethereum.org/</a>，我们可以直接打开使用。</p>
-<p>当然，我们也可以使用下面的一些方法，来搭建 Solidity 开发环境。</p>
-<p class="title-divider">&nbsp;</p>
-<h2>1. 安装本地编译器</h2>
-<h3>1) 安装 nodejs / npm</h3>
-<p>node官方网站下载 node，推荐 LTS 版本，按提示完成安装，npm 会同时装上。</p>
-<p>安装步骤可以参照 <a href="../NotDoing.html">Node.js 安装配置</a>。</p>
-<p>验证 Node 版本，例如：</p>
-<pre>&gt; node -v
-v10.16.3
-
-&gt; npm -v
-6.11.3
-</pre>
-<h3>2) 安装 Solidity 编译器 solc</h3>
-<p>一旦安装了 Node.js 包管理器，就可以按照下面的步骤安装 Solidity 编译器：</p>
-<pre>$ npm install -g solc</pre>
-<p>上面的命令将会安装 solcjs 程序，并且能够在整个系统中都可用。</p>
-<p>验证 solc 安装是否正确：</p>
-<pre>$ solcjs --version</pre>
-<p>如果一切顺利，这将打印如下内容</p>
-<pre>0.5.11+commit.c082d0b4.Emscripten.clang</pre>
-<p>现在，可以使用solcjs了，它比标准的 solidity 编译器少很多特性，但对于学习来说足够了。</p>
-<p>&nbsp;</p>
-<h2>2. 使用 solc-js</h2>
-<p>全局安装 solc-js 工具后，即可在命令行中直接使用此工具，可以通过 solcjs --help 来查看此工具支持的参数说明。</p>
-<pre>solcjs --help
-Usage: C:\Program Files\nodejs\node_global\node_modules\@alipay\solc\solcjs
-[options] [input_file...]
-
-Options:
-    --version         Show version number                                [boolean]
-    --optimize        Enable bytecode optimizer.                         [boolean]
-    --bin             Binary of the contracts in hex.                    [boolean]
-    --abi             ABI of the contracts.                              [boolean]
-    --standard-json   Turn on Standard JSON Input / Output mode.         [boolean]
-    --output-dir, -o  Output directory for the contracts.                 [string]
-    --help            Show help                                          [boolean]
-</pre>
-<p>我们创建名为 hello.sol 的 Solidity 合约示例：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Hello {
-    string name;
-    
-    constructor()  {
-        name = 'Hello world!';
-    }
-    
-    function hello() view public returns (string memory) {
-        return name;
-    }
-}
-</pre>
-<p>运行以下命令行，编译 hello.sol 合约并得到编译字节码结果：</p>
-<pre>solcjs --bin hello.sol</pre>
-<p>如果编译通过，此目录会得到包含字节码的结果文件 hello_sol_Hello.bin，如果编译失败则提示错误信息。</p>
-<p>运行以下命令行，编译 hello.sol 合约并得到合约接口说明（<a href="../NotDoing.html">ABI</a>）：</p>
-<pre>solcjs --abi hello.sol</pre>
-<p>如果编译通过，此目录会得到包含合约接口说明（<a href="../NotDoing.html">ABI</a>）的结果文件 hello_sol_Hello.abi。</p>
-<p>&nbsp;</p>
-<h2>3. Remix IDE的安装</h2>
-<h3><strong>3.1 源码安装:</strong></h3>
-<pre>git clone https://github.com/ethereum/remix-ide.git
-cd remix-ide
-npm install
-npm run build &amp;&amp; npm run serve
-</pre>
-<h3><strong>3.2 docker 安装:</strong></h3>
-<pre>docker pull remixproject/remix-ide:latest
-docker run -p 8080:8080 remixproject/remix-ide:latest
-</pre>
-<p>然后通过浏览器访问 127.0.0.1:8080 即可使用 remix。</p>
-<p>&nbsp;</p>
-<h2>4. Remix IDE 在线版</h2>
-<p>我们也可以直接使用在线版本：</p>
-<p><a href="https://remix.ethereum.org/">https://remix.ethereum.org/ </a></p>
-<p>或者</p>
-<p><a href="http://remix.zhiguxingtu.com/">http://remix.zhiguxingtu.com/</a></p>
-<p>&nbsp;</p>
-<h2>5. Remix 访问本地文件</h2>
-<p>首先安装 remixd：</p>
-<pre>npm install -g @remix-project/remixd</pre>
-<p>运行 remixd：</p>
-<pre>remixd -s /localdir --remix-ide url</pre>
-<p>其中 localdir 就是本地存放 solidity 文件的目录，--remix-ide 的参数是访问 IDE 的 url。</p>
-<p>如果使用了本地安装的 remix IDE，那么参数 url 就是 http://localhost:8080。</p>
-<p>如果使用了在线 remix IDE，比如 https://remix.ethereum.org，那么参数 url 就是 https://remix.ethereum.org:8080。</p>
-<p>最后，激活 IDE 中的 remixd 插件，在 remix 的 workspaces 中选择 localhost 就可以了。</p>
-<p>&nbsp;</p>
-<p>如图所示，激活 remixd 插件：</p>
-<p><img src="./picture/开发环境搭建/1.png" alt="1"></p>
-<p>&nbsp;</p>
-<p>如图所示，选择 localhost，连接本地工作目录：</p>
-<p><img src="./picture/开发环境搭建/2.png" alt="2"></p>
-
+<h1>SPDX是什么</h1>
+<p>Solidity ^0.6.8 以上版本引入了 SPDX 许可证，如果源码中未包含 SPDX 许可证说明，编译时会出现警告：</p>
+<pre>Warning: SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing "SPDX-License-Identifier: &lt;SPDX-License&gt;" to each source file. Use "SPDX-License-Identifier: UNLICENSED" for non-open-source code. Please see https://spdx.org for more information.&nbsp;</pre>
+<p>一般是在.sol文件第一句加上：</p>
+<pre>// SPDX-License-Identifier: MIT</pre>
+<p>不过这行到底是做什么的呢？SPDX-License-Identifier 是用来声明版权的注释。</p>
+<h2>SPDX</h2>
+<p>SPDX 是一个组织名，官方网站为：<a href="https://spdx.org/licenses/" target="_blank" rel="nofollow noopener">SPDX 许可证列表 |软件包数据交换 （SPDX）</a>。</p>
+<p>SPDX-License-Identifier 组合起来就是在指SPDX的许可证列表。</p>
+<p>后面的格式为 ： SPDX的许可证列表中的某个许可证，比如：MIT、SimPL-3.0 等。</p>
+<h2>MIT</h2>
+<table>
+<thead>
+<tr>
+<th>全名</th>
+<th>标识符</th>
+<th>自由软件基金会免费/自由？</th>
+<th>OSI 已批准？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MIT License 麻省理工学院许可证</td>
+<td><code>MIT</code></td>
+<td>Y</td>
+<td>Y</td>
+</tr>
+</tbody>
+</table>
+<ul>
+    <li>自由软件基金会：一个致力于推广自由软件、促进计算机用户自由的美国民间非盈利性组织。</li>
+    <li>OSI(开放原始码促进会)：又译作开放原始码组织，是一个致力于推动开源软体发展的非盈利组织。于1988年2月， Bruce Perens和 Eric S. Raymond等人，受到网景公司发布其旗舰产品原始码的启发，创立此组织。注意不要将其与开放软体基金会混淆。</li>
+</ul>
+<h2>MIT的具体内容</h2>
+<p>特此免费授予获得（&ldquo;软件&rdquo;）副本的任何人不受限制地处理本软件的许可，包括但不限于使用、复制、修改、合并、发布、分发、再许可和出售本软件副本的权利</p>
+<p>上述版权声明和本许可声明应包含在本软件的所有副本或大部分内容中。</p>
+<p>本软件按&ldquo;原样&rdquo;提供，不附带任何明示或暗示的担保，包括但不限于适销性、特定用途的适用性和不侵权的担保。在任何情况下，对于因本软件或本软件的使用或其他交易而引起、引起或与之相关的任何索赔、损害赔偿或其他责任，无论是在合同诉讼、侵权行为还是其他方面，均不承担任何责任。</p>
+<h2>总结</h2>
+<p>SPDX-License-Identifier 就是在指明智能合约采用什么样的对外开放标准，该标准规定了别人是否拥有商业开发，学习使用等权利。</p>
+<p>MIT 规定了任何人都可以随便用该代码，但出了问题不负责。</p>
 
                                                                 </div>
                                                         </div>
@@ -148,8 +87,8 @@ docker run -p 8080:8080 remixproject/remix-ide:latest
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./教程.html"><span aria-hidden="true">&larr;</span> 教程</a></li>
-                                                                                <li class="next"><a href="./基础语法.html">基础语法 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./代码注释.html"><span aria-hidden="true">&larr;</span> 代码注释</a></li>
+                                                                                <li class="next"><a href="./数据类型.html">数据类型 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -174,12 +113,12 @@ docker run -p 8080:8080 remixproject/remix-ide:latest
                                                                         <ul class="nav bs-docs-sidenav">
                                                 <h5 class="section">Solidity</h5>
                                                 <li><a href="./教程.html">教程</a></li>
-                                                <li class="active"><a href="">开发环境搭建</a></li>
+                                                <li><a href="./开发环境搭建.html">开发环境搭建</a></li>
                                                 <li><a href="./基础语法.html">基础语法</a></li>
-                                                <li><a href="">编译运行</a></li>
-                                                <li><a href="">代码注释</a></li>
-                                                <li><a href="">SPDX语法</a></li>
-                                                <li><a href="">数据类型</a></li>
+                                                <li><a href="./运行编译.html">编译运行</a></li>
+                                                <li><a href="./代码注释.html">代码注释</a></li>
+                                                <li class="active"><a href="./SPDX语法.html">SPDX语法</a></li>
+                                                <li><a href="./数据类型.html">数据类型</a></li>
                                                 <h5 class="section">Solidity 变量</h5>
                                                 <li><a href="">变量</a></li>
                                                 <li><a href="">特殊变量</a></li>

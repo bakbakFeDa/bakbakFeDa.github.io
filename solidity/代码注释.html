@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./教程.html"><span aria-hidden="true">&larr;</span> 教程</a></li>
-                                                                                <li class="next"><a href="./基础语法.html">基础语法 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./运行编译.html"><span aria-hidden="true">&larr;</span> 运行编译</a></li>
+                                                                                <li class="next"><a href="./SPDX语法.html">SPDX语法 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,107 +40,45 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>开发环境搭建</h1>
-<p>本章介绍如何搭建 Solidity 开发环境。</p>
-<p>我们推荐使用在线集成开发环境 Remix，来学习 Solidity 语言。</p>
-<p>本教程的所有例子，都将使用 Remix 进行编写、编译和部署运行。</p>
-<p>Remix的地址是 <a href="https://remix.ethereum.org/">https://remix.ethereum.org/</a>，我们可以直接打开使用。</p>
-<p>当然，我们也可以使用下面的一些方法，来搭建 Solidity 开发环境。</p>
-<p class="title-divider">&nbsp;</p>
-<h2>1. 安装本地编译器</h2>
-<h3>1) 安装 nodejs / npm</h3>
-<p>node官方网站下载 node，推荐 LTS 版本，按提示完成安装，npm 会同时装上。</p>
-<p>安装步骤可以参照 <a href="../NotDoing.html">Node.js 安装配置</a>。</p>
-<p>验证 Node 版本，例如：</p>
-<pre>&gt; node -v
-v10.16.3
-
-&gt; npm -v
-6.11.3
+<h1>代码注释</h1>
+<p>Solidity 支持 c 风格和 c++ 风格的注释。</p>
+<ul>
+    <li>单行注释：//之后到行尾的文本，都被看作注释，编译器忽略此内容</li>
+    <li>块注释：/* 与 */ 之间的文本被看作注释， 编译器忽略此内容</li>
+</ul>
+<p><strong>注释示例：</strong></p>
+<pre>function getResult() public view returns(uint){
+    // 这是一行注释，类似于c++中的注释
+ 
+    /*
+     * 这是多行注释
+     * 类似于c语言中的注释
+     */
+    uint a = 1;
+    uint b = 2;
+    uint result = a + b;
+    return result;
+}
 </pre>
-<h3>2) 安装 Solidity 编译器 solc</h3>
-<p>一旦安装了 Node.js 包管理器，就可以按照下面的步骤安装 Solidity 编译器：</p>
-<pre>$ npm install -g solc</pre>
-<p>上面的命令将会安装 solcjs 程序，并且能够在整个系统中都可用。</p>
-<p>验证 solc 安装是否正确：</p>
-<pre>$ solcjs --version</pre>
-<p>如果一切顺利，这将打印如下内容</p>
-<pre>0.5.11+commit.c082d0b4.Emscripten.clang</pre>
-<p>现在，可以使用solcjs了，它比标准的 solidity 编译器少很多特性，但对于学习来说足够了。</p>
-<p>&nbsp;</p>
-<h2>2. 使用 solc-js</h2>
-<p>全局安装 solc-js 工具后，即可在命令行中直接使用此工具，可以通过 solcjs --help 来查看此工具支持的参数说明。</p>
-<pre>solcjs --help
-Usage: C:\Program Files\nodejs\node_global\node_modules\@alipay\solc\solcjs
-[options] [input_file...]
-
-Options:
-    --version         Show version number                                [boolean]
-    --optimize        Enable bytecode optimizer.                         [boolean]
-    --bin             Binary of the contracts in hex.                    [boolean]
-    --abi             ABI of the contracts.                              [boolean]
-    --standard-json   Turn on Standard JSON Input / Output mode.         [boolean]
-    --output-dir, -o  Output directory for the contracts.                 [string]
-    --help            Show help                                          [boolean]
-</pre>
-<p>我们创建名为 hello.sol 的 Solidity 合约示例：</p>
+<p>我们通常在.sol文件第一句加上注释 // SPDX-License-Identifier: MIT，用于注明软件包数据交换遵循的版本。</p>
+<p>如果没有这一句，通常在编译的时候会给出一个警告 warning：SPDX license identifier not provided in source file.</p>
+<p><strong>报错原文：</strong></p>
+<p>SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing "SPDX-License-Identifier: " to each source file. Use &ldquo;SPDX-License-Identifier: UNLICENSED&rdquo; for non-open-source code. Please see https://spdx.org for more information.</p>
+<p><strong>警告原因：</strong></p>
+<p>solidity 0.6.8 版本后引入了SPDX，使用时要在文件第一句加上SPDX-License-Identifier: 格式的语句。</p>
+<p><strong>解决方法：</strong></p>
+<p>在.sol文件第一句加上// SPDX-License-Identifier: MIT即可，使用其他许可的话从下面网址中选择把SimPL-3.0改掉就可以了。</p>
+<p>SPDX许可列表网址：<a href="https://spdx.org/licenses/" target="_blank" rel="noopener">https://spdx.org/licenses/</a></p>
+<p><strong>例如：</strong></p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Hello {
-    string name;
-    
-    constructor()  {
-        name = 'Hello world!';
-    }
-    
-    function hello() view public returns (string memory) {
-        return name;
+contract SolidityTest{
+    function helloWorld() public pure returns(string memory) {
+        return "Hello World";
     }
 }
 </pre>
-<p>运行以下命令行，编译 hello.sol 合约并得到编译字节码结果：</p>
-<pre>solcjs --bin hello.sol</pre>
-<p>如果编译通过，此目录会得到包含字节码的结果文件 hello_sol_Hello.bin，如果编译失败则提示错误信息。</p>
-<p>运行以下命令行，编译 hello.sol 合约并得到合约接口说明（<a href="../NotDoing.html">ABI</a>）：</p>
-<pre>solcjs --abi hello.sol</pre>
-<p>如果编译通过，此目录会得到包含合约接口说明（<a href="../NotDoing.html">ABI</a>）的结果文件 hello_sol_Hello.abi。</p>
-<p>&nbsp;</p>
-<h2>3. Remix IDE的安装</h2>
-<h3><strong>3.1 源码安装:</strong></h3>
-<pre>git clone https://github.com/ethereum/remix-ide.git
-cd remix-ide
-npm install
-npm run build &amp;&amp; npm run serve
-</pre>
-<h3><strong>3.2 docker 安装:</strong></h3>
-<pre>docker pull remixproject/remix-ide:latest
-docker run -p 8080:8080 remixproject/remix-ide:latest
-</pre>
-<p>然后通过浏览器访问 127.0.0.1:8080 即可使用 remix。</p>
-<p>&nbsp;</p>
-<h2>4. Remix IDE 在线版</h2>
-<p>我们也可以直接使用在线版本：</p>
-<p><a href="https://remix.ethereum.org/">https://remix.ethereum.org/ </a></p>
-<p>或者</p>
-<p><a href="http://remix.zhiguxingtu.com/">http://remix.zhiguxingtu.com/</a></p>
-<p>&nbsp;</p>
-<h2>5. Remix 访问本地文件</h2>
-<p>首先安装 remixd：</p>
-<pre>npm install -g @remix-project/remixd</pre>
-<p>运行 remixd：</p>
-<pre>remixd -s /localdir --remix-ide url</pre>
-<p>其中 localdir 就是本地存放 solidity 文件的目录，--remix-ide 的参数是访问 IDE 的 url。</p>
-<p>如果使用了本地安装的 remix IDE，那么参数 url 就是 http://localhost:8080。</p>
-<p>如果使用了在线 remix IDE，比如 https://remix.ethereum.org，那么参数 url 就是 https://remix.ethereum.org:8080。</p>
-<p>最后，激活 IDE 中的 remixd 插件，在 remix 的 workspaces 中选择 localhost 就可以了。</p>
-<p>&nbsp;</p>
-<p>如图所示，激活 remixd 插件：</p>
-<p><img src="./picture/开发环境搭建/1.png" alt="1"></p>
-<p>&nbsp;</p>
-<p>如图所示，选择 localhost，连接本地工作目录：</p>
-<p><img src="./picture/开发环境搭建/2.png" alt="2"></p>
-
 
                                                                 </div>
                                                         </div>
@@ -148,8 +86,8 @@ docker run -p 8080:8080 remixproject/remix-ide:latest
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./教程.html"><span aria-hidden="true">&larr;</span> 教程</a></li>
-                                                                                <li class="next"><a href="./基础语法.html">基础语法 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./运行编译.html"><span aria-hidden="true">&larr;</span> 运行编译</a></li>
+                                                                                <li class="next"><a href="./SPDX语法.html">SPDX语法 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -174,11 +112,11 @@ docker run -p 8080:8080 remixproject/remix-ide:latest
                                                                         <ul class="nav bs-docs-sidenav">
                                                 <h5 class="section">Solidity</h5>
                                                 <li><a href="./教程.html">教程</a></li>
-                                                <li class="active"><a href="">开发环境搭建</a></li>
+                                                <li><a href="./开发环境搭建.html">开发环境搭建</a></li>
                                                 <li><a href="./基础语法.html">基础语法</a></li>
-                                                <li><a href="">编译运行</a></li>
-                                                <li><a href="">代码注释</a></li>
-                                                <li><a href="">SPDX语法</a></li>
+                                                <li><a href="./运行编译.html">编译运行</a></li>
+                                                <li class="active"><a href="./代码注释.html">代码注释</a></li>
+                                                <li><a href="./SPDX语法.html">SPDX语法</a></li>
                                                 <li><a href="">数据类型</a></li>
                                                 <h5 class="section">Solidity 变量</h5>
                                                 <li><a href="">变量</a></li>

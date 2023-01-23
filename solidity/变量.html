@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./教程.html"><span aria-hidden="true">&larr;</span> 教程</a></li>
-                                                                                <li class="next"><a href="./基础语法.html">基础语法 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./数据类型.html"><span aria-hidden="true">&larr;</span> 数字类型</a></li>
+                                                                                <li class="next"><a href="文件">名称 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,106 +40,131 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>开发环境搭建</h1>
-<p>本章介绍如何搭建 Solidity 开发环境。</p>
-<p>我们推荐使用在线集成开发环境 Remix，来学习 Solidity 语言。</p>
-<p>本教程的所有例子，都将使用 Remix 进行编写、编译和部署运行。</p>
-<p>Remix的地址是 <a href="https://remix.ethereum.org/">https://remix.ethereum.org/</a>，我们可以直接打开使用。</p>
-<p>当然，我们也可以使用下面的一些方法，来搭建 Solidity 开发环境。</p>
-<p class="title-divider">&nbsp;</p>
-<h2>1. 安装本地编译器</h2>
-<h3>1) 安装 nodejs / npm</h3>
-<p>node官方网站下载 node，推荐 LTS 版本，按提示完成安装，npm 会同时装上。</p>
-<p>安装步骤可以参照 <a href="../NotDoing.html">Node.js 安装配置</a>。</p>
-<p>验证 Node 版本，例如：</p>
-<pre>&gt; node -v
-v10.16.3
-
-&gt; npm -v
-6.11.3
-</pre>
-<h3>2) 安装 Solidity 编译器 solc</h3>
-<p>一旦安装了 Node.js 包管理器，就可以按照下面的步骤安装 Solidity 编译器：</p>
-<pre>$ npm install -g solc</pre>
-<p>上面的命令将会安装 solcjs 程序，并且能够在整个系统中都可用。</p>
-<p>验证 solc 安装是否正确：</p>
-<pre>$ solcjs --version</pre>
-<p>如果一切顺利，这将打印如下内容</p>
-<pre>0.5.11+commit.c082d0b4.Emscripten.clang</pre>
-<p>现在，可以使用solcjs了，它比标准的 solidity 编译器少很多特性，但对于学习来说足够了。</p>
+<h1>变量</h1>
+<p>Solidity 支持三种类型的变量：</p>
+<ul>
+<li><strong>状态变量</strong> &ndash; 变量值永久保存在智能合约存储空间中的变量。</li>
+<li><strong>局部变量</strong> &ndash; 变量值仅在函数执行过程中有效的变量，函数退出后，变量无效。</li>
+<li><strong>全局变量</strong> &ndash; 保存在全局命名空间，用于获取整个区块链相关信息的特殊变量，与当前合约无关，比如：时间戳、块高等。</li>
+</ul>
+<p>Solidity 是一种静态类型语言，这意味着需要在声明期间指定变量类型。</p>
+<p>每个变量声明时，都有一个基于其类型的默认值。没有 undefined 或 null 的概念。比如 int 类型的默认值为 0。</p>
 <p>&nbsp;</p>
-<h2>2. 使用 solc-js</h2>
-<p>全局安装 solc-js 工具后，即可在命令行中直接使用此工具，可以通过 solcjs --help 来查看此工具支持的参数说明。</p>
-<pre>solcjs --help
-Usage: C:\Program Files\nodejs\node_global\node_modules\@alipay\solc\solcjs
-[options] [input_file...]
-
-Options:
-    --version         Show version number                                [boolean]
-    --optimize        Enable bytecode optimizer.                         [boolean]
-    --bin             Binary of the contracts in hex.                    [boolean]
-    --abi             ABI of the contracts.                              [boolean]
-    --standard-json   Turn on Standard JSON Input / Output mode.         [boolean]
-    --output-dir, -o  Output directory for the contracts.                 [string]
-    --help            Show help                                          [boolean]
-</pre>
-<p>我们创建名为 hello.sol 的 Solidity 合约示例：</p>
+<h2>1. 状态变量</h2>
+<p>状态变量是变量值永久保存在合约存储空间中的变量。状态变量的定义形式类似于类中的成员变量。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Hello {
-    string name;
-    
-    constructor()  {
-        name = 'Hello world!';
-    }
-    
-    function hello() view public returns (string memory) {
-        return name;
-    }
+contract SolidityTest {
+   uint storedData;      // 状态变量
+   constructor() {
+      storedData = 10;   // 使用状态变量
+   }
 }
 </pre>
-<p>运行以下命令行，编译 hello.sol 合约并得到编译字节码结果：</p>
-<pre>solcjs --bin hello.sol</pre>
-<p>如果编译通过，此目录会得到包含字节码的结果文件 hello_sol_Hello.bin，如果编译失败则提示错误信息。</p>
-<p>运行以下命令行，编译 hello.sol 合约并得到合约接口说明（<a href="../NotDoing.html">ABI</a>）：</p>
-<pre>solcjs --abi hello.sol</pre>
-<p>如果编译通过，此目录会得到包含合约接口说明（<a href="../NotDoing.html">ABI</a>）的结果文件 hello_sol_Hello.abi。</p>
 <p>&nbsp;</p>
-<h2>3. Remix IDE的安装</h2>
-<h3><strong>3.1 源码安装:</strong></h3>
-<pre>git clone https://github.com/ethereum/remix-ide.git
-cd remix-ide
-npm install
-npm run build &amp;&amp; npm run serve
+<h2>2. 局部变量</h2>
+<p>局部变量是变量值仅在函数执行过程中有效的变量，函数退出后，变量无效。函数参数也是局部变量。</p>
+<p>局部变量不会上链，只存在于所处函数的生命周期。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SolidityTest {
+   function sum() public view returns(uint){
+      uint a = 1; // 局部变量
+      uint b = 2;
+      uint result = a + b;
+      return result; // 访问局部变量
+   }
+}
 </pre>
-<h3><strong>3.2 docker 安装:</strong></h3>
-<pre>docker pull remixproject/remix-ide:latest
-docker run -p 8080:8080 remixproject/remix-ide:latest
+<p>运行上述程序，输出：</p>
+<pre>0: uint256: 3</pre>
+<p>&nbsp;</p>
+<h2>3. 全局变量</h2>
+<p>全局变量是指全局工作区中存在的特殊变量，提供有关区块链和交易属性的信息。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SolidityTest {
+   // 获取当前区块号、时间戳、调用者地址
+   function getGlobalVars() public view returns(uint,uint,address){
+     return (block.number,block.timestamp,msg.sender);
+   }
+}
 </pre>
-<p>然后通过浏览器访问 127.0.0.1:8080 即可使用 remix。</p>
-<p>&nbsp;</p>
-<h2>4. Remix IDE 在线版</h2>
-<p>我们也可以直接使用在线版本：</p>
-<p><a href="https://remix.ethereum.org/">https://remix.ethereum.org/ </a></p>
-<p>或者</p>
-<p><a href="http://remix.zhiguxingtu.com/">http://remix.zhiguxingtu.com/</a></p>
-<p>&nbsp;</p>
-<h2>5. Remix 访问本地文件</h2>
-<p>首先安装 remixd：</p>
-<pre>npm install -g @remix-project/remixd</pre>
-<p>运行 remixd：</p>
-<pre>remixd -s /localdir --remix-ide url</pre>
-<p>其中 localdir 就是本地存放 solidity 文件的目录，--remix-ide 的参数是访问 IDE 的 url。</p>
-<p>如果使用了本地安装的 remix IDE，那么参数 url 就是 http://localhost:8080。</p>
-<p>如果使用了在线 remix IDE，比如 https://remix.ethereum.org，那么参数 url 就是 https://remix.ethereum.org:8080。</p>
-<p>最后，激活 IDE 中的 remixd 插件，在 remix 的 workspaces 中选择 localhost 就可以了。</p>
-<p>&nbsp;</p>
-<p>如图所示，激活 remixd 插件：</p>
-<p><img src="./picture/开发环境搭建/1.png" alt="1"></p>
-<p>&nbsp;</p>
-<p>如图所示，选择 localhost，连接本地工作目录：</p>
-<p><img src="./picture/开发环境搭建/2.png" alt="2"></p>
+<table class="reference">
+    <tbody>
+    <tr>
+    <th width="50%">名称</th>
+    <th>返回</th>
+    </tr>
+    <tr>
+    <td>block.blockhash(uint blockNumber) returns (bytes32)</td>
+    <td>给定区块的哈希值 &ndash; 只适用于256最近区块, 不包含当前区块。</td>
+    </tr>
+    <tr>
+    <td>block.coinbase (address payable)</td>
+    <td>当前区块矿工的地址</td>
+    </tr>
+    <tr>
+    <td>block.difficulty (uint)</td>
+    <td>当前区块的难度</td>
+    </tr>
+    <tr>
+    <td>block.gaslimit (uint)</td>
+    <td>当前区块的gaslimit</td>
+    </tr>
+    <tr>
+    <td>block.number (uint)</td>
+    <td>当前区块的number</td>
+    </tr>
+    <tr>
+    <td>block.timestamp (uint)</td>
+    <td>当前区块的时间戳，为unix纪元以来的秒</td>
+    </tr>
+    <tr>
+    <td>gasleft() returns (uint256)</td>
+    <td>剩余 gas</td>
+    </tr>
+    <tr>
+    <td>msg.data (bytes calldata)</td>
+    <td>完成 calldata</td>
+    </tr>
+    <tr>
+    <td>msg.sender (address payable)</td>
+    <td>消息发送者 (当前 caller)</td>
+    </tr>
+    <tr>
+    <td>msg.sig (bytes4)</td>
+    <td>calldata的前四个字节 (function identifier)</td>
+    </tr>
+    <tr>
+    <td>msg.value (uint)</td>
+    <td>当前消息的wei值</td>
+    </tr>
+    <tr>
+    <td>now (uint)</td>
+    <td>当前块的时间戳</td>
+    </tr>
+    <tr>
+    <td>tx.gasprice (uint)</td>
+    <td>交易的gas价格</td>
+    </tr>
+    <tr>
+    <td>tx.origin (address payable)</td>
+    <td>交易的发送方</td>
+    </tr>
+    </tbody>
+    </table>
+    <p class="title-divider">&nbsp;</p>
+    <h2>4. Solidity 变量命名规则</h2>
+    <p>在为变量命名时，请记住以下规则：</p>
+    <ul>
+    <li>不应使用 Solidity 保留关键字作为变量名。例如：break 或 boolean 变量名无效。</li>
+    <li>不应以数字(0-9)开头，必须以字母或下划线开头。例如：123test 是一个无效的变量名，但是 _123test是一个有效的变量名。</li>
+    <li>变量名区分大小写。例如：Name和name是两个不同的变量。</li>
+    </ul>
 
 
                                                                 </div>
@@ -148,8 +173,8 @@ docker run -p 8080:8080 remixproject/remix-ide:latest
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./教程.html"><span aria-hidden="true">&larr;</span> 教程</a></li>
-                                                                                <li class="next"><a href="./基础语法.html">基础语法 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./数据类型.html"><span aria-hidden="true">&larr;</span> 数字类型</a></li>
+                                                                                <li class="next"><a href="文件">名称 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -174,14 +199,14 @@ docker run -p 8080:8080 remixproject/remix-ide:latest
                                                                         <ul class="nav bs-docs-sidenav">
                                                 <h5 class="section">Solidity</h5>
                                                 <li><a href="./教程.html">教程</a></li>
-                                                <li class="active"><a href="">开发环境搭建</a></li>
+                                                <li><a href="./开发环境搭建.html">开发环境搭建</a></li>
                                                 <li><a href="./基础语法.html">基础语法</a></li>
-                                                <li><a href="">编译运行</a></li>
-                                                <li><a href="">代码注释</a></li>
-                                                <li><a href="">SPDX语法</a></li>
-                                                <li><a href="">数据类型</a></li>
+                                                <li><a href="./运行编译.html">编译运行</a></li>
+                                                <li><a href="./代码注释.html">代码注释</a></li>
+                                                <li><a href="./SPDX语法.html">SPDX语法</a></li>
+                                                <li><a href="./数据类型.html">数据类型</a></li>
                                                 <h5 class="section">Solidity 变量</h5>
-                                                <li><a href="">变量</a></li>
+                                                <li class="active"><a href="./变量.html">变量</a></li>
                                                 <li><a href="">特殊变量</a></li>
                                                 <li><a href="">变量默认值</a></li>
                                                 <li><a href="">变量作用域</a></li>
@@ -225,7 +250,6 @@ docker run -p 8080:8080 remixproject/remix-ide:latest
                                                 <li><a href="">函数修改器</a></li>
                                                 <li><a href="">函数重载</a></li>
                                                 <li><a href="">数学函数</a></li>
-                                                <li><a href="">加密函数</a></li>
                                                 <li><a href="">加密函数</a></li>
                                                 <h5 class="section">Solidity 进阶编程</h5>
                                                 <li><a href="">事件</a></li>

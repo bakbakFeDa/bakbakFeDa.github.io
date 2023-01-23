@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./教程.html"><span aria-hidden="true">&larr;</span> 教程</a></li>
-                                                                                <li class="next"><a href="./基础语法.html">基础语法 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./SPDX语法.html"><span aria-hidden="true">&larr;</span> SPDX语法</a></li>
+                                                                                <li class="next"><a href="./变量.html">变量 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,107 +40,95 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>开发环境搭建</h1>
-<p>本章介绍如何搭建 Solidity 开发环境。</p>
-<p>我们推荐使用在线集成开发环境 Remix，来学习 Solidity 语言。</p>
-<p>本教程的所有例子，都将使用 Remix 进行编写、编译和部署运行。</p>
-<p>Remix的地址是 <a href="https://remix.ethereum.org/">https://remix.ethereum.org/</a>，我们可以直接打开使用。</p>
-<p>当然，我们也可以使用下面的一些方法，来搭建 Solidity 开发环境。</p>
-<p class="title-divider">&nbsp;</p>
-<h2>1. 安装本地编译器</h2>
-<h3>1) 安装 nodejs / npm</h3>
-<p>node官方网站下载 node，推荐 LTS 版本，按提示完成安装，npm 会同时装上。</p>
-<p>安装步骤可以参照 <a href="../NotDoing.html">Node.js 安装配置</a>。</p>
-<p>验证 Node 版本，例如：</p>
-<pre>&gt; node -v
-v10.16.3
-
-&gt; npm -v
-6.11.3
-</pre>
-<h3>2) 安装 Solidity 编译器 solc</h3>
-<p>一旦安装了 Node.js 包管理器，就可以按照下面的步骤安装 Solidity 编译器：</p>
-<pre>$ npm install -g solc</pre>
-<p>上面的命令将会安装 solcjs 程序，并且能够在整个系统中都可用。</p>
-<p>验证 solc 安装是否正确：</p>
-<pre>$ solcjs --version</pre>
-<p>如果一切顺利，这将打印如下内容</p>
-<pre>0.5.11+commit.c082d0b4.Emscripten.clang</pre>
-<p>现在，可以使用solcjs了，它比标准的 solidity 编译器少很多特性，但对于学习来说足够了。</p>
+<h1>数据类型</h1>
+<p>在用任何语言编写程序时，都需要使用变量来存储各种信息。</p>
+<p>变量是内存空间的名称，变量有不同类型，例如整型、字符串类型等等。</p>
+<p>操作系统根据变量的数据类型分配内存。</p>
+<p>Solidity中，变量类型有以下几大类：</p>
+<ul>
+<li>值类型</li>
+<li>地址类型</li>
+<li>引用类型</li>
+</ul>
 <p>&nbsp;</p>
-<h2>2. 使用 solc-js</h2>
-<p>全局安装 solc-js 工具后，即可在命令行中直接使用此工具，可以通过 solcjs --help 来查看此工具支持的参数说明。</p>
-<pre>solcjs --help
-Usage: C:\Program Files\nodejs\node_global\node_modules\@alipay\solc\solcjs
-[options] [input_file...]
-
-Options:
-    --version         Show version number                                [boolean]
-    --optimize        Enable bytecode optimizer.                         [boolean]
-    --bin             Binary of the contracts in hex.                    [boolean]
-    --abi             ABI of the contracts.                              [boolean]
-    --standard-json   Turn on Standard JSON Input / Output mode.         [boolean]
-    --output-dir, -o  Output directory for the contracts.                 [string]
-    --help            Show help                                          [boolean]
+<h2>1. 值类型</h2>
+<p>字节型 bytes8 to bytes32 是8位到32位的字节型数据。</p>
+<table class="reference" style="width: 100%;">
+    <tbody>
+    <tr>
+    <th style="width: 25%;" width="25%">类型</th>
+    <th style="width: 10.0577%;">保留字</th>
+    <th style="width: 62.5114%;">取值</th>
+    </tr>
+    <tr>
+    <td style="width: 25%;">布尔型</td>
+    <td style="width: 10.0577%;">bool</td>
+    <td style="width: 62.5114%;">true/false</td>
+    </tr>
+    <tr>
+    <td style="width: 25%;">整型</td>
+    <td style="width: 10.0577%;">int/uint</td>
+    <td style="width: 62.5114%;">有符号整数/无符号整数。</td>
+    </tr>
+    <tr>
+    <td style="width: 25%;">整型</td>
+    <td style="width: 10.0577%;">int8 to int256</td>
+    <td style="width: 62.5114%;">8位到256位的带符号整型数。int256与int相同。</td>
+    </tr>
+    <tr>
+    <td style="width: 25%;">整型</td>
+    <td style="width: 10.0577%;">uint8 to uint256</td>
+    <td style="width: 62.5114%;">8位到256位的无符号整型。uint256和uint是一样的。</td>
+    </tr>
+    <tr>
+    <td style="width: 25%;">定长浮点型</td>
+    <td style="width: 10.0577%;">fixed/unfixed</td>
+    <td style="width: 62.5114%;">有符号和无符号的定长浮点型</td>
+    </tr>
+    <tr>
+    <td style="width: 25%;">定长浮点型</td>
+    <td style="width: 10.0577%;">fixedMxN</td>
+    <td style="width: 62.5114%;">带符号的定长浮点型，其中M表示按类型取的位数，N表示小数点。M应该能被8整除，从8到256。N可以是0到80。fixed与fixed128x18相同。</td>
+    </tr>
+    <tr>
+    <td style="width: 25%;">定长浮点型</td>
+    <td style="width: 10.0577%;">ufixedMxN</td>
+    <td style="width: 62.5114%;">无符号的定长浮点型，其中M表示按类型取的位数，N表示小数点。M应该能被8整除，从8到256。N可以是0到80。fixed与fixed128x18相同。</td>
+</tr>
+</tbody>
+</table>
+<p>值类型数据：</p>
+<pre>uint x = 100;
+int x = -200;
+byte32 b = 0x01020304;
 </pre>
-<p>我们创建名为 hello.sol 的 Solidity 合约示例：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+<p>我们可以测量类型的最大值和最小值。</p>
+<pre>// SPDX-License-Identifier: MIT 
+pragma solidity ^0.8.0; 
 
-contract Hello {
-    string name;
-    
-    constructor()  {
-        name = 'Hello world!';
-    }
-    
-    function hello() view public returns (string memory) {
-        return name;
-    }
+contract Test { 
+    uint public a = type(uint).min;
+    uint public b = type(uint).max;
 }
 </pre>
-<p>运行以下命令行，编译 hello.sol 合约并得到编译字节码结果：</p>
-<pre>solcjs --bin hello.sol</pre>
-<p>如果编译通过，此目录会得到包含字节码的结果文件 hello_sol_Hello.bin，如果编译失败则提示错误信息。</p>
-<p>运行以下命令行，编译 hello.sol 合约并得到合约接口说明（<a href="../NotDoing.html">ABI</a>）：</p>
-<pre>solcjs --abi hello.sol</pre>
-<p>如果编译通过，此目录会得到包含合约接口说明（<a href="../NotDoing.html">ABI</a>）的结果文件 hello_sol_Hello.abi。</p>
 <p>&nbsp;</p>
-<h2>3. Remix IDE的安装</h2>
-<h3><strong>3.1 源码安装:</strong></h3>
-<pre>git clone https://github.com/ethereum/remix-ide.git
-cd remix-ide
-npm install
-npm run build &amp;&amp; npm run serve
-</pre>
-<h3><strong>3.2 docker 安装:</strong></h3>
-<pre>docker pull remixproject/remix-ide:latest
-docker run -p 8080:8080 remixproject/remix-ide:latest
-</pre>
-<p>然后通过浏览器访问 127.0.0.1:8080 即可使用 remix。</p>
-<p>&nbsp;</p>
-<h2>4. Remix IDE 在线版</h2>
-<p>我们也可以直接使用在线版本：</p>
-<p><a href="https://remix.ethereum.org/">https://remix.ethereum.org/ </a></p>
-<p>或者</p>
-<p><a href="http://remix.zhiguxingtu.com/">http://remix.zhiguxingtu.com/</a></p>
-<p>&nbsp;</p>
-<h2>5. Remix 访问本地文件</h2>
-<p>首先安装 remixd：</p>
-<pre>npm install -g @remix-project/remixd</pre>
-<p>运行 remixd：</p>
-<pre>remixd -s /localdir --remix-ide url</pre>
-<p>其中 localdir 就是本地存放 solidity 文件的目录，--remix-ide 的参数是访问 IDE 的 url。</p>
-<p>如果使用了本地安装的 remix IDE，那么参数 url 就是 http://localhost:8080。</p>
-<p>如果使用了在线 remix IDE，比如 https://remix.ethereum.org，那么参数 url 就是 https://remix.ethereum.org:8080。</p>
-<p>最后，激活 IDE 中的 remixd 插件，在 remix 的 workspaces 中选择 localhost 就可以了。</p>
-<p>&nbsp;</p>
-<p>如图所示，激活 remixd 插件：</p>
-<p><img src="./picture/开发环境搭建/1.png" alt="1"></p>
-<p>&nbsp;</p>
-<p>如图所示，选择 localhost，连接本地工作目录：</p>
-<p><img src="./picture/开发环境搭建/2.png" alt="2"></p>
+<h2>2. 地址类型</h2>
+<p>地址类型表示以太坊地址，长度为20字节。地址可以使用 .balance 属性获得余额，也可以使用 .transfer() 方法将余额转到另一个地址。</p>
+<pre>address x = 0x212;
+address myAddress = this;
 
+if (x.balance &lt; 10 &amp;&amp; myAddress.balance &gt;= 10) 
+    x.transfer(10);
+</pre>
+<p>&nbsp;</p>
+<h2>3. 引用类型/复合数据类型</h2>
+<p>在Solidity中，有一些数据类型由值类型组合而成，相比于简单的值类型，这些类型通常通过名称引用，被称为引用类型。</p>
+<p>引用类型包括：</p>
+<ul>
+<li>数组 (字符串与bytes是特殊的数组，所以也是引用类型)</li>
+<li>struct (结构体)</li>
+<li>map (映射)</li>
+</ul>
 
                                                                 </div>
                                                         </div>
@@ -148,8 +136,8 @@ docker run -p 8080:8080 remixproject/remix-ide:latest
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./教程.html"><span aria-hidden="true">&larr;</span> 教程</a></li>
-                                                                                <li class="next"><a href="./基础语法.html">基础语法 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./SPDX语法.html"><span aria-hidden="true">&larr;</span> SPDX语法</a></li>
+                                                                                <li class="next"><a href="./变量.html">变量 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -174,12 +162,12 @@ docker run -p 8080:8080 remixproject/remix-ide:latest
                                                                         <ul class="nav bs-docs-sidenav">
                                                 <h5 class="section">Solidity</h5>
                                                 <li><a href="./教程.html">教程</a></li>
-                                                <li class="active"><a href="">开发环境搭建</a></li>
+                                                <li><a href="./开发环境搭建.html">开发环境搭建</a></li>
                                                 <li><a href="./基础语法.html">基础语法</a></li>
-                                                <li><a href="">编译运行</a></li>
-                                                <li><a href="">代码注释</a></li>
-                                                <li><a href="">SPDX语法</a></li>
-                                                <li><a href="">数据类型</a></li>
+                                                <li><a href="./运行编译.html">编译运行</a></li>
+                                                <li><a href="./代码注释.html">代码注释</a></li>
+                                                <li><a href="./SPDX语法.html">SPDX语法</a></li>
+                                                <li class="active"><a href="./数据类型.html">数据类型</a></li>
                                                 <h5 class="section">Solidity 变量</h5>
                                                 <li><a href="">变量</a></li>
                                                 <li><a href="">特殊变量</a></li>
