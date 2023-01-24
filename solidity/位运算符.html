@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./逻辑运算符.html"><span aria-hidden="true">&larr;</span> 逻辑运算符</a></li>
+                                                                                <li class="next"><a href="./赋值运算符.html">赋值运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,28 +40,75 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>变量默认值</h1>
-<p>Solidity 智能合约中所有的状态变量和局部变量，都有默认值。</p>
-<p>这些变量在没有被赋值之前，它的值已默认值的形式存在。</p>
-<p>其中：</p>
-<p>bool 类型变量默认值为 false；</p>
-<p>int 类型变量默认值为 0；</p>
-<p>uint 类型变量默认值为 0；</p>
-<p>address 类型变量默认值为：0x0000000000000000000000000000000000000000，共 40个 0；</p>
-<p>bytes32 类型变量默认值为：0x0000000000000000000000000000000000000000000000000000000000000000，共 64个 0。</p>
-<p>示例：</p>
+<h1>位运算符</h1>
+<p>Solidity 支持的位运算符，如下表所示：</p>
+<p>假设变量A的值为2，变量B的值为3。</p>
+<table class="reference">
+<tbody>
+<tr>
+<th style="width: 40px;">序号</th>
+<th>运算符与描述</th>
+</tr>
+<tr>
+<td>1</td>
+<td><strong>&amp; (位与)</strong><br />对其整数参数的每个位执行位与操作。<br /><strong>例:</strong> (A &amp; B) 为 2.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>| (位或)</strong><br />对其整数参数的每个位执行位或操作。<br /><strong>例:</strong> (A | B) 为 3.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>^ (位异或)</strong><br />对其整数参数的每个位执行位异或操作。<br /><strong>例:</strong> (A ^ B) 为 1.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>~ (位非)</strong><br />一元操作符，反转操作数中的所有位。<br /><strong>例:</strong> (~B) 为 -4.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>&lt;&lt; (左移位))</strong><br />将第一个操作数中的所有位向左移动，移动的位置数由第二个操作数指定，新的位由0填充。将一个值向左移动一个位置相当于乘以2，移动两个位置相当于乘以4，以此类推。<br /><strong>例:</strong> (A &lt;&lt; 1) 为 4.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>&gt;&gt; (右移位)</strong><br />左操作数的值向右移动，移动位置数量由右操作数指定<br /><strong>例:</strong> (A &gt;&gt; 1) 为 1.</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2><strong>示例</strong></h2>
+<p>这是一个简单的位运算示例，它定义了一个名为BitwiseOperations的合约，包含了左移、右移、按位与、按位或、按位异或和按位取反等操作。这些函数都是用来进行位运算的，其中x和y都是需要进行运算的变量。</p>
+<p>例如，如果我们调用shiftLeft(5, 2)函数，它将返回20（5左移2位）。</p>
+<p>在这个示例中，所有函数都是pure函数，意味着它们不会改变合约状态，并且只会返回一个值。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract SolidityTest {
-   bool public a;    // false
-   int public b;     // 0
-   uint public c;     // 0
-   address public d;     // 0x0000000000000000000000000000000000000000
-   bytes32 public e;     // 0x0000000000000000000000000000000000000000000000000000000000000000
+contract BitwiseOperations {
+    function shiftLeft(uint x, uint y) public pure returns (uint) {
+        return x &lt;&lt; y;
+    }
+
+    function shiftRight(uint x, uint y) public pure returns (uint) {
+        return x &gt;&gt; y;
+    }
+
+    function bitwiseAnd(uint x, uint y) public pure returns (uint) {
+        return x &amp; y;
+    }
+
+    function bitwiseOr(uint x, uint y) public pure returns (uint) {
+        return x | y;
+    }
+
+    function bitwiseXor(uint x, uint y) public pure returns (uint) {
+        return x ^ y;
+    }
+
+    function bitwiseNot(uint x) public pure returns (uint) {
+        return ~x;
+    }
 }
 </pre>
-    
 
                                                                 </div>
                                                         </div>
@@ -69,8 +116,8 @@ contract SolidityTest {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./逻辑运算符.html"><span aria-hidden="true">&larr;</span> 逻辑运算符</a></li>
+                                                                                <li class="next"><a href="./赋值运算符.html">赋值运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -104,15 +151,15 @@ contract SolidityTest {
                                                 <h5 class="section">Solidity 变量</h5>
                                                 <li><a href="./变量.html">变量</a></li>
                                                 <li><a href="./特殊变量_全局变量.html">特殊变量</a></li>
-                                                <li class="active"><a href="./变量默认值.html">变量默认值</a></li>
+                                                <li><a href="./变量默认值.html">变量默认值</a></li>
                                                 <li><a href="./变量作用域.html">变量作用域</a></li>
                                                 <li><a href="./常量.html">常量</a></li>
                                                 <h5 class="section">Solidity 运算符</h5>
-                                                <li><a href="">运算符</a></li>
-                                                <li><a href="">算术运算符</a></li>
-                                                <li><a href="">比较运算符</a></li>
-                                                <li><a href="">逻辑运算符</a></li>
-                                                <li><a href="">位运算符</a></li>
+                                                <li><a href="./运算符.html">运算符</a></li>
+                                                <li><a href="./算术运算符.html">算术运算符</a></li>
+                                                <li><a href="./比较运算符.html">比较运算符</a></li>
+                                                <li><a href="./逻辑运算符.html">逻辑运算符</a></li>
+                                                <li class="active"><a href="./位运算符.html">位运算符</a></li>
                                                 <li><a href="">赋值运算符</a></li>
                                                 <li><a href="">条件运算符</a></li>
                                                 <h5 class="section">Solidity 条件语句</h5>

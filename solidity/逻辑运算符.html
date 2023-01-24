@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./比较运算符.html"><span aria-hidden="true">&larr;</span> 比较运算符</a></li>
+                                                                                <li class="next"><a href="./位运算符.html">位运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,28 +40,62 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>变量默认值</h1>
-<p>Solidity 智能合约中所有的状态变量和局部变量，都有默认值。</p>
-<p>这些变量在没有被赋值之前，它的值已默认值的形式存在。</p>
-<p>其中：</p>
-<p>bool 类型变量默认值为 false；</p>
-<p>int 类型变量默认值为 0；</p>
-<p>uint 类型变量默认值为 0；</p>
-<p>address 类型变量默认值为：0x0000000000000000000000000000000000000000，共 40个 0；</p>
-<p>bytes32 类型变量默认值为：0x0000000000000000000000000000000000000000000000000000000000000000，共 64个 0。</p>
-<p>示例：</p>
+<h1>逻辑运算符</h1>
+<p>Solidity 支持的逻辑运算符，如下表所示：</p>
+<p>假设变量A的值为10，变量B的值为20。</p>
+<table class="reference">
+<tbody>
+<tr>
+<th style="width: 40px;">序号</th>
+<th>运算符与描述</th>
+</tr>
+<tr>
+<td>1</td>
+<td><strong>&amp;&amp; (逻辑与)</strong><br />如果两个操作数都非零，则条件为真。<br /><strong>例:</strong> (A &amp;&amp; B) 为真</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>|| (逻辑或)</strong><br />如果这两个操作数中有一个非零，则条件为真。<br /><strong>例:</strong> (A || B) 为真</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>! (逻辑非)</strong><br />反转操作数的逻辑状态。如果条件为真，则逻辑非操作将使其为假。<br /><strong>例:</strong> ! (A &amp;&amp; B) 为假</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2><strong>示例</strong></h2>
+<p>下面的代码展示了如何使用逻辑运算符。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract SolidityTest {
-   bool public a;    // false
-   int public b;     // 0
-   uint public c;     // 0
-   address public d;     // 0x0000000000000000000000000000000000000000
-   bytes32 public e;     // 0x0000000000000000000000000000000000000000000000000000000000000000
+contract LogicalOperations {
+    bool private a;
+    bool private b;
+
+    constructor() public {
+        a = true;
+        b = false;
+    }
+
+    function andOperation() public view returns (bool) {
+        return a && b;
+    }
+
+    function orOperation() public view returns (bool) {
+        return a || b;
+    }
+
+    function notOperation() public view returns (bool) {
+        return !a;
+    }
 }
 </pre>
-    
+<p>运行上述程序，输出结果：</p>
+<pre>0: bool: false
+0: bool: false
+0: bool: true
+</pre>
 
                                                                 </div>
                                                         </div>
@@ -69,8 +103,8 @@ contract SolidityTest {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./比较运算符.html"><span aria-hidden="true">&larr;</span> 比较运算符</a></li>
+                                                                                <li class="next"><a href="./位运算符.html">位运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -104,14 +138,14 @@ contract SolidityTest {
                                                 <h5 class="section">Solidity 变量</h5>
                                                 <li><a href="./变量.html">变量</a></li>
                                                 <li><a href="./特殊变量_全局变量.html">特殊变量</a></li>
-                                                <li class="active"><a href="./变量默认值.html">变量默认值</a></li>
+                                                <li><a href="./变量默认值.html">变量默认值</a></li>
                                                 <li><a href="./变量作用域.html">变量作用域</a></li>
                                                 <li><a href="./常量.html">常量</a></li>
                                                 <h5 class="section">Solidity 运算符</h5>
-                                                <li><a href="">运算符</a></li>
-                                                <li><a href="">算术运算符</a></li>
-                                                <li><a href="">比较运算符</a></li>
-                                                <li><a href="">逻辑运算符</a></li>
+                                                <li><a href="./运算符.html">运算符</a></li>
+                                                <li><a href="./算术运算符.html">算术运算符</a></li>
+                                                <li><a href="./比较运算符.html">比较运算符</a></li>
+                                                <li class="active"><a href="./逻辑运算符.html">逻辑运算符</a></li>
                                                 <li><a href="">位运算符</a></li>
                                                 <li><a href="">赋值运算符</a></li>
                                                 <li><a href="">条件运算符</a></li>

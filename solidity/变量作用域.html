@@ -30,7 +30,7 @@
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
                                                                                 <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="next"><a href="./常量.html">常量 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,28 +40,66 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>变量默认值</h1>
-<p>Solidity 智能合约中所有的状态变量和局部变量，都有默认值。</p>
-<p>这些变量在没有被赋值之前，它的值已默认值的形式存在。</p>
-<p>其中：</p>
-<p>bool 类型变量默认值为 false；</p>
-<p>int 类型变量默认值为 0；</p>
-<p>uint 类型变量默认值为 0；</p>
-<p>address 类型变量默认值为：0x0000000000000000000000000000000000000000，共 40个 0；</p>
-<p>bytes32 类型变量默认值为：0x0000000000000000000000000000000000000000000000000000000000000000，共 64个 0。</p>
-<p>示例：</p>
+<h1>变量作用域</h1>
+<p>局部变量的作用域仅限于定义它们的函数，但是状态变量可以有四种作用域类型：</p>
+<ul>
+    <li><strong>public</strong> &ndash; 公共状态变量可以在内部访问，也可以从外部访问。对于公共状态变量，将自动生成一个 getter 函数。</li>
+    <li><strong>private</strong> &ndash; 私有状态变量只能从当前合约内部访问，派生合约内不能访问。</li>
+    <li><strong>internal</strong> &ndash; 内部状态变量只能从当前合约或其派生合约内访问。</li>
+    <li><strong>external</strong> &ndash; 外部状态变量只能在合约之外调用 ，不能被合约内的其他函数调用。</li>
+</ul>
+<p><strong>示例：</strong></p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract SolidityTest {
-   bool public a;    // false
-   int public b;     // 0
-   uint public c;     // 0
-   address public d;     // 0x0000000000000000000000000000000000000000
-   bytes32 public e;     // 0x0000000000000000000000000000000000000000000000000000000000000000
+contract C {
+    uint public data = 30;
+    uint internal iData= 20;
+    uint private pData= 10;
+
+    function x() public returns (uint) {
+        data = 3; // 内部访问
+        iData = 2; // 内部访问
+        pData = 1; // 内部访问
+        return data;
+    }
+}
+
+// 调用外部合约
+contract Caller {
+    C c = new C();
+    function f() public view returns (uint) {
+        return c.data(); // 外部访问
+        // return c.iData(); // error 不允许外部访问
+        // return c.pData(); // error 不允许外部访问
+    }
+}
+
+// 派生合约
+contract D is C {
+    uint storedData; // 状态变量
+
+    function y() public returns (uint) {
+        data = 3; // 派生合约内部访问
+        iData = 2; // 派生合约内部访问
+        // pData = 1; //error 不允许派生合约内部访问
+        
+        return iData;
+    }
+
+    function getResult() public view returns(uint){
+        return storedData; // 访问状态变量
+    }
 }
 </pre>
-    
+<h2>public 与 private</h2>
+<p>对于 public 和 private，相信学过其他主流编程语言的人都能明白：</p>
+<p>public修饰的变量和函数，任何用户或者合约都能调用和访问。</p>
+<p>private修饰的变量和函数，只能在其所在的合约中调用和访问，即使是其子合约也没有权限访问。</p>
+<h2>external 与 internal</h2>
+<p>除 public 和 private 属性之外，Solidity 还使用了另外两个描述函数可见性的修饰词：internal（内部） 和 external（外部）。</p>
+<p>internal 和 private 类似，不过， 如果某个合约继承自其父合约，这个合约可以访问父合约中定义的&ldquo;内部&rdquo;函数。</p>
+<p>external 与public 类似，不过这些函数只能在合约之外调用，不能被合约内的其他函数调用。</p>    
 
                                                                 </div>
                                                         </div>
@@ -70,7 +108,7 @@ contract SolidityTest {
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
                                                                                 <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="next"><a href="./常量.html">常量 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -104,8 +142,8 @@ contract SolidityTest {
                                                 <h5 class="section">Solidity 变量</h5>
                                                 <li><a href="./变量.html">变量</a></li>
                                                 <li><a href="./特殊变量_全局变量.html">特殊变量</a></li>
-                                                <li class="active"><a href="./变量默认值.html">变量默认值</a></li>
-                                                <li><a href="./变量作用域.html">变量作用域</a></li>
+                                                <li><a href="./变量默认值.html">变量默认值</a></li>
+                                                <li class="active"><a href="./变量作用域.html">变量作用域</a></li>
                                                 <li><a href="./常量.html">常量</a></li>
                                                 <h5 class="section">Solidity 运算符</h5>
                                                 <li><a href="">运算符</a></li>

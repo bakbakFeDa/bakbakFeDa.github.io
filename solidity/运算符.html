@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./常量.html"><span aria-hidden="true">&larr;</span> 常量</a></li>
+                                                                                <li class="next"><a href="./算术运算符.html">算术运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,28 +40,27 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>变量默认值</h1>
-<p>Solidity 智能合约中所有的状态变量和局部变量，都有默认值。</p>
-<p>这些变量在没有被赋值之前，它的值已默认值的形式存在。</p>
-<p>其中：</p>
-<p>bool 类型变量默认值为 false；</p>
-<p>int 类型变量默认值为 0；</p>
-<p>uint 类型变量默认值为 0；</p>
-<p>address 类型变量默认值为：0x0000000000000000000000000000000000000000，共 40个 0；</p>
-<p>bytes32 类型变量默认值为：0x0000000000000000000000000000000000000000000000000000000000000000，共 64个 0。</p>
-<p>示例：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract SolidityTest {
-   bool public a;    // false
-   int public b;     // 0
-   uint public c;     // 0
-   address public d;     // 0x0000000000000000000000000000000000000000
-   bytes32 public e;     // 0x0000000000000000000000000000000000000000000000000000000000000000
-}
-</pre>
-    
+<h1>运算符</h1>
+<p>Solidity 支持以下类型的运算符：</p>
+<ul>
+<li>算术运算符</li>
+<li>比较运算符</li>
+<li>逻辑(或关系)运算符</li>
+<li>赋值运算符</li>
+<li>条件(或三元)运算符</li>
+</ul>
+<p>让我们看一个简单的表达式：</p>
+<pre>4 + 5 = 9</pre>
+<p>这里4和5称为操作数，+称为运算符。</p>
+<h2>运算符</h2>
+<ul>
+<li><a href="../NotDoing.html">Solidity &ndash; 算术运算符</a></li>
+<li><a href="../NotDoing.html">Solidity &ndash; 比较运算符</a></li>
+<li><a href="../NotDoing.html">Solidity &ndash; 逻辑运算符</a></li>
+<li><a href="../NotDoing.html">Solidity &ndash; 位运算符</a></li>
+<li><a href="../NotDoing.html">Solidity &ndash; 赋值运算符</a></li>
+<li><a href="../NotDoing.html">Solidity &ndash; 条件运算符</a></li>
+</ul>
 
                                                                 </div>
                                                         </div>
@@ -69,8 +68,8 @@ contract SolidityTest {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./常量.html"><span aria-hidden="true">&larr;</span> 常量</a></li>
+                                                                                <li class="next"><a href="./算术运算符.html">算术运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -104,11 +103,11 @@ contract SolidityTest {
                                                 <h5 class="section">Solidity 变量</h5>
                                                 <li><a href="./变量.html">变量</a></li>
                                                 <li><a href="./特殊变量_全局变量.html">特殊变量</a></li>
-                                                <li class="active"><a href="./变量默认值.html">变量默认值</a></li>
+                                                <li><a href="./变量默认值.html">变量默认值</a></li>
                                                 <li><a href="./变量作用域.html">变量作用域</a></li>
                                                 <li><a href="./常量.html">常量</a></li>
                                                 <h5 class="section">Solidity 运算符</h5>
-                                                <li><a href="">运算符</a></li>
+                                                <li class="active"><a href="./运算符.html">运算符</a></li>
                                                 <li><a href="">算术运算符</a></li>
                                                 <li><a href="">比较运算符</a></li>
                                                 <li><a href="">逻辑运算符</a></li>

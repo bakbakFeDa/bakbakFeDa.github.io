@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./位运算符.html"><span aria-hidden="true">&larr;</span> 位运算符</a></li>
+                                                                                <li class="next"><a href="./逻辑运算符.html">逻辑运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,28 +40,98 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>变量默认值</h1>
-<p>Solidity 智能合约中所有的状态变量和局部变量，都有默认值。</p>
-<p>这些变量在没有被赋值之前，它的值已默认值的形式存在。</p>
-<p>其中：</p>
-<p>bool 类型变量默认值为 false；</p>
-<p>int 类型变量默认值为 0；</p>
-<p>uint 类型变量默认值为 0；</p>
-<p>address 类型变量默认值为：0x0000000000000000000000000000000000000000，共 40个 0；</p>
-<p>bytes32 类型变量默认值为：0x0000000000000000000000000000000000000000000000000000000000000000，共 64个 0。</p>
-<p>示例：</p>
+<h1>赋值运算符</h1>
+<table class="reference">
+<tbody>
+<tr>
+<th style="width: 40px;">序号</th>
+<th>运算符与描述</th>
+</tr>
+<tr>
+<td>1</td>
+<td><strong>= (简单赋值)</strong><br />将右侧操作数的值赋给左侧操作数<br /><strong>例:</strong> C = A + B 表示 A + B 赋给 C</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>+= (相加赋值)</strong><br />将右操作数添加到左操作数并将结果赋给左操作数。<br /><strong>例:</strong> C += A 等价于 C = C + A</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>&minus;= (相减赋值)</strong><br />从左操作数减去右操作数并将结果赋给左操作数。<br /><strong>例:</strong> C -= A 等价于 C = C &ndash; A</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>*= (相乘赋值)</strong><br />将右操作数与左操作数相乘，并将结果赋给左操作数。<br /><strong>例:</strong> C *= A 等价于 C = C * A</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>/= (相除赋值)</strong><br />将左操作数与右操作数分开，并将结果分配给左操作数。<br /><strong>例:</strong> C /= A 等价于 C = C / A</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>%= (取模赋值)</strong><br />使用两个操作数取模，并将结果赋给左边的操作数。<br /><strong>例:</strong> C %= A 等价于 C = C % A</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意：</strong> 同样的逻辑也适用于位运算符，因此它们将变成&lt;&lt;=、&gt;&gt;=、&gt;&gt;=、&amp;=、|=和^=。</p>
+</blockquote>
+<p>&nbsp;</p>
+<h2><strong>示例</strong></h2>
+<p>这是一个简单的赋值运算符示例，该合约定义了三个变量x, y, z，还定义了一些函数进行赋值运算，用来修改x的值。</p>
+<p>例如，如果我们先调用setXYZ(5,2,0)函数，然后调用add()函数，它将会把x的值加上y的值，x的值变成7。</p>
+<p>在这个示例中，除了getX()函数外，其他函数都是改变状态的函数。。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract SolidityTest {
-   bool public a;    // false
-   int public b;     // 0
-   uint public c;     // 0
-   address public d;     // 0x0000000000000000000000000000000000000000
-   bytes32 public e;     // 0x0000000000000000000000000000000000000000000000000000000000000000
+contract AssignmentOperations {
+    uint x;
+    uint y;
+    uint z;
+
+    function setXYZ(uint newX, uint newY, uint newZ) public {
+        x = newX;
+        y = newY;
+        z = newZ;
+    }
+
+    function add() public {
+        x += y;
+    }
+
+    function subtract() public {
+        x -= y;
+    }
+
+    function multiply() public {
+        x *= y;
+    }
+
+    function divide() public {
+        x /= y;
+    }
+
+    function modulus() public {
+        x %= y;
+    }
+
+    function increment() public {
+        x++;
+    }
+
+    function decrement() public {
+        x--;
+    }
+
+    function compoundAssignment() public {
+        x += y * z;
+    }
+
+    function getX() public view returns (uint) {
+        return x;
+    }
 }
 </pre>
-    
 
                                                                 </div>
                                                         </div>
@@ -69,8 +139,8 @@ contract SolidityTest {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./位运算符.html"><span aria-hidden="true">&larr;</span> 位运算符</a></li>
+                                                                                <li class="next"><a href="./逻辑运算符.html">逻辑运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -104,15 +174,15 @@ contract SolidityTest {
                                                 <h5 class="section">Solidity 变量</h5>
                                                 <li><a href="./变量.html">变量</a></li>
                                                 <li><a href="./特殊变量_全局变量.html">特殊变量</a></li>
-                                                <li class="active"><a href="./变量默认值.html">变量默认值</a></li>
+                                                <li><a href="./变量默认值.html">变量默认值</a></li>
                                                 <li><a href="./变量作用域.html">变量作用域</a></li>
                                                 <li><a href="./常量.html">常量</a></li>
                                                 <h5 class="section">Solidity 运算符</h5>
-                                                <li><a href="">运算符</a></li>
-                                                <li><a href="">算术运算符</a></li>
-                                                <li><a href="">比较运算符</a></li>
-                                                <li><a href="">逻辑运算符</a></li>
-                                                <li><a href="">位运算符</a></li>
+                                                <li><a href="./运算符.html">运算符</a></li>
+                                                <li><a href="./算术运算符.html">算术运算符</a></li>
+                                                <li><a href="./比较运算符.html">比较运算符</a></li>
+                                                <li><a href="./逻辑运算符.html">逻辑运算符</a></li>
+                                                <li class="active"><a href="./位运算符.html">位运算符</a></li>
                                                 <li><a href="">赋值运算符</a></li>
                                                 <li><a href="">条件运算符</a></li>
                                                 <h5 class="section">Solidity 条件语句</h5>

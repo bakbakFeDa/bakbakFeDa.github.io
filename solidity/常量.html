@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./变量作用域.html"><span aria-hidden="true">&larr;</span> 变量作用域</a></li>
+                                                                                <li class="next"><a href="./运算符.html">运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,28 +40,29 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>变量默认值</h1>
-<p>Solidity 智能合约中所有的状态变量和局部变量，都有默认值。</p>
-<p>这些变量在没有被赋值之前，它的值已默认值的形式存在。</p>
-<p>其中：</p>
-<p>bool 类型变量默认值为 false；</p>
-<p>int 类型变量默认值为 0；</p>
-<p>uint 类型变量默认值为 0；</p>
-<p>address 类型变量默认值为：0x0000000000000000000000000000000000000000，共 40个 0；</p>
-<p>bytes32 类型变量默认值为：0x0000000000000000000000000000000000000000000000000000000000000000，共 64个 0。</p>
-<p>示例：</p>
+<h1>常量</h1>
+<p>智能合约中，状态变量的值如果恒定不变，就可以通过 <code>constant</code> 进行修饰，定义为常量。</p>
+<p>常量的命名常常使用大写字母表示，单词之间用下划线&ldquo;_&rdquo;连接。</p>
+<p>常量有如下规定：</p>
+<ul>
+<li>不是所有的类型都支持常量，当前仅支持值类型和字符串。</li>
+<li>constant常量必须在编译期间通过一个表达式赋值</li>
+<li>编译器并不会为constant常量在storage上预留空间</li>
+</ul>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract SolidityTest {
-   bool public a;    // false
-   int public b;     // 0
-   uint public c;     // 0
-   address public d;     // 0x0000000000000000000000000000000000000000
-   bytes32 public e;     // 0x0000000000000000000000000000000000000000000000000000000000000000
+    uint public constant X = 32**22 + 8;
+    string public constant TEXT = "abc";
+    bytes32 public constant MY_HASH = keccak256("abc");
 }
 </pre>
-    
+<h2>常量 constant 特点</h2>
+<ul>
+<li>常量与变量相对，需要硬编码在合约中，合约部署之后，无法改变。</li>
+<li>常量更加节约gas，一般用大写来代表常量。</li>
+</ul>
 
                                                                 </div>
                                                         </div>
@@ -69,8 +70,8 @@ contract SolidityTest {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./特殊变量.html"><span aria-hidden="true">&larr;</span> 特殊变量</a></li>
-                                                                                <li class="next"><a href="./变量作用域.html">变量作用域 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./变量作用域.html"><span aria-hidden="true">&larr;</span> 变量作用域</a></li>
+                                                                                <li class="next"><a href="./运算符.html">运算符 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -104,9 +105,9 @@ contract SolidityTest {
                                                 <h5 class="section">Solidity 变量</h5>
                                                 <li><a href="./变量.html">变量</a></li>
                                                 <li><a href="./特殊变量_全局变量.html">特殊变量</a></li>
-                                                <li class="active"><a href="./变量默认值.html">变量默认值</a></li>
+                                                <li><a href="./变量默认值.html">变量默认值</a></li>
                                                 <li><a href="./变量作用域.html">变量作用域</a></li>
-                                                <li><a href="./常量.html">常量</a></li>
+                                                <li class="active"><a href="./常量.html">常量</a></li>
                                                 <h5 class="section">Solidity 运算符</h5>
                                                 <li><a href="">运算符</a></li>
                                                 <li><a href="">算术运算符</a></li>
