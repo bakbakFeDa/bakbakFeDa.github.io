@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./if语句.html"><span aria-hidden="true">&larr;</span> if语句</a></li>
-                                                                                <li class="next"><a href="./if_else_if语句.html">if...else if 语句 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
+                                                                                <li class="next"><a href="./do_while循环.html">do...while 循环 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,38 +40,41 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>if...else 语句</h1>
+<h1>for 循环</h1>
 <h2>1. 语法</h2>
-<pre>if (条件表达式) {
-   被执行语句(如果条件为真)
-} else {
-   被执行语句(如果条件为假)
+<p>Solidity 中， for循环的语法如下：</p>
+<pre><br />for (初始化; 测试条件; 迭代语句) {
+   // 如果表达式的结果为真，就循环执行以下语句
+   ......
 }
 </pre>
 <p>&nbsp;</p>
 <h2>2. 示例</h2>
-<p>展示&nbsp; if...else 语句用法：</p>
-<p>下面的示例合约定义了一个私有变量age，并定义了两个函数setAge和checkAge。setAge函数用于设置变量age的值，checkAge函数用于检查age的值是否大于等于18。如果是大于等于18就if返回"You are an adult"。如果是小于18就else返回"You are underage"。</p>
+<p>下面的示例代码定义了一个合约 Example，在这个合约中定义了一个私有变量 counter ，一个mapping类型的变量 numbers，以及两个函数 setCounter 和 fillNumbers。</p>
+<p>setCounter 函数用来设置 counter 的值，这是一个公有函数，可以在外部调用。</p>
+<p>fillNumbers 函数用来将0~counter-1之间的数字乘以2并存入mapping中，最后返回最后一个数字。这个函数使用了一个 for 循环来实现。在循环中，定义了一个变量 i ，从0开始，每次增加1，直到 i 等于 counter。在循环体中，我们使用了 numbers[i] = i*2; 来将数字 i 乘以 2 并存入 mapping 中。由于我们从0开始循环到counter-1，所以最后mapping中将会存储0到counter-1之间所有数字乘以2的结果。</p>
+<p>最后, fillNumbers函数返回最后一个数字，即 numbers[counter-1]。</p>
+<p>这样编写的程序可以在合约中完成指定次数的操作，并在运行中记录和存储结果。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract Example {
-    uint private age;
+    uint private counter;
+    mapping(uint => uint) public numbers;
 
-    function setAge(uint _age) public {
-        age = _age;
+    function setCounter(uint _counter) public {
+        counter = _counter;
     }
 
-    function checkAge() public view returns (string memory) {
-        if(age &gt;= 18) {
-            return "You are an adult";
-        } else {
-            return "You are underage";
+    function fillNumbers() public payable returns(uint) {
+        for(uint i = 0; i &lt; counter; i++) {
+            numbers[i] = i * 2;
         }
+        return numbers[counter-1];
     }
-}    
+}
 </pre>
-
+<p><strong>需要注意的是在 solidity 中 for 循环是有限制的，每次循环都需要消耗一定的 gas，所以在编写合约时需要谨慎使用循环，特别是在循环次数很多的情况下。如果循环次数过多，可能会导致合约执行超时或者消耗过多的 gas，从而导致交易失败。</strong></p>
 
                                                                 </div>
                                                         </div>
@@ -79,8 +82,8 @@ contract Example {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./if语句.html"><span aria-hidden="true">&larr;</span> if语句</a></li>
-                                                                                <li class="next"><a href="./if_else_if语句.html">if...else if 语句 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
+                                                                                <li class="next"><a href="./do_while循环.html">do...while 循环 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -128,13 +131,13 @@ contract Example {
                                                 <h5 class="section">Solidity 条件语句</h5>
                                                 <li><a href="./条件语句.html">条件语句</a></li>
                                                 <li><a href="./if语句.html">if语句</a></li>
-                                                <li class="active"><a href="./if_else语句.html">if...elsc 语句</a></li>
+                                                <li><a href="./if_else语句.html">if...elsc 语句</a></li>
                                                 <li><a href="./if_else_if语句.html">if...else if</a></li>
                                                 <h5 class="section">Solidity 循环语句</h5>
-                                                <li><a href="">循环语句</a></li>
-                                                <li><a href="">while 循环</a></li>
-                                                <li><a href="">do 循环</a></li>
-                                                <li><a href="">for 循环</a></li>
+                                                <li><a href="./循环语句.html">循环语句</a></li>
+                                                <li><a href="./while_循环.html">while 循环</a></li>
+                                                <li><a href="./do_while循环.html">do 循环</a></li>
+                                                <li class="active"><a href="./for循环.html">for 循环</a></li>
                                                 <li><a href="">break与continue</a></li>
                                                 <h5 class="section">Solidity 复杂数据</h5>
                                                 <li><a href="">字符串</a></li>

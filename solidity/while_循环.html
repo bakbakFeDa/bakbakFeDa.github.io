@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./if语句.html"><span aria-hidden="true">&larr;</span> if语句</a></li>
-                                                                                <li class="next"><a href="./if_else_if语句.html">if...else if 语句 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./循环语句.html"><span aria-hidden="true">&larr;</span> 循环语句</a></li>
+                                                                                <li class="next"><a href="./do_while循环.html">do...while 循环 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,47 +40,45 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>if...else 语句</h1>
+<h1>while 循环</h1>
 <h2>1. 语法</h2>
-<pre>if (条件表达式) {
-   被执行语句(如果条件为真)
-} else {
-   被执行语句(如果条件为假)
+<p>Solidity 中， while循环的语法如下：</p>
+<pre>while (表达式) {
+   // 如果表达式的结果为真，就循环执行以下语句
+   ......
 }
 </pre>
 <p>&nbsp;</p>
 <h2>2. 示例</h2>
-<p>展示&nbsp; if...else 语句用法：</p>
-<p>下面的示例合约定义了一个私有变量age，并定义了两个函数setAge和checkAge。setAge函数用于设置变量age的值，checkAge函数用于检查age的值是否大于等于18。如果是大于等于18就if返回"You are an adult"。如果是小于18就else返回"You are underage"。</p>
+<p>下面的示例合约定义了一个私有变量counter，并定义了两个函数setCounter和countDown。setCounter函数用于设置变量counter的值，countDown函数用于循环执行counter--，直到counter小于等于0 。最后返回counter的值。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract Example {
-    uint private age;
+    uint private counter;
 
-    function setAge(uint _age) public {
-        age = _age;
+    function setCounter(uint _counter) public {
+        counter = _counter;
     }
 
-    function checkAge() public view returns (string memory) {
-        if(age &gt;= 18) {
-            return "You are an adult";
-        } else {
-            return "You are underage";
+    function countDowm() public payable returns (uint) {
+        while (counter > 0) {
+            counter--;
         }
+        return counter;
     }
-}    
+}
 </pre>
-
-
+<p>运行上述程序，输出结果：</p>
+<pre>"0": "uint256: 0"</pre>
                                                                 </div>
                                                         </div>
                                                         <div class="panel-footer operate"></div>
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./if语句.html"><span aria-hidden="true">&larr;</span> if语句</a></li>
-                                                                                <li class="next"><a href="./if_else_if语句.html">if...else if 语句 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./循环语句.html"><span aria-hidden="true">&larr;</span> 循环语句</a></li>
+                                                                                <li class="next"><a href="./do_while循环.html">do...while 循环 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -128,11 +126,11 @@ contract Example {
                                                 <h5 class="section">Solidity 条件语句</h5>
                                                 <li><a href="./条件语句.html">条件语句</a></li>
                                                 <li><a href="./if语句.html">if语句</a></li>
-                                                <li class="active"><a href="./if_else语句.html">if...elsc 语句</a></li>
+                                                <li><a href="./if_else语句.html">if...elsc 语句</a></li>
                                                 <li><a href="./if_else_if语句.html">if...else if</a></li>
                                                 <h5 class="section">Solidity 循环语句</h5>
-                                                <li><a href="">循环语句</a></li>
-                                                <li><a href="">while 循环</a></li>
+                                                <li><a href="./循环语句.html">循环语句</a></li>
+                                                <li class="active"><a href="./while_循环.html">while 循环</a></li>
                                                 <li><a href="">do 循环</a></li>
                                                 <li><a href="">for 循环</a></li>
                                                 <li><a href="">break与continue</a></li>
