@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./位运算符.html"><span aria-hidden="true">&larr;</span> 位运算符</a></li>
-                                                                                <li class="next"><a href="./条件运算符.html">条件运算符 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./条件语句.html"><span aria-hidden="true">&larr;</span> 条件语句</a></li>
+                                                                                <li class="next"><a href="./if_else语句.html">if...else语句 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,98 +40,38 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>赋值运算符</h1>
-<table class="reference">
-<tbody>
-<tr>
-<th style="width: 40px;">序号</th>
-<th>运算符与描述</th>
-</tr>
-<tr>
-<td>1</td>
-<td><strong>= (简单赋值)</strong><br />将右侧操作数的值赋给左侧操作数<br /><strong>例:</strong> C = A + B 表示 A + B 赋给 C</td>
-</tr>
-<tr>
-<td>2</td>
-<td><strong>+= (相加赋值)</strong><br />将右操作数添加到左操作数并将结果赋给左操作数。<br /><strong>例:</strong> C += A 等价于 C = C + A</td>
-</tr>
-<tr>
-<td>3</td>
-<td><strong>&minus;= (相减赋值)</strong><br />从左操作数减去右操作数并将结果赋给左操作数。<br /><strong>例:</strong> C -= A 等价于 C = C &ndash; A</td>
-</tr>
-<tr>
-<td>4</td>
-<td><strong>*= (相乘赋值)</strong><br />将右操作数与左操作数相乘，并将结果赋给左操作数。<br /><strong>例:</strong> C *= A 等价于 C = C * A</td>
-</tr>
-<tr>
-<td>5</td>
-<td><strong>/= (相除赋值)</strong><br />将左操作数与右操作数分开，并将结果分配给左操作数。<br /><strong>例:</strong> C /= A 等价于 C = C / A</td>
-</tr>
-<tr>
-<td>6</td>
-<td><strong>%= (取模赋值)</strong><br />使用两个操作数取模，并将结果赋给左边的操作数。<br /><strong>例:</strong> C %= A 等价于 C = C % A</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>注意：</strong> 同样的逻辑也适用于位运算符，因此它们将变成&lt;&lt;=、&gt;&gt;=、&gt;&gt;=、&amp;=、|=和^=。</p>
-</blockquote>
+<h1>if 语句</h1>
+<h2>1. 语法</h2>
+<pre>if (条件表达式) {
+   被执行语句(如果条件为真)
+}
+</pre>
 <p>&nbsp;</p>
-<h2><strong>示例</strong></h2>
-<p>这是一个简单的赋值运算符示例，该合约定义了三个变量x, y, z，还定义了一些函数进行赋值运算，用来修改x的值。</p>
-<p>例如，如果我们先调用setXYZ(5,2,0)函数，然后调用add()函数，它将会把x的值加上y的值，x的值变成7。</p>
-<p>在这个示例中，除了getX()函数外，其他函数都是改变状态的函数。</p>
+<h2>2. 示例</h2>
+<p>展示 if 语句用法：</p>
+<p>下面的示例合约定义了一个私有变量age，并定义了两个函数setAge和checkAge。setAge函数用于设置变量age的值，checkAge函数用于检查age的值是否大于等于18，或小于18。如果是大于等于18，返回"You are an adult"。如果是小于18，返回"You are underage"。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract AssignmentOperations {
-    uint x;
-    uint y;
-    uint z;
+contract Example {
+    uint private age;
 
-    function setXYZ(uint newX, uint newY, uint newZ) public {
-        x = newX;
-        y = newY;
-        z = newZ;
+    function setAge(uint _age) public {
+        age = _age;
     }
 
-    function add() public {
-        x += y;
-    }
+    function checkAge() public view returns (string memory) {
+        if(age &gt;= 18) {
+            return "You are an adult";
+        } 
 
-    function subtract() public {
-        x -= y;
+        if(age &lt; 18) {
+            return "You are underage";
+        }
     }
-
-    function multiply() public {
-        x *= y;
-    }
-
-    function divide() public {
-        x /= y;
-    }
-
-    function modulus() public {
-        x %= y;
-    }
-
-    function increment() public {
-        x++;
-    }
-
-    function decrement() public {
-        x--;
-    }
-
-    function compoundAssignment() public {
-        x += y * z;
-    }
-
-    function getX() public view returns (uint) {
-        return x;
-    }
-}
+}    
 </pre>
+
 
                                                                 </div>
                                                         </div>
@@ -139,8 +79,8 @@ contract AssignmentOperations {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./位运算符.html"><span aria-hidden="true">&larr;</span> 位运算符</a></li>
-                                                                                <li class="next"><a href="./条件运算符.html">条件运算符 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./条件语句.html"><span aria-hidden="true">&larr;</span> 条件语句</a></li>
+                                                                                <li class="next"><a href="./if_else语句.html">if...else语句 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -183,12 +123,12 @@ contract AssignmentOperations {
                                                 <li><a href="./比较运算符.html">比较运算符</a></li>
                                                 <li><a href="./逻辑运算符.html">逻辑运算符</a></li>
                                                 <li><a href="./位运算符.html">位运算符</a></li>
-                                                <li class="active"><a href="./赋值运算符.html">赋值运算符</a></li>
+                                                <li><a href="./赋值运算符.html">赋值运算符</a></li>
                                                 <li><a href="./条件运算符.html">条件运算符</a></li>
                                                 <h5 class="section">Solidity 条件语句</h5>
-                                                <li><a href="">条件语句</a></li>
-                                                <li><a href="">if语句</a></li>
-                                                <li><a href="">if...elsc 语句</a></li>
+                                                <li><a href="./条件语句.html">条件语句</a></li>
+                                                <li class="active"><a href="./if语句.html">if语句</a></li>
+                                                <li><a href="./if_else语句.html">if...elsc 语句</a></li>
                                                 <li><a href="">if...else if</a></li>
                                                 <h5 class="section">Solidity 循环语句</h5>
                                                 <li><a href="">循环语句</a></li>
