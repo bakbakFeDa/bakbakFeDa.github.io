@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
-                                                                                <li class="next"><a href="./break与continue.html">break与continue <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./break与continue.html"><span aria-hidden="true">&larr;</span> break与continue</a></li>
+                                                                                <li class="next"><a href="./数组.html">数组 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,41 +40,127 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>for 循环</h1>
-<h2>1. 语法</h2>
-<p>Solidity 中， for循环的语法如下：</p>
-<pre><br />for (初始化; 测试条件; 迭代语句) {
-   // 如果表达式的结果为真，就循环执行以下语句
-   ......
-}
-</pre>
-<p>&nbsp;</p>
-<h2>2. 示例</h2>
-<p>下面的示例代码定义了一个合约 Example，在这个合约中定义了一个私有变量 counter ，一个mapping类型的变量 numbers，以及两个函数 setCounter 和 fillNumbers。</p>
-<p>setCounter 函数用来设置 counter 的值，这是一个公有函数，可以在外部调用。</p>
-<p>fillNumbers 函数用来将0~counter-1之间的数字乘以2并存入mapping中，最后返回最后一个数字。这个函数使用了一个 for 循环来实现。在循环中，定义了一个变量 i ，从0开始，每次增加1，直到 i 等于 counter。在循环体中，我们使用了 numbers[i] = i*2; 来将数字 i 乘以 2 并存入 mapping 中。由于我们从0开始循环到counter-1，所以最后mapping中将会存储0到counter-1之间所有数字乘以2的结果。</p>
-<p>最后, fillNumbers函数返回最后一个数字，即 numbers[counter-1]。</p>
-<p>这样编写的程序可以在合约中完成指定次数的操作，并在运行中记录和存储结果。</p>
+<h1>字符串</h1>
+<p>Solidity 中，字符串值使用双引号(")和单引号(')包括，字符串类型用 string 表示。</p>
+<p>字符串是特殊的数组，是引用类型。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Example {
-    uint private counter;
-    mapping(uint => uint) public numbers;
+contract SolidityTest {
+    string public data = "test";
+}
+</pre>
+<p>运行上述程序，输出结果：</p>
+<pre>0: string: test</pre>
+<p>在上面的例子中，"test" 是一个字符串，data 是一个字符串变量。</p>
+<p>Solidity 提供字节与字符串之间的内置转换，可以将字符串赋给 bytes 类型变量。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-    function setCounter(uint _counter) public {
-        counter = _counter;
-    }
+contract SolidityTest {
+    bytes public data = "test";
+}
+</pre>
+<p>运行上述程序，输出结果：</p>
+<pre>0: bytes: 0x74657374</pre>
+<p>&nbsp;</p>
+<h2>1. 转义字符</h2>
+<p>Solidity 字符串类型支持的转义字符，如下表所示：</p>
+<table class="reference">
+<tbody>
+<tr>
+<th style="width: 40px;">序号</th>
+<th>转义字符</th>
+</tr>
+<tr>
+<td class="ts">1</td>
+<td><strong>\n</strong><br />开始新的一行</td>
+</tr>
+<tr>
+<td class="ts">2</td>
+<td><strong>\\</strong><br />反斜杠</td>
+</tr>
+<tr>
+<td class="ts">3</td>
+<td><strong>\'</strong><br />单引号</td>
+</tr>
+<tr>
+<td class="ts">4</td>
+<td><strong>\"</strong><br />双引号</td>
+</tr>
+<tr>
+<td class="ts">5</td>
+<td><strong>\b</strong><br />退格</td>
+</tr>
+<tr>
+<td class="ts">6</td>
+<td><strong>\f</strong><br />换页</td>
+</tr>
+<tr>
+<td class="ts">7</td>
+<td><strong>\r</strong><br />回车</td>
+</tr>
+<tr>
+<td class="ts">8</td>
+<td><strong>\t</strong><br />制表符</td>
+</tr>
+<tr>
+<td class="ts">9</td>
+<td><strong>\v</strong><br />垂直制表符</td>
+</tr>
+<tr>
+<td class="ts">10</td>
+<td><strong>\xNN</strong><br />表示十六进制值并插入适当的字节。</td>
+</tr>
+<tr>
+<td class="ts">11</td>
+<td><strong>\uNNNN</strong><br />表示Unicode值并插入UTF-8序列。</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<h2>2. bytes到字符串的转换</h2>
+<p>可以使用 string() 构造函数将 bytes 转换为字符串。</p>
+<pre>bytes memory bstr = new bytes(10);
+string message = string(bstr);   
+</pre>
+<p><strong>示例</strong></p>
+<p>bytes 到字符串的转换：</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-    function fillNumbers() public payable returns(uint) {
-        for(uint i = 0; i &lt; counter; i++) {
-            numbers[i] = i * 2;
-        }
-        return numbers[counter-1];
+contract SolidityTest {
+    string public data;
+    bytes bstr = new bytes(2);
+
+    function trans() external {
+        bstr[0] = 'a';
+        bstr[1] = 'b';
+        data = string(bstr);
     }
 }
 </pre>
-<p><strong>需要注意的是在 solidity 中 for 循环是有限制的，每次循环都需要消耗一定的 gas，所以在编写合约时需要谨慎使用循环，特别是在循环次数很多的情况下。如果循环次数过多，可能会导致合约执行超时或者消耗过多的 gas，从而导致交易失败。</strong></p>
+<p>运行上述程序，调用trans后，查看data：</p>
+<pre>0: string: ab</pre>
+<p>&nbsp;</p>
+<h2>3. 字符串到bytes的转换</h2>
+<p>可以使用bytes()构造函数将字符串转换为bytes。</p>
+<p><strong>示例</strong></p>
+<p>字符串到bytes的转换：</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SolidityTest {
+    constructor(){
+    }
+
+    function getResult(string memory s) public pure returns(bytes memory) {
+        return bytes(s);    //  字符串转到bytes
+    }
+}
+</pre>
+
+
 
                                                                 </div>
                                                         </div>
@@ -82,8 +168,8 @@ contract Example {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
-                                                                                <li class="next"><a href="./break与continue.html">break与continue <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./break与continue.html"><span aria-hidden="true">&larr;</span> break与continue</a></li>
+                                                                                <li class="next"><a href="./数组.html">数组 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -137,11 +223,11 @@ contract Example {
                                                 <li><a href="./循环语句.html">循环语句</a></li>
                                                 <li><a href="./while_循环.html">while 循环</a></li>
                                                 <li><a href="./do_while循环.html">do 循环</a></li>
-                                                <li class="active"><a href="./for循环.html">for 循环</a></li>
+                                                <li><a href="./for循环.html">for 循环</a></li>
                                                 <li><a href="./break与continue.html">break与continue</a></li>
                                                 <h5 class="section">Solidity 复杂数据</h5>
-                                                <li><a href="">字符串</a></li>
-                                                <li><a href="">数组</a></li>
+                                                <li class="active"><a href="./字符串.html">字符串</a></li>
+                                                <li><a href="./数组.html">数组</a></li>
                                                 <li><a href="">结构体</a></li>
                                                 <li><a href="">映射</a></li>
                                                 <li><a href="">枚举</a></li>

@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
-                                                                                <li class="next"><a href="./break与continue.html">break与continue <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./字符串.html"><span aria-hidden="true">&larr;</span> 字符串</a></li>
+                                                                                <li class="next"><a href="./结构体.html">结构体 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,41 +40,116 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>for 循环</h1>
-<h2>1. 语法</h2>
-<p>Solidity 中， for循环的语法如下：</p>
-<pre><br />for (初始化; 测试条件; 迭代语句) {
-   // 如果表达式的结果为真，就循环执行以下语句
-   ......
-}
+<h1>数组</h1>
+<p>数组是一种数据结构，它是存储同类元素的有序集合。</p>
+<p>数组中的特定元素由索引访问，索引值从 0 开始。例如，声明一个数组变量，如 numbers，可以使用 numbers[0]、numbers[1] 表示单个变量。</p>
+<p>数组大小可以是固定大小的，也可以是动态长度的。</p>
+<p>对于 storage 数组，元素可以是任意类型(其他数组、映射或结构)。</p>
+<p>对于 memory 数组，元素类型不能是映射类型，如果它是一个 public 函数的参数，那么元素类型必须是 ABI 类型。</p>
+<p><strong>需要注意的是，在 solidity 中，数组默认的存储类型是 storage。需要使用 memory 关键字来声明存储在内存中的数组。</strong></p>
+<p>类型为 bytes 和 string 的变量是特殊数组。bytes 类似于 byte[]，但它在 calldata 中被紧密地打包。因此，相比于 byte[]，bytes 应该优先使用，因为更便宜。</p>
+<p>字符串 string 等价于 bytes，但不允许长度或索引访问。</p>
+<p>&nbsp;</p>
+<h2>1. 声明数组</h2>
+<h3>固定长度数组</h3>
+<p>声明一个固定长度的数组，需要指定元素类型和数量，如下所示：</p>
+<pre>type[ arraySize ] arrayName;</pre>
+<p>这是一维数组。arraySize 必须是一个大于零的整数数字，type 可以是任何数据类型。</p>
+<p>例如，声明一个 uint 类型，长度为10的数组：balance为数组名，如下所示：</p>
+<pre>uint[10] balance;</pre>
+<h3>动态数组</h3>
+<p>声明一个动态数组，只需要指定元素类型，无需指定数量，如下所示：</p>
+<pre>type[] arrayName ;</pre>
+<p>这是一维数组，type 可以是任何数据类型。</p>
+<p>例如，声明一个 uint 类型的动态数组：balance为数组名，如下所示：</p>
+<pre>uint[] balance;</pre>
+<p>&nbsp;</p>
+<h2>2. 初始化数组</h2>
+<pre>uint balance[3] = [1, 2, 3]; // 初始化固定长度数组
+uint balance[] = [1, 2, 3]; // 初始化动态数组
+balance[2] = 5; // 设置第 3 个元素的值为 5
 </pre>
 <p>&nbsp;</p>
-<h2>2. 示例</h2>
-<p>下面的示例代码定义了一个合约 Example，在这个合约中定义了一个私有变量 counter ，一个mapping类型的变量 numbers，以及两个函数 setCounter 和 fillNumbers。</p>
-<p>setCounter 函数用来设置 counter 的值，这是一个公有函数，可以在外部调用。</p>
-<p>fillNumbers 函数用来将0~counter-1之间的数字乘以2并存入mapping中，最后返回最后一个数字。这个函数使用了一个 for 循环来实现。在循环中，定义了一个变量 i ，从0开始，每次增加1，直到 i 等于 counter。在循环体中，我们使用了 numbers[i] = i*2; 来将数字 i 乘以 2 并存入 mapping 中。由于我们从0开始循环到counter-1，所以最后mapping中将会存储0到counter-1之间所有数字乘以2的结果。</p>
-<p>最后, fillNumbers函数返回最后一个数字，即 numbers[counter-1]。</p>
-<p>这样编写的程序可以在合约中完成指定次数的操作，并在运行中记录和存储结果。</p>
+<h2>3. 访问数组元素</h2>
+<p>可以通过索引访问数组元素。例如</p>
+<pre>uint salary = balance[2];</pre>
+<p>上面的语句是将从数组中取出第 3 个元素，并将值赋给 salary 变量。</p>
+<p>&nbsp;</p>
+<h2>4. 动态数组和固定长度数组的区别</h2>
+<p>固定长度的数组在运行期间，是无法改变长度的。而动态数组可以改变。</p>
+<p>动态数组可以使用 push 方法，在末尾追加一个元素；使用 pop 方法，截掉末尾元素。</p>
+<p>两种数组的常用操作方法示例如下：</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Example {
-    uint private counter;
-    mapping(uint => uint) public numbers;
+contract SolidityTest {
 
-    function setCounter(uint _counter) public {
-        counter = _counter;
+    uint[] public arr = [1,2,3,4];    //  动态数组
+    uint[4] public arrFixed = [1,2,3,4];    //  固定长度数组
+
+    //  获得数组全部元素
+    function getArr() external view returns(uint[] memory) {
+        return arr;
     }
 
-    function fillNumbers() public payable returns(uint) {
-        for(uint i = 0; i &lt; counter; i++) {
-            numbers[i] = i * 2;
+    //  固定长度数组操作
+    function operatFixedArr() external view returns(uint) {
+        // uint len = arrFixed.length;     //  获得数组长度
+        // return len;
+        uint x = arrFixed[1];   //  获得数组的第二个元素的值
+        return x;
+    }
+
+    //  删除数组的第二个元素的值，delete只是将元素设置为初值，并不改变数组长度
+    function DeleteFixedArr() external payable {
+        delete arrFixed[1];
+    }
+
+    //  动态数组操作
+    function operateDynamicArr() external view returns(uint) {
+        // uint len = arr.length;  //  获得数组长度
+        // return len;
+        uint x = arr[1];    //  获得数组的第二个元素的值
+        return x;
+    }
+
+    function CRUDDynamicArr() external payable {
+        // arr.push(5);       //   追加一个元素，数组长度也会增加
+        // arr.pop();         //   弹出一个元素
+        
+        //  删除数组的第二个元素的值，delete只是将元素设置为初值，并不改变数组长度
+        // delete arr[1];
+
+        removeAt(1);    //  删除数组的第二个元素，并且数组长度减1
+    }
+
+    function removeAt(uint i) public {  //  删除数组元素，并且数组长度减1
+        require(i &gt;= 0 && i &lt; arr.length);
+
+        for (uint k = i; k &lt; arr.length-1; k++) {
+            arr[k] = arr[k+1];
         }
-        return numbers[counter-1];
+        
+        arr.pop();
+    }
+
+}
+</pre>
+<p>&nbsp;</p>
+<h2>5. 创建内存数组</h2>
+<p>我们可以使用 new 关键字在内存中创建动态数组。内存动态数组的长度一旦确定，不能改变。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SolidityTest {
+    function getMemoryArr() external pure returns(uint[] memory) {
+        uint[] memory arr = new uint[](3);
+        arr[0] = 1;
+        return arr;
     }
 }
 </pre>
-<p><strong>需要注意的是在 solidity 中 for 循环是有限制的，每次循环都需要消耗一定的 gas，所以在编写合约时需要谨慎使用循环，特别是在循环次数很多的情况下。如果循环次数过多，可能会导致合约执行超时或者消耗过多的 gas，从而导致交易失败。</strong></p>
+
 
                                                                 </div>
                                                         </div>
@@ -82,8 +157,8 @@ contract Example {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
-                                                                                <li class="next"><a href="./break与continue.html">break与continue <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./字符串.html"><span aria-hidden="true">&larr;</span> 字符串</a></li>
+                                                                                <li class="next"><a href="./结构体.html">结构体 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -137,12 +212,12 @@ contract Example {
                                                 <li><a href="./循环语句.html">循环语句</a></li>
                                                 <li><a href="./while_循环.html">while 循环</a></li>
                                                 <li><a href="./do_while循环.html">do 循环</a></li>
-                                                <li class="active"><a href="./for循环.html">for 循环</a></li>
+                                                <li><a href="./for循环.html">for 循环</a></li>
                                                 <li><a href="./break与continue.html">break与continue</a></li>
                                                 <h5 class="section">Solidity 复杂数据</h5>
-                                                <li><a href="">字符串</a></li>
-                                                <li><a href="">数组</a></li>
-                                                <li><a href="">结构体</a></li>
+                                                <li><a href="./字符串.html">字符串</a></li>
+                                                <li class="active"><a href="./数组.html">数组</a></li>
+                                                <li><a href="./结构体.html">结构体</a></li>
                                                 <li><a href="">映射</a></li>
                                                 <li><a href="">枚举</a></li>
                                                 <li><a href="">类型转换</a></li>

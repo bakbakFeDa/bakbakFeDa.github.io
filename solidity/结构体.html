@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
-                                                                                <li class="next"><a href="./break与continue.html">break与continue <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./数组.html"><span aria-hidden="true">&larr;</span> 数组</a></li>
+                                                                                <li class="next"><a href="./映射.html">映射 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,41 +40,109 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>for 循环</h1>
-<h2>1. 语法</h2>
-<p>Solidity 中， for循环的语法如下：</p>
-<pre><br />for (初始化; 测试条件; 迭代语句) {
-   // 如果表达式的结果为真，就循环执行以下语句
-   ......
+<h1>结构体 struct</h1>
+<p>类似于C语言，solidity 也有结构体 struc 类型，用于表示复合型数据。</p>
+<p>结构体 struc 类型是引用类型。</p>
+<p>例如，一本书的信息：</p>
+<ul>
+<li>Title</li>
+<li>Author</li>
+<li>Book ID</li>
+<li>Owner</li>
+</ul>
+<p>就可以用结构体来表示。</p>
+<p>&nbsp;</p>
+<h2>1. 定义结构体</h2>
+<p>要定义结构，使用struct关键字。struct关键字定义了一个新的数据类型，包含多个成员。struct语句的格式如下</p>
+<pre>struct struct_name { 
+   type1 type_name_1;
+   type2 type_name_2;
+   type3 type_name_3;
+}
+</pre>
+<p><strong>示例</strong></p>
+<pre>struct Book { 
+   string title;
+   string author;
+   uint book_id;
 }
 </pre>
 <p>&nbsp;</p>
-<h2>2. 示例</h2>
-<p>下面的示例代码定义了一个合约 Example，在这个合约中定义了一个私有变量 counter ，一个mapping类型的变量 numbers，以及两个函数 setCounter 和 fillNumbers。</p>
-<p>setCounter 函数用来设置 counter 的值，这是一个公有函数，可以在外部调用。</p>
-<p>fillNumbers 函数用来将0~counter-1之间的数字乘以2并存入mapping中，最后返回最后一个数字。这个函数使用了一个 for 循环来实现。在循环中，定义了一个变量 i ，从0开始，每次增加1，直到 i 等于 counter。在循环体中，我们使用了 numbers[i] = i*2; 来将数字 i 乘以 2 并存入 mapping 中。由于我们从0开始循环到counter-1，所以最后mapping中将会存储0到counter-1之间所有数字乘以2的结果。</p>
-<p>最后, fillNumbers函数返回最后一个数字，即 numbers[counter-1]。</p>
-<p>这样编写的程序可以在合约中完成指定次数的操作，并在运行中记录和存储结果。</p>
+<h2>2. 访问结构体成员</h2>
+<p>要访问结构的任何成员，使用成员访问操作符(.)。</p>
+<p><strong>示例</strong></p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Example {
-    uint private counter;
-    mapping(uint => uint) public numbers;
+contract SolidityTest {
+    struct Book {
+        string title;
+        string author;
+        uint id;
+    }
+    Book book;
 
-    function setCounter(uint _counter) public {
-        counter = _counter;
+    function setBook() public {
+        book = Book('Learn Solidity','bakmak.github.io',1);
     }
 
-    function fillNumbers() public payable returns(uint) {
-        for(uint i = 0; i &lt; counter; i++) {
-            numbers[i] = i * 2;
-        }
-        return numbers[counter-1];
+    function getBookAuthor() public view returns (string memory) {
+        return book.author;
     }
 }
 </pre>
-<p><strong>需要注意的是在 solidity 中 for 循环是有限制的，每次循环都需要消耗一定的 gas，所以在编写合约时需要谨慎使用循环，特别是在循环次数很多的情况下。如果循环次数过多，可能会导致合约执行超时或者消耗过多的 gas，从而导致交易失败。</strong></p>
+<p>运行上述程序，先单击 setBook 按钮，然后单击 getBookAuthor 获取图书 Author。</p>
+<p>输出结果：</p>
+<pre>string: bakmak.github.io</pre>
+<p>&nbsp;</p>
+<h2>3. 结构体操作方法</h2>
+<p>结构体变量共有三种初始化方式。我们还可以定义结构体数组、结构体状态变量，并对其进行操作。</p>
+<p><strong>示例</strong></p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SolidityTest {
+
+    struct Book {
+        string title;
+        string author;
+        uint id;
+        address owner;
+    }
+
+    Book public book;
+    Book[] public books;
+    mapping(address => Book[]) public bookByOwner;
+
+    function operations() external {
+        //  结构体直接按照字段顺序，进行初始化
+        Book memory book1 = Book('Learn Solidity','bakmak.gtihub.io',1,msg.sender);
+
+        //  结构体按照字段名，进行初始化
+        Book memory book2 = Book({title:'Learn golang',author:'bakmak.github.io',id:2,owner:msg.sender});
+
+        //  结构体按照默认值，进行初始化
+        Book memory book3;
+        book3.title = 'Learn C';
+        book3.author = 'bakmak.github.io';
+        book3.id = 3;
+        book3.owner = msg.sender;
+
+        //  结构体数组操作
+        books.push(book1);
+        books.push(book2);
+        books.push(book3);
+
+        //  结构体状态变量操作
+        Book storage _book = books[0];
+        delete _book.id;
+        delete books[0];
+        _book.id = 100;
+    }
+
+}
+</pre>
+
 
                                                                 </div>
                                                         </div>
@@ -82,8 +150,8 @@ contract Example {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
-                                                                                <li class="next"><a href="./break与continue.html">break与continue <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./数组.html"><span aria-hidden="true">&larr;</span> 数组</a></li>
+                                                                                <li class="next"><a href="./映射.html">映射 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -137,13 +205,13 @@ contract Example {
                                                 <li><a href="./循环语句.html">循环语句</a></li>
                                                 <li><a href="./while_循环.html">while 循环</a></li>
                                                 <li><a href="./do_while循环.html">do 循环</a></li>
-                                                <li class="active"><a href="./for循环.html">for 循环</a></li>
+                                                <li><a href="./for循环.html">for 循环</a></li>
                                                 <li><a href="./break与continue.html">break与continue</a></li>
                                                 <h5 class="section">Solidity 复杂数据</h5>
-                                                <li><a href="">字符串</a></li>
-                                                <li><a href="">数组</a></li>
-                                                <li><a href="">结构体</a></li>
-                                                <li><a href="">映射</a></li>
+                                                <li><a href="./字符串.html">字符串</a></li>
+                                                <li><a href="./数组.html">数组</a></li>
+                                                <li class="active"><a href="./结构体.html">结构体</a></li>
+                                                <li><a href="./映射.html">映射</a></li>
                                                 <li><a href="">枚举</a></li>
                                                 <li><a href="">类型转换</a></li>
                                                 <h5 class="section">Solidity 数据位置</h5>

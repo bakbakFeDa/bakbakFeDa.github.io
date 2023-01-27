@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
-                                                                                <li class="next"><a href="./break与continue.html">break与continue <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
+                                                                                <li class="next"><a href="./类型转换.html">类型转换 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,41 +40,46 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>for 循环</h1>
-<h2>1. 语法</h2>
-<p>Solidity 中， for循环的语法如下：</p>
-<pre><br />for (初始化; 测试条件; 迭代语句) {
-   // 如果表达式的结果为真，就循环执行以下语句
-   ......
-}
-</pre>
+<h1>类型转换</h1>
+<p>Solidity允许类型之间进行隐式转换和显式转换。</p>
 <p>&nbsp;</p>
-<h2>2. 示例</h2>
-<p>下面的示例代码定义了一个合约 Example，在这个合约中定义了一个私有变量 counter ，一个mapping类型的变量 numbers，以及两个函数 setCounter 和 fillNumbers。</p>
-<p>setCounter 函数用来设置 counter 的值，这是一个公有函数，可以在外部调用。</p>
-<p>fillNumbers 函数用来将0~counter-1之间的数字乘以2并存入mapping中，最后返回最后一个数字。这个函数使用了一个 for 循环来实现。在循环中，定义了一个变量 i ，从0开始，每次增加1，直到 i 等于 counter。在循环体中，我们使用了 numbers[i] = i*2; 来将数字 i 乘以 2 并存入 mapping 中。由于我们从0开始循环到counter-1，所以最后mapping中将会存储0到counter-1之间所有数字乘以2的结果。</p>
-<p>最后, fillNumbers函数返回最后一个数字，即 numbers[counter-1]。</p>
-<p>这样编写的程序可以在合约中完成指定次数的操作，并在运行中记录和存储结果。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Example {
-    uint private counter;
-    mapping(uint => uint) public numbers;
-
-    function setCounter(uint _counter) public {
-        counter = _counter;
-    }
-
-    function fillNumbers() public payable returns(uint) {
-        for(uint i = 0; i &lt; counter; i++) {
-            numbers[i] = i * 2;
-        }
-        return numbers[counter-1];
-    }
-}
+<h2>1. 隐式转换</h2>
+<p>隐式转换时必须符合一定条件，不能导致信息丢失。例如，uint8可以转换为uint16，但是int8不可以转换为uint256，因为int8可以包含uint256中不允许的负值。</p>
+<p>&nbsp;</p>
+<h2>2. 显式转换</h2>
+<p>可以使用构造函数语法，显式地将数据类型转换为另一种类型。</p>
+<pre>int8 y = -3;
+uint x = uint(y);
+//Now x = 0xfffff..fd == 在256bit长度的格式下，-3的补码表示
 </pre>
-<p><strong>需要注意的是在 solidity 中 for 循环是有限制的，每次循环都需要消耗一定的 gas，所以在编写合约时需要谨慎使用循环，特别是在循环次数很多的情况下。如果循环次数过多，可能会导致合约执行超时或者消耗过多的 gas，从而导致交易失败。</strong></p>
+<p>转换成更小的类型，会丢失高位。</p>
+<pre>uint32 a = 0x12345678;
+uint16 b = uint16(a); // b = 0x5678
+</pre>
+<p>转换成更大的类型，将向左侧添加填充位。</p>
+<pre>uint16 a = 0x1234;
+uint32 b = uint32(a); // b = 0x00001234 
+</pre>
+<p>转换到更小的字节类型，会丢失后面数据。</p>
+<pre>bytes2 a = 0x1234;
+bytes1 b = bytes1(a); // b = 0x12
+</pre>
+<p>转换为更大的字节类型时，向右添加填充位。</p>
+<pre>bytes2 a = 0x1234;
+bytes4 b = bytes4(a); // b = 0x12340000
+</pre>
+<p>只有当字节类型和int类型大小相同时，才可以进行转换。</p>
+<pre>bytes2 a = 0x1234;
+uint32 b = uint16(a); // b = 0x00001234
+uint32 c = uint32(bytes4(a)); // c = 0x12340000
+uint8 d = uint8(uint16(a)); // d = 0x34
+uint8 e = uint8(bytes1(a)); // e = 0x12
+</pre>
+<p>把整数赋值给整型时，不能超出范围而发生截断，否则会报错。</p>
+<pre>uint8 a = 12; // no error
+uint32 b = 1234; // no error
+uint16 c = 0x123456; // error, 有截断，变为 0x3456
+</pre>
 
                                                                 </div>
                                                         </div>
@@ -82,8 +87,8 @@ contract Example {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./do_while循环.html"><span aria-hidden="true">&larr;</span> do...while 循环</a></li>
-                                                                                <li class="next"><a href="./break与continue.html">break与continue <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
+                                                                                <li class="next"><a href="./类型转换.html">类型转换 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -137,15 +142,15 @@ contract Example {
                                                 <li><a href="./循环语句.html">循环语句</a></li>
                                                 <li><a href="./while_循环.html">while 循环</a></li>
                                                 <li><a href="./do_while循环.html">do 循环</a></li>
-                                                <li class="active"><a href="./for循环.html">for 循环</a></li>
+                                                <li><a href="./for循环.html">for 循环</a></li>
                                                 <li><a href="./break与continue.html">break与continue</a></li>
                                                 <h5 class="section">Solidity 复杂数据</h5>
-                                                <li><a href="">字符串</a></li>
-                                                <li><a href="">数组</a></li>
-                                                <li><a href="">结构体</a></li>
-                                                <li><a href="">映射</a></li>
-                                                <li><a href="">枚举</a></li>
-                                                <li><a href="">类型转换</a></li>
+                                                <li><a href="./字符串.html">字符串</a></li>
+                                                <li><a href="./数组.html">数组</a></li>
+                                                <li><a href="./结构体.html">结构体</a></li>
+                                                <li><a href="./映射.html">映射</a></li>
+                                                <li><a href="./枚举.html">枚举</a></li>
+                                                <li class="active"><a href="./类型转换.html">类型转换</a></li>
                                                 <h5 class="section">Solidity 数据位置</h5>
                                                 <li><a href="">数据位置</a></li>
                                                 <li><a href="">变量数据位置</a></li>
