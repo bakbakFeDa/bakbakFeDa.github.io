@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./变量数据位置.html"><span aria-hidden="true">&larr;</span> 变量数据位置</a></li>
+                                                                                <li class="next"><a href="./函数.html">函数 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,45 +40,120 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>类型转换</h1>
-<p>Solidity允许类型之间进行隐式转换和显式转换。</p>
+<h1>赋值的数据位置规则</h1>
+<p>solidity 数据可以通过两种方式从一个变量复制到另一个变量。</p>
+<p>一种方法是复制整个数据(按值复制)，另一种方法是引用复制。</p>
+<p>solidity 从一个位置的变量赋值到另一个位置的变量，遵循一定的默认规则。</p>
 <p>&nbsp;</p>
-<h2>1. 隐式转换</h2>
-<p>隐式转换时必须符合一定条件，不能导致信息丢失。例如，uint8可以转换为uint16，但是int8不可以转换为uint256，因为int8可以包含uint256中不允许的负值。</p>
+<h2>1. 规则1 &ndash; 状态变量赋值给状态变量</h2>
+<p>将一个状态变量赋值给另一个状态变量，将创建一个新的副本。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Locations {
+    uint public stateVar1 = 10;
+    uint public stateVar2 = 20;
+
+    function _do() public returns(uint) {
+        stateVar1 = stateVar2;
+        stateVar2 = 30;
+        return stateVar1;   //  return 20
+    } 
+
+}
+</pre>
+<p>本例中，stateVar1 和 stateVar2 是状态变量。</p>
+<p>在 _do 函数中，我们将 stateVar2 的值赋值给 stateVar1。</p>
+<p>stateVar1 的值是 20，但是为了确定它创建了一个新的副本，我们改变了stateVar2 的值。因此，如果它不创建副本，那么 stateVar1 的值应该是30，创建副本则是20。</p>
+<p>这同样适用于引用类型的状态变量。</p>
 <p>&nbsp;</p>
-<h2>2. 显式转换</h2>
-<p>可以使用构造函数语法，显式地将数据类型转换为另一种类型。</p>
-<pre>int8 y = -3;
-uint x = uint(y);
-//Now x = 0xfffff..fd == 在256bit长度的格式下，-3的补码表示
+<h2>2. 规则2 &ndash; 内存局部变量复制到状态变量</h2>
+<p>从内存局部变量复制到状态变量，总是会创建一个新的副本。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Locations {
+    //  storage
+    uint stateVar = 10;
+
+    function _do() public returns(uint) {
+        uint localVar = 20; //  memory
+        stateVar = localVar;
+        localVar = 40;
+
+        return stateVar;    //  return 20
+    }
+
+}
 </pre>
-<p>转换成更小的类型，会丢失高位。</p>
-<pre>uint32 a = 0x12345678;
-uint16 b = uint16(a); // b = 0x5678
+<p>在上面的例子中，我们有一个状态变量和一个局部内存变量。在函数中，我们把局部变量的值赋给状态变量。</p>
+<p>为了检查赋值后的行为，我们改变了局部变量的值，并返回状态变量的值。</p>
+<p>这里可以看到，它会返回20，说明从内存局部变量复制到状态变量，会创建一个新的副本。</p>
+<p>&nbsp;</p>
+<h2>3. 规则3 &ndash; 状态变量复制到内存局部变量</h2>
+<p>从状态变量复制到内存局部变量，将创建一个副本。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Locations {
+    uint stateVar = 10; //  storage
+
+    function _do() public returns(uint) {
+        uint localVar = 20; //  storage
+
+        localVar = stateVar;
+        stateVar = 40;
+
+        return localVar;    //  return 10
+    }
+}
 </pre>
-<p>转换成更大的类型，将向左侧添加填充位。</p>
-<pre>uint16 a = 0x1234;
-uint32 b = uint32(a); // b = 0x00001234 
+<p>在这里，将状态变量的值赋给了内存局部变量，并改变了状态变量的值。为了检查局部变量的值是否已经更改，返回它的值。</p>
+<p>我们部署运行后，调用 do 会返回10，说明从状态变量复制到内存局部变量，将创建一个副本。</p>
+<p>&nbsp;</p>
+<h2>4. 规则4 &ndash; 内存变量复制到内存变量</h2>
+<p>对于引用类型的局部变量，从一个内存变量复制到另一个内存变量，不会创建副本。</p>
+<p>对于值类型的局部变量，从一个内存变量复制到另一个内存变量，仍然创建一个新副本。</p>
+<h4>引用类型</h4>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Locations {
+
+    function doSomething() public pure returns(uint[] memory, uint[] memory) {
+        uint[] memory localMemoryArray1 = new uint[](3);
+        localMemoryArray1[0] = 4;
+        localMemoryArray1[1] = 5;
+        localMemoryArray1[2] = 6;
+
+        uint[] memory localMemoryArray2 = localMemoryArray1;
+        localMemoryArray1[0] = 10;
+
+        return (localMemoryArray1, localMemoryArray2);  //  return 10,5,6 | 10,5,6
+    }
+
+}
 </pre>
-<p>转换到更小的字节类型，会丢失后面数据。</p>
-<pre>bytes2 a = 0x1234;
-bytes1 b = bytes1(a); // b = 0x12
-</pre>
-<p>转换为更大的字节类型时，向右添加填充位。</p>
-<pre>bytes2 a = 0x1234;
-bytes4 b = bytes4(a); // b = 0x12340000
-</pre>
-<p>只有当字节类型和int类型大小相同时，才可以进行转换。</p>
-<pre>bytes2 a = 0x1234;
-uint32 b = uint16(a); // b = 0x00001234
-uint32 c = uint32(bytes4(a)); // c = 0x12340000
-uint8 d = uint8(uint16(a)); // d = 0x34
-uint8 e = uint8(bytes1(a)); // e = 0x12
-</pre>
-<p>把整数赋值给整型时，不能超出范围而发生截断，否则会报错。</p>
-<pre>uint8 a = 12; // no error
-uint32 b = 1234; // no error
-uint16 c = 0x123456; // error, 有截断，变为 0x3456
+<p>在上面的示例中，我们在内存中初始化了一个名为localMemoryArray1的数组变量，并赋值为4、5和6。然后，我们将该变量复制到名为localMemoryArray2的新内存变量中。</p>
+<p>然后，我们修改了localMemoryArray1中第一个索引的值，并返回了两个数组。这将得到相同的结果，因为它们都指向相同的位置。</p>
+<p>让我们对值类型进行相同的检查。下面的函数将创建一个新的副本并返回20。</p>
+<h4>值类型</h4>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Locations {
+
+    function _do() public pure returns(uint) {
+        uint localVar1 = 10;    //  memory
+        uint localVar2 = 20;    //  memory
+
+        localVar1 = localVar2;
+        localVar2 = 40;
+
+        return localVar1;   //  return 20
+    }
+
+}
 </pre>
 
                                                                 </div>
@@ -87,8 +162,8 @@ uint16 c = 0x123456; // error, 有截断，变为 0x3456
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./变量数据位置.html"><span aria-hidden="true">&larr;</span> 变量数据位置</a></li>
+                                                                                <li class="next"><a href="./函数.html">函数 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -150,13 +225,13 @@ uint16 c = 0x123456; // error, 有截断，变为 0x3456
                                                 <li><a href="./结构体.html">结构体</a></li>
                                                 <li><a href="./映射.html">映射</a></li>
                                                 <li><a href="./枚举.html">枚举</a></li>
-                                                <li class="active"><a href="./类型转换.html">类型转换</a></li>
+                                                <li><a href="./类型转换.html">类型转换</a></li>
                                                 <h5 class="section">Solidity 数据位置</h5>
                                                 <li><a href="./数据位置.html">数据位置</a></li>
-                                                <li><a href="">变量数据位置</a></li>
-                                                <li><a href="">赋值数据位置</a></li>
+                                                <li><a href="./变量数据位置.html">变量数据位置</a></li>
+                                                <li class="active"><a href="./赋值数据位置.html">赋值数据位置</a></li>
                                                 <h5 class="section">Solidity 函数</h5>
-                                                <li><a href="">函数</a></li>
+                                                <li><a href="./函数.html">函数</a></li>
                                                 <li><a href="">函数返回值</a></li>
                                                 <li><a href="">pure函数</a></li>
                                                 <li><a href="">view函数</a></li>

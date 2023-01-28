@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./类型转换.html"><span aria-hidden="true">&larr;</span> 类型转换</a></li>
+                                                                                <li class="next"><a href="./变量数据位置.html">变量数据位置 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,45 +40,116 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>类型转换</h1>
-<p>Solidity允许类型之间进行隐式转换和显式转换。</p>
+<h1>数据位置(data location)</h1>
+<h2>1. 引用类型/复合数据类型</h2>
+<p>Solidity中，有一些数据类型由简单数据类型组合而成，相比于简单的值类型，这些类型通常通过名称引用，被称为引用类型，</p>
+<p>引用类型包括：</p>
+<ul>
+<li>数组 (字符串与bytes是特殊的数组，所以也是引用类型)</li>
+<li>struct (结构体)</li>
+<li>map (映射)</li>
+</ul>
+<p>这些类型涉及到的数据量较大，复制它们可能要消耗大量Gas，非常昂贵，所以使用它们时，必须考虑存储位置。例如，是保存在内存中，还是在 EVM 存储区中。</p>
 <p>&nbsp;</p>
-<h2>1. 隐式转换</h2>
-<p>隐式转换时必须符合一定条件，不能导致信息丢失。例如，uint8可以转换为uint16，但是int8不可以转换为uint256，因为int8可以包含uint256中不允许的负值。</p>
+<h2>2. 数据位置(data location)</h2>
+<p>在合约中声明和使用的变量都有一个数据位置，指明变量值应该存储在哪里。合约变量的数据位置将会影响Gas消耗量。</p>
+<p>Solidity 提供 3 种类型的数据位置。</p>
+<ul>
+<li>storage</li>
+<li>memory</li>
+<li>calldata</li>
+</ul>
 <p>&nbsp;</p>
-<h2>2. 显式转换</h2>
-<p>可以使用构造函数语法，显式地将数据类型转换为另一种类型。</p>
-<pre>int8 y = -3;
-uint x = uint(y);
-//Now x = 0xfffff..fd == 在256bit长度的格式下，-3的补码表示
+<h3>1) storage</h3>
+<p>存储位置 storage 用来存储永久数据，可以被合约中的所有函数访问。</p>
+<p>storage 变量，通常用于存储智能合约的状态变量，它在函数调用之间保持持久性。</p>
+<p>storage 与其他数据位置相比，成本较高。</p>
+<p>我们可以把它理解为计算机的硬盘数据，所有数据都永久存储。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SolidityTest {
+    struct MyData {
+        uint id;
+        string value;
+    }
+    MyData[] public myData;
+
+    constructor() {
+        myData.push(MyData(1,"value1"));
+        myData.push(MyData(2,"value2"));
+    }
+
+    function operations() external {
+        //  storage  存储位置
+        MyData storage d = myData[0];
+        
+        //  修改状态变量myData的内容
+        d.value = "new value";
+    }
+
+}
 </pre>
-<p>转换成更小的类型，会丢失高位。</p>
-<pre>uint32 a = 0x12345678;
-uint16 b = uint16(a); // b = 0x5678
+<p>合约 SoldityTest 部署后，调用 operations 方法，状态变量 myData 的数据被修改，其中 myData[0].value 变为 "new value"。</p>
+<p>&nbsp;</p>
+<h3>2) memory</h3>
+<p>存储位置 memory 用来存储临时数据，比 storage 便宜。</p>
+<p>memory 变量，通常用于保存临时变量，以便在函数执行期间进行计算。一旦函数执行完毕，它的内容就会被丢弃。它只能在所在的函数中访问。</p>
+<p>我们可以把它理解为每个单独函数的内存 RAM。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SolidityTest {
+    
+    struct MyData {
+        uint id;
+        string value;
+    }
+    MyData[] public myData;
+
+    constructor() {
+        myData.push(MyData(1,"value1"));
+        myData.push(MyData(2,"value2"));
+    }
+
+    function operations() external {
+        //  memory 存储位置
+        MyData memory d = myData[0];
+
+        //  修改状态变量myData的内容
+        d.value = "new value";
+    }
+
+}
 </pre>
-<p>转换成更大的类型，将向左侧添加填充位。</p>
-<pre>uint16 a = 0x1234;
-uint32 b = uint32(a); // b = 0x00001234 
-</pre>
-<p>转换到更小的字节类型，会丢失后面数据。</p>
-<pre>bytes2 a = 0x1234;
-bytes1 b = bytes1(a); // b = 0x12
-</pre>
-<p>转换为更大的字节类型时，向右添加填充位。</p>
-<pre>bytes2 a = 0x1234;
-bytes4 b = bytes4(a); // b = 0x12340000
-</pre>
-<p>只有当字节类型和int类型大小相同时，才可以进行转换。</p>
-<pre>bytes2 a = 0x1234;
-uint32 b = uint16(a); // b = 0x00001234
-uint32 c = uint32(bytes4(a)); // c = 0x12340000
-uint8 d = uint8(uint16(a)); // d = 0x34
-uint8 e = uint8(bytes1(a)); // e = 0x12
-</pre>
-<p>把整数赋值给整型时，不能超出范围而发生截断，否则会报错。</p>
-<pre>uint8 a = 12; // no error
-uint32 b = 1234; // no error
-uint16 c = 0x123456; // error, 有截断，变为 0x3456
+<p>合约 SoldityTest 部署后，调用 operations 方法，状态变量 myData 的数据未被修改，其中 myData[0].value 仍然为 "value1"。</p>
+<p>&nbsp;</p>
+<h3>3) calldata</h3>
+<p>calldata 是不可修改的非持久性数据位置，类似于 memory，但只能出现在函数的输入参数位置。</p>
+<p>外部函数 external function 的传入参数强制为 calldata 类型。</p>
+<p>使用 calldata 的好处是在内部函数中作为输入参数传递时，省掉了数据拷贝的成本，节省 gas 费。memory 作为参数时，需要进行数据拷贝。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SolidityTest {
+
+    function operations(string calldata val) pure external {
+        //  使用 calldata 传递参数，省却复制成本
+        internalFunc1(val);
+
+        //  使用 memory 传递参数，需要进行复制
+        internalFunc2(val);
+    }
+
+    function internalFunc1(string calldata val) internal pure {
+        //  .....
+    }
+
+    function internalFunc2(string memory val) internal pure {
+        //  ....
+    }
+
+}
 </pre>
 
                                                                 </div>
@@ -87,8 +158,8 @@ uint16 c = 0x123456; // error, 有截断，变为 0x3456
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./类型转换.html"><span aria-hidden="true">&larr;</span> 类型转换</a></li>
+                                                                                <li class="next"><a href="./变量数据位置.html">变量数据位置 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -150,9 +221,9 @@ uint16 c = 0x123456; // error, 有截断，变为 0x3456
                                                 <li><a href="./结构体.html">结构体</a></li>
                                                 <li><a href="./映射.html">映射</a></li>
                                                 <li><a href="./枚举.html">枚举</a></li>
-                                                <li class="active"><a href="./类型转换.html">类型转换</a></li>
+                                                <li><a href="./类型转换.html">类型转换</a></li>
                                                 <h5 class="section">Solidity 数据位置</h5>
-                                                <li><a href="./数据位置.html">数据位置</a></li>
+                                                <li class="active"><a href="./数据位置.html">数据位置</a></li>
                                                 <li><a href="">变量数据位置</a></li>
                                                 <li><a href="">赋值数据位置</a></li>
                                                 <h5 class="section">Solidity 函数</h5>

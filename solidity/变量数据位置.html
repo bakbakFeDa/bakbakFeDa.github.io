@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./数据位置.html"><span aria-hidden="true">&larr;</span> 数据位置</a></li>
+                                                                                <li class="next"><a href="./赋值数据位置.html">赋值数据位置 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,55 +40,91 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>类型转换</h1>
-<p>Solidity允许类型之间进行隐式转换和显式转换。</p>
-<p>&nbsp;</p>
-<h2>1. 隐式转换</h2>
-<p>隐式转换时必须符合一定条件，不能导致信息丢失。例如，uint8可以转换为uint16，但是int8不可以转换为uint256，因为int8可以包含uint256中不允许的负值。</p>
-<p>&nbsp;</p>
-<h2>2. 显式转换</h2>
-<p>可以使用构造函数语法，显式地将数据类型转换为另一种类型。</p>
-<pre>int8 y = -3;
-uint x = uint(y);
-//Now x = 0xfffff..fd == 在256bit长度的格式下，-3的补码表示
-</pre>
-<p>转换成更小的类型，会丢失高位。</p>
-<pre>uint32 a = 0x12345678;
-uint16 b = uint16(a); // b = 0x5678
-</pre>
-<p>转换成更大的类型，将向左侧添加填充位。</p>
-<pre>uint16 a = 0x1234;
-uint32 b = uint32(a); // b = 0x00001234 
-</pre>
-<p>转换到更小的字节类型，会丢失后面数据。</p>
-<pre>bytes2 a = 0x1234;
-bytes1 b = bytes1(a); // b = 0x12
-</pre>
-<p>转换为更大的字节类型时，向右添加填充位。</p>
-<pre>bytes2 a = 0x1234;
-bytes4 b = bytes4(a); // b = 0x12340000
-</pre>
-<p>只有当字节类型和int类型大小相同时，才可以进行转换。</p>
-<pre>bytes2 a = 0x1234;
-uint32 b = uint16(a); // b = 0x00001234
-uint32 c = uint32(bytes4(a)); // c = 0x12340000
-uint8 d = uint8(uint16(a)); // d = 0x34
-uint8 e = uint8(bytes1(a)); // e = 0x12
-</pre>
-<p>把整数赋值给整型时，不能超出范围而发生截断，否则会报错。</p>
-<pre>uint8 a = 12; // no error
-uint32 b = 1234; // no error
-uint16 c = 0x123456; // error, 有截断，变为 0x3456
-</pre>
+<h1>变量的数据位置规则</h1>
+<h2>1. 规则1 &ndash; 状态变量</h2>
+<p>状态变量总是存储在存储区中。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
+contract DataLocation {
+    //  storage
+    uint stateVariable;
+    uint[] stateArray;
+}
+</pre>
+<p>此外，不能显式地标记状态变量的位置。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+contract DataLocation {  
+    uint storage stateVariable; // 错误  
+    uint[] memory stateArray; // 错误  
+} 
+</pre>
+<p>&nbsp;</p>
+<h2>2. 规则2 &ndash; 函数参数与返回值</h2>
+<p>函数参数包括返回参数都存储在内存中。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract DataLocation {
+    //  storage
+    uint stateVariable;
+    uint[] stateArray;
+
+    function calculate(uint num1, uint num2) public pure returns (uint result) {
+        return num1 + num2;
+    }
+
+}
+</pre>
+<p>此处，函数参数 uint num1 与 uint num2，返回值 uint result 都存储在内存中。</p>
+<p>&nbsp;</p>
+<h2>3. 规则3 &ndash; 局部变量</h2>
+<p>值类型的局部变量存储在内存中。但是，对于引用类型的局部变量，需要显式地指定数据位置。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Locations {
+    /* 此处都是状态变量 */
+    //  存储在 storage 中
+    bool flag;
+    uint number;
+    address account;
+
+    function doSomething() public pure {
+        /* 此处都是局部变量 */
+        //  值类型
+        //  所以它们被存储在内存中
+        bool flag2;
+        uint number2;
+        address account2;
+
+        //  引用类型，需要显示指定数据位置，此处指定为内存
+        uint[] memory localArray;
+    }
+
+}
+</pre>
+<p>不能显式覆盖具有值类型的局部变量。</p>
+<pre>function doSomething() public  {  
+    /* 此处都是局部变量  */  
+    // 值类型
+    bool memory flag2;  // 错误
+    uint Storage number2;  // 错误 
+    address account2;  
+}   
+</pre>
+<p>&nbsp;</p>
+<h2>4. 规则4 &ndash; 外部函数的参数</h2>
+<p>外部函数的参数(不包括返回参数)存储在 calldata中。</p>
                                                                 </div>
                                                         </div>
                                                         <div class="panel-footer operate"></div>
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./数据位置.html"><span aria-hidden="true">&larr;</span> 数据位置</a></li>
+                                                                                <li class="next"><a href="./赋值数据位置.html">赋值数据位置 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -150,11 +186,11 @@ uint16 c = 0x123456; // error, 有截断，变为 0x3456
                                                 <li><a href="./结构体.html">结构体</a></li>
                                                 <li><a href="./映射.html">映射</a></li>
                                                 <li><a href="./枚举.html">枚举</a></li>
-                                                <li class="active"><a href="./类型转换.html">类型转换</a></li>
+                                                <li><a href="./类型转换.html">类型转换</a></li>
                                                 <h5 class="section">Solidity 数据位置</h5>
                                                 <li><a href="./数据位置.html">数据位置</a></li>
-                                                <li><a href="">变量数据位置</a></li>
-                                                <li><a href="">赋值数据位置</a></li>
+                                                <li class="active"><a href="./变量数据位置.html">变量数据位置</a></li>
+                                                <li><a href="./赋值数据位置.html">赋值数据位置</a></li>
                                                 <h5 class="section">Solidity 函数</h5>
                                                 <li><a href="">函数</a></li>
                                                 <li><a href="">函数返回值</a></li>

@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./pure函数.html"><span aria-hidden="true">&larr;</span> pure函数</a></li>
+                                                                                <li class="next"><a href="./构造函数.html">构造函数 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,46 +40,38 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>类型转换</h1>
-<p>Solidity允许类型之间进行隐式转换和显式转换。</p>
-<p>&nbsp;</p>
-<h2>1. 隐式转换</h2>
-<p>隐式转换时必须符合一定条件，不能导致信息丢失。例如，uint8可以转换为uint16，但是int8不可以转换为uint256，因为int8可以包含uint256中不允许的负值。</p>
-<p>&nbsp;</p>
-<h2>2. 显式转换</h2>
-<p>可以使用构造函数语法，显式地将数据类型转换为另一种类型。</p>
-<pre>int8 y = -3;
-uint x = uint(y);
-//Now x = 0xfffff..fd == 在256bit长度的格式下，-3的补码表示
+<h1>view函数</h1>
+<p>solidity view函数，也就是视图函数，是指函数只会读取状态，不会修改状态。</p>
+<p>换言之，solidity view函数只会读取链上数据，不会修改链上数据。</p>
+<p>如果函数中存在以下语句，则被视为修改状态，编译器将抛出警告。</p>
+<ul>
+<li>修改状态变量</li>
+<li>触发事件</li>
+<li>创建合约</li>
+<li>使用<code>selfdestruct</code></li>
+<li>发送以太</li>
+<li>调用任何不是视图函数或纯函数的函数</li>
+<li>使用底层调用</li>
+<li>使用包含某些操作码的内联程序集</li>
+</ul>
+<p>状态变量的Getter方法默认是view函数。</p>
+<p>声明为view视图函数，可以在函数声明里，添加<code>view</code>关键字。</p>
+<p><strong>示例</strong></p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ViewDemo {
+    uint factor = 2;    // 状态变量
+
+    function getResult(uint num) public view returns(uint) {
+        uint result = num * factor;
+        return result;
+    }
+}
 </pre>
-<p>转换成更小的类型，会丢失高位。</p>
-<pre>uint32 a = 0x12345678;
-uint16 b = uint16(a); // b = 0x5678
-</pre>
-<p>转换成更大的类型，将向左侧添加填充位。</p>
-<pre>uint16 a = 0x1234;
-uint32 b = uint32(a); // b = 0x00001234 
-</pre>
-<p>转换到更小的字节类型，会丢失后面数据。</p>
-<pre>bytes2 a = 0x1234;
-bytes1 b = bytes1(a); // b = 0x12
-</pre>
-<p>转换为更大的字节类型时，向右添加填充位。</p>
-<pre>bytes2 a = 0x1234;
-bytes4 b = bytes4(a); // b = 0x12340000
-</pre>
-<p>只有当字节类型和int类型大小相同时，才可以进行转换。</p>
-<pre>bytes2 a = 0x1234;
-uint32 b = uint16(a); // b = 0x00001234
-uint32 c = uint32(bytes4(a)); // c = 0x12340000
-uint8 d = uint8(uint16(a)); // d = 0x34
-uint8 e = uint8(bytes1(a)); // e = 0x12
-</pre>
-<p>把整数赋值给整型时，不能超出范围而发生截断，否则会报错。</p>
-<pre>uint8 a = 12; // no error
-uint32 b = 1234; // no error
-uint16 c = 0x123456; // error, 有截断，变为 0x3456
-</pre>
+<p>运行上述程序，输入100，输出：</p>
+<pre>0: uint256: 200</pre>
+<p>在这个例子中，函数getResult，只是读取了状态变量factor的值，而没有修改它的值，所以这个函数是一个view函数。</p>
 
                                                                 </div>
                                                         </div>
@@ -87,8 +79,8 @@ uint16 c = 0x123456; // error, 有截断，变为 0x3456
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./pure函数.html"><span aria-hidden="true">&larr;</span> pure函数</a></li>
+                                                                                <li class="next"><a href="./构造函数.html">构造函数 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -150,17 +142,17 @@ uint16 c = 0x123456; // error, 有截断，变为 0x3456
                                                 <li><a href="./结构体.html">结构体</a></li>
                                                 <li><a href="./映射.html">映射</a></li>
                                                 <li><a href="./枚举.html">枚举</a></li>
-                                                <li class="active"><a href="./类型转换.html">类型转换</a></li>
+                                                <li><a href="./类型转换.html">类型转换</a></li>
                                                 <h5 class="section">Solidity 数据位置</h5>
                                                 <li><a href="./数据位置.html">数据位置</a></li>
-                                                <li><a href="">变量数据位置</a></li>
-                                                <li><a href="">赋值数据位置</a></li>
+                                                <li><a href="./变量数据位置.html">变量数据位置</a></li>
+                                                <li><a href="./赋值数据位置.html">赋值数据位置</a></li>
                                                 <h5 class="section">Solidity 函数</h5>
-                                                <li><a href="">函数</a></li>
-                                                <li><a href="">函数返回值</a></li>
-                                                <li><a href="">pure函数</a></li>
-                                                <li><a href="">view函数</a></li>
-                                                <li><a href="">构造函数</a></li>
+                                                <li><a href="./函数.html">函数</a></li>
+                                                <li><a href="./函数返回值.html">函数返回值</a></li>
+                                                <li><a href="./pure函数.html">pure函数</a></li>
+                                                <li class="active"><a href="./view函数.html">view函数</a></li>
+                                                <li><a href="./构造函数.html">构造函数</a></li>
                                                 <li><a href="">函数修改器</a></li>
                                                 <li><a href="">函数重载</a></li>
                                                 <li><a href="">数学函数</a></li>

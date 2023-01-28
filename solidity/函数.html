@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./赋值数据位置.html"><span aria-hidden="true">&larr;</span> 赋值数据位置</a></li>
+                                                                                <li class="next"><a href="./函数返回值.html">函数返回值 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,46 +40,97 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>类型转换</h1>
-<p>Solidity允许类型之间进行隐式转换和显式转换。</p>
+<h1>函数</h1>
+<p>函数是一组可重用代码的包装，接受输入，返回输出。</p>
+<p>Solidity 支持函数定义和调用。</p>
 <p>&nbsp;</p>
-<h2>1. 隐式转换</h2>
-<p>隐式转换时必须符合一定条件，不能导致信息丢失。例如，uint8可以转换为uint16，但是int8不可以转换为uint256，因为int8可以包含uint256中不允许的负值。</p>
+<h2>1. 函数定义</h2>
+<p>Solidity中， 定义函数的语法如下：</p>
+<h3>语法</h3>
+<pre>function function_name(parameter list) visibility state mutability returns(return type) {
+    //语句
+}</pre>
+<p>函数由关键字<code>function</code>声明，后面跟函数名(function_name)、参数(parameter list)、状态可变性(state mutability)、可见性(visibility)、返回值的定义(returns(return type))。</p>
+<h3>可见性（visibility）</h3>
+<p>函数的可见性有四种：</p>
+<ul>
+<li>Private（私有）：函数只能在所定义的智能合约内部调用。</li>
+<li>Internal（内部）：可以在所定义智能合约内部调用该函数，也可以从继承合约中调用该函数。</li>
+<li>External（外部）：只能从智能合约外部调用。 如果要从智能合约中调用它，则必须使用 this。</li>
+<li>Public（公开）：可以从任何地方调用。</li>
+</ul>
+<h3>状态可变性（state mutability）</h3>
+<ul>
+<li>view：用view声明的函数只能读取状态，而不能修改状态。</li>
+<li>pure：用pure声明的函数既不能读取也不能修改状态。</li>
+<li>payable：用payable声明的函数可以接受发送给合约的以太币，如果未指定，该函数将自动拒绝所有发送给它的以太币</li>
+</ul>
+<h3>示例</h3>
+<p>下面的例子，定义了一个名为 getResult 的函数，该函数不接受任何参数：</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Test {
+
+    function getResult() public view returns(uint) {
+        uint a = 1;     // 局部变量
+        uint b = 2;
+        uint result = a + b;
+        return result;
+    }
+
+}
+</pre>
 <p>&nbsp;</p>
-<h2>2. 显式转换</h2>
-<p>可以使用构造函数语法，显式地将数据类型转换为另一种类型。</p>
-<pre>int8 y = -3;
-uint x = uint(y);
-//Now x = 0xfffff..fd == 在256bit长度的格式下，-3的补码表示
+<h2>2. 函数调用</h2>
+<p>要调用函数，只需使用函数名，并传入参数即可。</p>
+<p>下面的代码是一个简单的solidity合约，包含三个函数：increment()，getCount()和 callFunctions()。</p>
+<p>increment()函数用来将count值加1，getCount()函数用来获取count的值，callFunctions()函数用来调用其他两个函数。</p>
+<p>在这里，callFunctions()会先调用increment()两次，再调用getCount()并将返回值赋给currentCount。因此，currentCount的值为2。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleFunction  {
+    uint256 public count;
+
+    function increment() public {
+        count++;
+    }
+
+    function getCount() public view returns (uint256) {
+        return count;
+    }
+
+    function callFunction() public {
+        increment();
+        increment();
+        uint256 currentCount = getCount();  // currentCount 的值为 2
+    }
+}
 </pre>
-<p>转换成更小的类型，会丢失高位。</p>
-<pre>uint32 a = 0x12345678;
-uint16 b = uint16(a); // b = 0x5678
+<p>&nbsp;</p>
+<h2>3. return 语句</h2>
+<p>Solidity中， 函数可以返回多个值。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract test {
+    function getResult() public view returns(uint product, uint sum) {
+        uint a = 1;         //  局部变量
+        uint b = 2;
+        product = a * b;    //  使用返回参数返回值
+        sum = a + b;        
+        return (product, sum);
+
+        // return (a*b, a+b);  //  也可以使用return返回多个值
+    }
+}
 </pre>
-<p>转换成更大的类型，将向左侧添加填充位。</p>
-<pre>uint16 a = 0x1234;
-uint32 b = uint32(a); // b = 0x00001234 
+<p>运行上述程序，输出：</p>
+<pre>0: uint256: product 2
+1: uint256: sum 3
 </pre>
-<p>转换到更小的字节类型，会丢失后面数据。</p>
-<pre>bytes2 a = 0x1234;
-bytes1 b = bytes1(a); // b = 0x12
-</pre>
-<p>转换为更大的字节类型时，向右添加填充位。</p>
-<pre>bytes2 a = 0x1234;
-bytes4 b = bytes4(a); // b = 0x12340000
-</pre>
-<p>只有当字节类型和int类型大小相同时，才可以进行转换。</p>
-<pre>bytes2 a = 0x1234;
-uint32 b = uint16(a); // b = 0x00001234
-uint32 c = uint32(bytes4(a)); // c = 0x12340000
-uint8 d = uint8(uint16(a)); // d = 0x34
-uint8 e = uint8(bytes1(a)); // e = 0x12
-</pre>
-<p>把整数赋值给整型时，不能超出范围而发生截断，否则会报错。</p>
-<pre>uint8 a = 12; // no error
-uint32 b = 1234; // no error
-uint16 c = 0x123456; // error, 有截断，变为 0x3456
-</pre>
+
 
                                                                 </div>
                                                         </div>
@@ -87,8 +138,8 @@ uint16 c = 0x123456; // error, 有截断，变为 0x3456
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./枚举.html"><span aria-hidden="true">&larr;</span> 枚举</a></li>
-                                                                                <li class="next"><a href="./数据位置.html">数据位置 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./赋值数据位置.html"><span aria-hidden="true">&larr;</span> 赋值数据位置</a></li>
+                                                                                <li class="next"><a href="./函数返回值.html">函数返回值 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -150,14 +201,14 @@ uint16 c = 0x123456; // error, 有截断，变为 0x3456
                                                 <li><a href="./结构体.html">结构体</a></li>
                                                 <li><a href="./映射.html">映射</a></li>
                                                 <li><a href="./枚举.html">枚举</a></li>
-                                                <li class="active"><a href="./类型转换.html">类型转换</a></li>
+                                                <li><a href="./类型转换.html">类型转换</a></li>
                                                 <h5 class="section">Solidity 数据位置</h5>
                                                 <li><a href="./数据位置.html">数据位置</a></li>
-                                                <li><a href="">变量数据位置</a></li>
-                                                <li><a href="">赋值数据位置</a></li>
+                                                <li><a href="./变量数据位置.html">变量数据位置</a></li>
+                                                <li><a href="./赋值数据位置.html">赋值数据位置</a></li>
                                                 <h5 class="section">Solidity 函数</h5>
-                                                <li><a href="">函数</a></li>
-                                                <li><a href="">函数返回值</a></li>
+                                                <li class="active"><a href="./函数.html">函数</a></li>
+                                                <li><a href="./函数返回值.html">函数返回值</a></li>
                                                 <li><a href="">pure函数</a></li>
                                                 <li><a href="">view函数</a></li>
                                                 <li><a href="">构造函数</a></li>
