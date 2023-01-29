@@ -43,6 +43,76 @@
 <h1>modifier 函数修改器</h1>
 <p>Solidity 中关键字 modifier 用于声明一个函数修改器。</p>
 <p>我们可以将一些通用的操作提取出来，包装为函数修改器，来提高代码的复用性，改善编码效率。</p>
+<p>函数修改器 modifier 的作用与 JavaSpring 中的切面功能很相似，当它作用于一个函数上，可以在函数执行前或后预先执行 modifier 中的逻辑，以增强其功能。</p>
+<p>函数修改器 modifier 常用于在函数执行前检查某种前置条件。</p>
+<p>函数修改器 modifier 是一种合约属性，可被继承，同时还可被派生的合约重写(override)。</p>
+<h2>1. 基本函数修改器</h2>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ModifierTest {
+    bool public paused;
+    uint public counter;
+
+    function setPaused(bool _paused) external {
+        paused = _paused;
+    }
+
+    //  检查前置条件：判断paused是否被设置，如果paused为true，那么终止执行。
+    modifier isNotPaused() {
+        require(!paused);     
+        //  执行被isNotPaused修饰的函数
+        _;
+    }
+
+    function add() external isNotPaused {
+        counter++;
+    }
+}
+</pre>
+<p>add函数被修改器isNotPaused修饰，所以先执行 require(!paused)，检查前置条件，然后再执行add函数的代码。</p>
+<p>&nbsp;</p>
+<h2>2. _ 的作用</h2>
+<p>函数修改器中有一行代码只有下划线 _ ，我们认为下划线 _ 代表了被修饰函数的代码。</p>
+<p>也就是说，下划线实际上帮我们标记了被 modifier 修饰函数的执行位置。如上例中：</p>
+<pre>//  检查前置条件：判断paused是否被设置，如果paused为true，那么终止执行。
+modifier isNotPaused() {
+    require(!paused);     
+    //  执行被isNotPaused修饰的函数
+    _;
+}
+</pre>
+<p>下划线 _在 require(!paused) 后面，则被修饰函数 add 在此判断条件之后执行。</p>
+<p>&nbsp;</p>
+<h2>3. 带参数的函数修改器</h2>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ModifierTest {
+    bool public paused;
+    uint public counter;
+
+    function setPaused(bool _paused) external {
+        paused = _paused;
+    }
+
+    modifier isNotPaused(uint x) {
+        // 检查前置条件：判断x是否大于10，如果x大于或者等于10，那么终止执行。
+        require(x &lt; 10);
+        _;  //  执行被isNotPaused修饰的函数
+    }
+
+    function add(uint x) external isNotPaused(x) {
+        counter++;
+    }
+}
+</pre>
+<p>&nbsp;</p>
+<h2>4. 复杂示例</h2>
+<p>我们来看一个函数修改器经典的应用 OpenZeppelin 库中的 Ownable 合约，下面是其中关键的代码：</p>
+<pre>
+    
+</pre>
 
 
 
