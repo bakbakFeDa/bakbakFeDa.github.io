@@ -29,7 +29,7 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./日志.html"><span aria-hidden="true">&larr;</span> 日志</a></li>
+                                                                                <li class="previous"><a href="./继承.html"><span aria-hidden="true">&larr;</span> 继承</a></li>
                                                                                 <li class="next"><a href="./多重继承.html">多重继承 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
@@ -41,263 +41,7 @@
                                                                         class="markdown-body">      
                                                                         <!--内容-->
 <h1>合约继承</h1>
-<p>Solidity 语言是一种面向对象的编程语言，提供了对合约继承的支持，继承是扩展合约功能的一种方式。</p>
-<p>Solidity 语言的合约继承通过关键字 is 来实现。</p>
-<p>&nbsp;</p>
-<h2><strong>1. 继承示例</strong></h2>
-<p>继承通过关键字 is 来实现，例如：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
 
-contract Person {
-    string public name;
-    uint public age;
-    function getSalary() external pure returns(uint) {
-        return 0;
-    }
-}
-
-contract Employee is Person {
-    
-}
-</pre>
-<p>合约 Employee 继承了合约 Person，运行后，我们看到 Employee 继承了状态变量 name、age 和方法 getSalary。</p>
-<p>&nbsp;</p>
-<h2>2. virtual 和 override</h2>
-<p>solidity 引入了 virtual，override 关键字，用于重写函数。</p>
-<p>父合约可以使用 virtual 关键字声明一个虚函数，子合约使用 override 关键字来覆盖父合约的方法，例如：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Person {
-    string public name;
-    uint public age;
-
-    function getSalary() external pure virtual returns(uint) {
-        return 123;
-    }
-}
-
-contract Employee is Person {
-    function getSalary() external pure override returns(uint) {
-        return 3000;
-    }
-}
-</pre>
-<p>子合约 Employee 的 uint 方法覆盖了父合约 Person 的 getSalary 方法，调用子合约 Employee 的 getSalary 方法，输出结果为 3000。</p>
-<p>如果合约 Manager 又继承了 Employee，而且还需要覆盖 getSalary 方法，那么需要如下写法：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
-
-contract Person {
-    string public name;
-    uint public age;
-
-    function getSalary() external pure virtual returns(uint) {
-        return 0;
-    }
-}
-
-contract Employee is Person {
-    function getSalary() external pure virtual override returns(uint) {
-        return 3000;
-    }
-}
-
-contract Manager is Employee {
-    function getSex() external pure returns(uint) {
-        return 2000;
-    }
-}
-</pre>
-<p>&nbsp;</p>
-<h2>3. abstract</h2>
-<p>solidity 还允许在基类中只声明函数原型，没有实现，而在派生类中再去实现。</p>
-<p>solidity 使用 abstract 关键字来标记基类。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-abstract contract Employee {
-    function getSalary() public pure virtual returns(int);
-} 
-
-contract Manager is Employee {
-    function getSalary() public pure override returns(int) {
-        return 2000;
-    }
-}
-</pre>
-<p>抽象合约 abstract 的作用是将函数定义和具体实现分离，从而实现解耦、可拓展性，其使用规则为：</p>
-<ul>
-    <li>当合约中有未实现的函数时，则合约必须修饰为abstract；</li>
-    <li>当合约继承的base合约中有构造函数，但是当前合约并没有对其进行传参时，则必须修饰为abstract；</li>
-    <li>abstract合约中未实现的函数必须在子合约中实现，即所有在abstract中定义的函数都必须有实现；</li>
-    <li>abstract合约不能单独部署，必须被继承后才能部署；</li>
-</ul>
-<h3>抽象合约示例 abstract</h3>
-<pre>// SPDX-License-Identifier: GPL-3.0
-pragma solidity &gt;=0.6.0 &lt; 0.9.0;
-
-abstract contract Animal {
-    string public species;
-    constructor(string memory _base) {
-        species = _base;
-    }
-}
-
-abstract contract Feline {
-    uint public num;
-    function utterance() public pure virtual returns (bytes32);
-
-    function base(uint _num) public returns(uint, string memory) {
-        num = _num;
-        return (num, "hello world!");
-    }
-}
-
-//  由于 Animal 中的构造函数没有进行初始化，所以必须修饰为 abstract
-abstract contract Cat1 is Feline, Animal {
-    function utterance() public pure override returns (bytes32) {
-        return "miaow";
-    }
-}
-
-contract Cat2 is Feline, Animal("Animal") {
-    function utterance() public pure override returns (bytes32) {
-        // return "maiow";
-        return "123";
-    }
-}
-</pre>
-<p>&nbsp;</p>
-<h2>4. 子类访问父类权限</h2>
-<p>子类访问父类权限修饰符包括：public、internal、private，例如：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract A {
-    uint stateVar;
-
-    function somPublicFun() public {}
-    function somInternalFun() internal {}
-    function somPrivateFun() private {}
-}
-
-contract B is A {
-    function call() public {
-        //  访问父类的 public 方法
-        somPublicFun();
-
-        //  访问父类的状态变量（状态变量默认是internal权限）
-        stateVar = 10;
-
-        //  访问父类的 internal 方法
-        somInternalFun();
-
-        //  不能访问 private
-        // somPrivateFun();
-    }
-}
-</pre>
-<p>&nbsp;</p>
-<h2>5. 传参数到父类</h2>
-<p>子类传参数到父类有两种方式：</p>
-<h3>直接传递</h3>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Base {
-    uint a;
-    constructor(uint _a) {
-        a = _a;
-    }
-}
-
-contract Derive is Base(1) {
-    function getBasePara() external view returns(uint) {
-        return a;
-    }
-}
-</pre>
-<h3>根据输入值传递</h3>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Base {
-    uint a;
-
-    constructor(uint _a) {
-        a = _a;
-    }
-}
-
-contract T is Base {
-    constructor(uint _a) Base(_a) {
-    }
-
-    function getBasePara() external view returns (uint) {
-        return a;
-    }
-}
-</pre>
-<p>&nbsp;</p>
-<h2>6. 多重继承中的重名</h2>
-<p>多重继承中不允许出现相同的函数名、事件名、修改器名以及状态变量名等。</p>
-<p>示例以下：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Employee1 {
-    function getSalary() public pure returns(int) {
-        return 1;
-    }
-}
-
-contract Employee2 {
-    function getSalary() public pure returns(int) {
-        return 1;
-    }
-}
-
-contract Manager is Employee1, Employee2 {    
-}
-</pre>
-<p>由于基类 Employee1、Employee2 中同时包含函数 getSalary，构成重名，所以以上代码会出现编译错误。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Employee {
-    function getSalary() public pure returns(int) {
-        return 1;
-    }
-}
-
-contract Manager is Employee {
-    function getSalary() public pure returns(int) {
-        return 2;
-    }    
-}
-</pre>
-<p>由于基类 Employee 和 父类 Manager 中同时包含函数 getSalary，构成重名，所以以上代码会出现编译错误。</p>
-<p>还有一种比较隐蔽的情况，默认状态变量的<code>getter</code>函数导致的重名。</p>
-<p>示例以下：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Employee1 {
-    uint public data = 10;
-}
-
-contract Employee2 {
-    function data() public returns(uint) {
-        return 1;
-    }  
-}
-
-contract Manager is Employee1, Employee2 {
-}
-</pre>
-<p>由于 Employee1 的状态变量 data，会默认生成 getter，函数名为 data()，于是 Employee1 和 Employee2 函数重名出错。</p>
 
                                                                 </div>
                                                         </div>
@@ -305,7 +49,7 @@ contract Manager is Employee1, Employee2 {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./日志.html"><span aria-hidden="true">&larr;</span> 日志</a></li>
+                                                                                <li class="previous"><a href="./继承.html"><span aria-hidden="true">&larr;</span> 继承</a></li>
                                                                                 <li class="next"><a href="./多重继承.html">多重继承 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
@@ -387,8 +131,8 @@ contract Manager is Employee1, Employee2 {
                                                 <li><a href="./事件.html">事件</a></li>
                                                 <li><a href="./不可变量.html">不可变量</a></li>
                                                 <li><a href="./日志.html">日志</a></li>
-                                                <li class="active"><a href="./继承.html">继承</a></li>
-                                                <li><a href="">多重继承</a></li>
+                                                <li><a href="./继承.html">继承</a></li>
+                                                <li class="active"><a href="./多重继承.html">多重继承</a></li>
                                                 <li><a href="">多重继承的构造函数</a></li>
                                                 <li><a href="">调用父类函数</a></li>
                                                 <li><a href="">异常处理</a></li>
