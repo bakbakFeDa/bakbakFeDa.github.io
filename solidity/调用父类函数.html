@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./继承.html"><span aria-hidden="true">&larr;</span> 继承</a></li>
-                                                                                <li class="next"><a href="./多重继承的构造函数.html">多重继承的构造函数 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./多重继承的构造函数.html"><span aria-hidden="true">&larr;</span> 多重继承的构造函数</a></li>
+                                                                                <li class="next"><a href="./多重继承.html">多重继承 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,104 +40,124 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>多重继承</h1>
-<p>Solidity 语言提供了对合约继承的支持，而且支持多重继承。</p>
-<p>Solidity 语言的多重继承采用线性继承方式。继承顺序很重要，判断顺序的一个简单规则是按照&ldquo;最类似基类&rdquo;到&ldquo;最多派生&rdquo;的顺序指定基类。</p>
-<p>第一种情况：基类 X，Y 没有继承关系，派生类 Z 继承了 X，Y。</p>
-<pre>X  Y
-/  \
-\  /
- Z
-</pre>
-<p><strong>多重继承示例</strong></p>
+<h1>调用父类函数</h1>
+<p>Solidity 派生类调用父类函数有两种方法：</p>
+<ul>
+<li>使用父级合约名称调用</li>
+<li>使用super调用</li>
+</ul>
+<p>&nbsp;</p>
+<h2>使用父级合约名称调用</h2>
+<p>使用父级合约名称调用，格式为：parent contract.method</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract X {
-    function x() external pure returns(string memory) {
-        return "x";
+    function foo() internal pure returns(uint) {
+        return 1;
     }
 }
 
-contract Y {
-    function y() external pure returns(string memory) {
-        return "y";
-    }
-}
-
-contract Z is X, Y {
-    function z() external pure returns(string memory) {
-        return "z";
+contract Z is X {
+    function test() external pure returns(uint) {
+        //  X 为父级合约名称，foo为父级合约的方法名称
+        uint result = X.foo();
+        return result;
     }
 }
 </pre>
-<p>派生合约 Z 继承了 X 的 x() 和 Y 的 y()，另外还定义了自己的函数 z()。</p>
-<p>第二种情况：派生类 Y 继承了基类 X，派生类 Z 同时继承了 X，Y。</p>
+<p>&nbsp;</p>
+<h2>使用super调用</h2>
+<p>使用super调用，格式为：super.method</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract X {
+    function foo() internal pure returns(uint) {
+        return 1;
+    }
+}
+
+contract Z is X {
+    function test() external pure returns(uint) {
+        //  super 表示父级合约，foo为父级合约的方法名称
+        uint result = super.foo();
+        return result;
+    }
+}
+</pre>
+<p>&nbsp;</p>
+<h2>多重继承的super调用</h2>
+<p>在多重继承中使用super调用，将会调用所有父级合约(基类)的方法。</p>
 <pre>  X 
 /   \
-Y   |
+Y   Z
 \   /
-  Z
+  T
 </pre>
-<p>这种情况下，我们按照线性继承原则，理清继承顺序：X，Y，Z。</p>
-<p><strong>多重继承示例</strong></p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract X {
-    function foo() external pure virtual returns(string memory) {
-        return "x foo";
-    }
+    event log(string message);
 
-    function bar() external pure virtual returns(string memory) {
-        return "x bar";
-    }
-
-    function x() external pure returns(string memory) {
-        return "x";
+    function foo() public virtual {
+        emit log("X.foo");
     }
 }
 
 contract Y is X {
-    function foo() external pure virtual override returns(string memory) {
-        return "y foo";
-    }
-
-    function bar() external pure virtual override returns(string memory) {
-        return "y bar";
-    }
-
-    function y() external pure returns(string memory) {
-        return "y";
+    function foo() public virtual override {
+        emit log("Y foo");
+        super.foo();
     }
 }
 
-contract Z is X,Y {
-    function foo() external pure override(X,Y) returns(string memory) {
-        return "z foo";
+contract Z is X {
+    function foo() public virtual override {
+        emit log("Z foo");
+        super.foo();
     }
+}
 
-    function bar() external pure override(X,Y) returns(string memory) {
-        return "z bar";
-    }
-
-    function z() external pure returns(string memory) {
-        return "z";
+contract T is Y,Z {
+    function foo() public override(Y,Z) {
+        super.foo();
     }
 }
 </pre>
-<p>按照线性继承顺序，Z 继承了 Y，Y 继承了 X，那么 Z 的写法是 Z is X,Y。如果写成 Z is Y,X，编译器就会报错。</p>
-<p>Z 的方法 foo() ，覆盖了 X 和 Y 的方法 foo() ，所以需要写为 override(X,Y)。</p>
-<pre>   X 
- /   \
-Y     A
-|     |
-|     B
- \   / 
-   Z
+<p>我们部署合约 T 后，调用它的方法 foo()，查看输出结果如下：</p>
+<pre>[
+	{
+		"from": "0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B",
+		"topic": "0x41304facd9323d75b11bcdd609cb38effffdb05710f7caf0e9b16c6d9d709f50",
+		"event": "log",
+		"args": {
+			"0": "Z foo",
+			"message": "Z foo"
+		}
+	},
+	{
+		"from": "0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B",
+		"topic": "0x41304facd9323d75b11bcdd609cb38effffdb05710f7caf0e9b16c6d9d709f50",
+		"event": "log",
+		"args": {
+			"0": "Y foo",
+			"message": "Y foo"
+		}
+	},
+	{
+		"from": "0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B",
+		"topic": "0x41304facd9323d75b11bcdd609cb38effffdb05710f7caf0e9b16c6d9d709f50",
+		"event": "log",
+		"args": {
+			"0": "X.foo",
+			"message": "X.foo"
+		}
+	}
+]
 </pre>
-<p>这种情况下，我们按照线性继承原则，理清继承顺序：X，Y，A，B，Z。</p>
-
+<p>可以看到 Y，Z 的 foo 方法都被调用，而 Z 的 foo 方法只被调用了一次。</p>
 
                                                                 </div>
                                                         </div>
@@ -145,8 +165,8 @@ Y     A
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./继承.html"><span aria-hidden="true">&larr;</span> 继承</a></li>
-                                                                                <li class="next"><a href="./多重继承的构造函数.html">多重继承的构造函数 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./多重继承的构造函数.html"><span aria-hidden="true">&larr;</span> 多重继承的构造函数</a></li>
+                                                                                <li class="next"><a href="./多重继承.html">多重继承 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -228,10 +248,10 @@ Y     A
                                                 <li><a href="./不可变量.html">不可变量</a></li>
                                                 <li><a href="./日志.html">日志</a></li>
                                                 <li><a href="./继承.html">继承</a></li>
-                                                <li class="active"><a href="./多重继承.html">多重继承</a></li>
+                                                <li><a href="./多重继承.html">多重继承</a></li>
                                                 <li><a href="./多重继承的构造函数.html">多重继承的构造函数</a></li>
-                                                <li><a href="./调用父类函数.html">调用父类函数</a></li>
-                                                <li><a href="">异常处理</a></li>
+                                                <li class="active"><a href="./调用父类函数.html">调用父类函数</a></li>
+                                                <li><a href="./异常处理.html">异常处理</a></li>
                                                 <li><a href="">编程风格</a></li>
                                                 <li><a href="">访问权限</a></li>
                                                 <li><a href="">存储位置</a></li>
@@ -288,3 +308,125 @@ Y     A
         </body>
 </html>
 
+
+
+
+
+
+<p>Solidity 派生类调用父类函数有两种方法：</p>
+<ul>
+<li>使用父级合约名称调用</li>
+<li>使用super调用</li>
+</ul>
+<p>&nbsp;</p>
+<h2>使用父级合约名称调用</h2>
+<p>使用父级合约名称调用，格式为：parent contract.method</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract X {
+    function foo() internal pure returns(uint) {
+        return 1;
+    }
+}
+
+contract Z is X {
+    function test() external pure returns(uint) {
+        //  X 为父级合约名称，foo为父级合约的方法名称
+        uint result = X.foo();
+        return result;
+    }
+}
+</pre>
+<p>&nbsp;</p>
+<h2>使用super调用</h2>
+<p>使用super调用，格式为：super.method</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract X {
+    function foo() internal pure returns(uint) {
+        return 1;
+    }
+}
+
+contract Z is X {
+    function test() external pure returns(uint) {
+        //  super 表示父级合约，foo为父级合约的方法名称
+        uint result = super.foo();
+        return result;
+    }
+}
+</pre>
+<p>&nbsp;</p>
+<h2>多重继承的super调用</h2>
+<p>在多重继承中使用super调用，将会调用所有父级合约(基类)的方法。</p>
+<pre>  X 
+/   \
+Y   Z
+\   /
+  T
+</pre>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract X {
+    event log(string message);
+
+    function foo() public virtual {
+        emit log("X.foo");
+    }
+}
+
+contract Y is X {
+    function foo() public virtual override {
+        emit log("Y foo");
+        super.foo();
+    }
+}
+
+contract Z is X {
+    function foo() public virtual override {
+        emit log("Z foo");
+        super.foo();
+    }
+}
+
+contract T is Y,Z {
+    function foo() public override(Y,Z) {
+        super.foo();
+    }
+}
+</pre>
+<p>我们部署合约 T 后，调用它的方法 foo()，查看输出结果如下：</p>
+<pre>[
+	{
+		"from": "0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B",
+		"topic": "0x41304facd9323d75b11bcdd609cb38effffdb05710f7caf0e9b16c6d9d709f50",
+		"event": "log",
+		"args": {
+			"0": "Z foo",
+			"message": "Z foo"
+		}
+	},
+	{
+		"from": "0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B",
+		"topic": "0x41304facd9323d75b11bcdd609cb38effffdb05710f7caf0e9b16c6d9d709f50",
+		"event": "log",
+		"args": {
+			"0": "Y foo",
+			"message": "Y foo"
+		}
+	},
+	{
+		"from": "0xD7ACd2a9FD159E69Bb102A1ca21C9a3e3A5F771B",
+		"topic": "0x41304facd9323d75b11bcdd609cb38effffdb05710f7caf0e9b16c6d9d709f50",
+		"event": "log",
+		"args": {
+			"0": "X.foo",
+			"message": "X.foo"
+		}
+	}
+]
+</pre>
+<p>可以看到 Y，Z 的 foo 方法都被调用，而 Z 的 foo 方法只被调用了一次。</p>

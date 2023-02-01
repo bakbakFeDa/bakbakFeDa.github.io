@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./继承.html"><span aria-hidden="true">&larr;</span> 继承</a></li>
-                                                                                <li class="next"><a href="./多重继承的构造函数.html">多重继承的构造函数 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./多重继承.html"><span aria-hidden="true">&larr;</span> 多重继承</a></li>
+                                                                                <li class="next"><a href="./调用父类函数.html">调用父类函数 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,104 +40,95 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>多重继承</h1>
-<p>Solidity 语言提供了对合约继承的支持，而且支持多重继承。</p>
-<p>Solidity 语言的多重继承采用线性继承方式。继承顺序很重要，判断顺序的一个简单规则是按照&ldquo;最类似基类&rdquo;到&ldquo;最多派生&rdquo;的顺序指定基类。</p>
-<p>第一种情况：基类 X，Y 没有继承关系，派生类 Z 继承了 X，Y。</p>
-<pre>X  Y
-/  \
-\  /
- Z
-</pre>
-<p><strong>多重继承示例</strong></p>
+<h1>多重继承的构造函数</h1>
+<p>Solidity 多重继承的构造函数有两种形式：</p>
+<!-- <p>&nbsp;</p> -->
+<h2>1. 已知基类初始化参数</h2>
+<p>如果我们已经知道基类初始化参数，那么就可以在派生类的继承声明中，直接传递参数给基类的构造函数。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract X {
-    function x() external pure returns(string memory) {
-        return "x";
+    string public name;
+    constructor(string memory _name) {
+        name = _name;
     }
 }
 
 contract Y {
-    function y() external pure returns(string memory) {
-        return "y";
+    string public value;
+    constructor(string memory _value) {
+        value = _value;
     }
 }
 
-contract Z is X, Y {
-    function z() external pure returns(string memory) {
-        return "z";
-    }
+//  派生类的继承声明中，直接传递参数给基类的构造函数
+contract Z is X("n"), Y("v") {
 }
 </pre>
-<p>派生合约 Z 继承了 X 的 x() 和 Y 的 y()，另外还定义了自己的函数 z()。</p>
-<p>第二种情况：派生类 Y 继承了基类 X，派生类 Z 同时继承了 X，Y。</p>
-<pre>  X 
-/   \
-Y   |
-\   /
-  Z
-</pre>
-<p>这种情况下，我们按照线性继承原则，理清继承顺序：X，Y，Z。</p>
-<p><strong>多重继承示例</strong></p>
+<p>&nbsp;</p>
+<h2>2. 部署时传递初始化参数</h2>
+<p>如果我们需要在部署时或者运行时，由调用方传递基类初始化参数。在这种情况下，我们需要编写一个新的构造函数，传递参数给基类。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract X {
-    function foo() external pure virtual returns(string memory) {
-        return "x foo";
-    }
-
-    function bar() external pure virtual returns(string memory) {
-        return "x bar";
-    }
-
-    function x() external pure returns(string memory) {
-        return "x";
+    string public name;
+    constructor(string memory _name) {
+        name = _name;
     }
 }
 
-contract Y is X {
-    function foo() external pure virtual override returns(string memory) {
-        return "y foo";
-    }
-
-    function bar() external pure virtual override returns(string memory) {
-        return "y bar";
-    }
-
-    function y() external pure returns(string memory) {
-        return "y";
+contract Y {
+    string public value;
+    constructor(string memory _value) {
+        value = _value;
     }
 }
 
+//  编写一个新的构造函数，传递参数给基类
 contract Z is X,Y {
-    function foo() external pure override(X,Y) returns(string memory) {
-        return "z foo";
-    }
-
-    function bar() external pure override(X,Y) returns(string memory) {
-        return "z bar";
-    }
-
-    function z() external pure returns(string memory) {
-        return "z";
+    constructor(string memory _name, string memory _value) X(_name) Y(_value) {
     }
 }
 </pre>
-<p>按照线性继承顺序，Z 继承了 Y，Y 继承了 X，那么 Z 的写法是 Z is X,Y。如果写成 Z is Y,X，编译器就会报错。</p>
-<p>Z 的方法 foo() ，覆盖了 X 和 Y 的方法 foo() ，所以需要写为 override(X,Y)。</p>
-<pre>   X 
- /   \
-Y     A
-|     |
-|     B
- \   / 
-   Z
-</pre>
-<p>这种情况下，我们按照线性继承原则，理清继承顺序：X，Y，A，B，Z。</p>
+<p>&nbsp;</p>
+<h2>3. 混写方式</h2>
+<p>我们可以同时使用上面的两种方式，定义和部署时，分别传递参数给基类的构造函数。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
+contract X {
+    string public name;
+    constructor(string memory _name) {
+        name = _name;
+    }
+}
+
+contract Y {
+    string public value;
+    constructor(string memory _value) {
+        value = _value;
+    }
+}
+
+//  混写方式
+contract Z is X("n"), Y {
+    constructor(string memory _value) Y(_value) {
+    }
+}
+</pre>
+<p>&nbsp;</p>
+<h2>4. 继承顺序</h2>
+<p>多重继承中，构造函数的执行会按照定义时的继承顺序进行，与构造函数中定义顺序无关。</p>
+<p>例如：</p>
+<pre>contract Z is X,Y {
+    // 会按照继承顺序X,Y，先执行X的构造函数，再执行Y的构造函数，最后执行Z的构造函数
+    constructor() Y("v"), X("n"){
+        // 先运行 X("n")，再运行 Y("v")
+    }
+ }
+ </pre>
 
                                                                 </div>
                                                         </div>
@@ -145,8 +136,8 @@ Y     A
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./继承.html"><span aria-hidden="true">&larr;</span> 继承</a></li>
-                                                                                <li class="next"><a href="./多重继承的构造函数.html">多重继承的构造函数 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./多重继承.html"><span aria-hidden="true">&larr;</span> 多重继承</a></li>
+                                                                                <li class="next"><a href="./调用父类函数.html">调用父类函数 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -228,8 +219,8 @@ Y     A
                                                 <li><a href="./不可变量.html">不可变量</a></li>
                                                 <li><a href="./日志.html">日志</a></li>
                                                 <li><a href="./继承.html">继承</a></li>
-                                                <li class="active"><a href="./多重继承.html">多重继承</a></li>
-                                                <li><a href="./多重继承的构造函数.html">多重继承的构造函数</a></li>
+                                                <li><a href="./多重继承.html">多重继承</a></li>
+                                                <li class="active"><a href="./多重继承的构造函数.html">多重继承的构造函数</a></li>
                                                 <li><a href="./调用父类函数.html">调用父类函数</a></li>
                                                 <li><a href="">异常处理</a></li>
                                                 <li><a href="">编程风格</a></li>

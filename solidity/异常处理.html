@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./继承.html"><span aria-hidden="true">&larr;</span> 继承</a></li>
-                                                                                <li class="next"><a href="./多重继承的构造函数.html">多重继承的构造函数 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./调用父类函数.html"><span aria-hidden="true">&larr;</span> 调用父类函数</a></li>
+                                                                                <li class="next"><a href="./编程风格.html">编程风格 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,103 +40,121 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>多重继承</h1>
-<p>Solidity 语言提供了对合约继承的支持，而且支持多重继承。</p>
-<p>Solidity 语言的多重继承采用线性继承方式。继承顺序很重要，判断顺序的一个简单规则是按照&ldquo;最类似基类&rdquo;到&ldquo;最多派生&rdquo;的顺序指定基类。</p>
-<p>第一种情况：基类 X，Y 没有继承关系，派生类 Z 继承了 X，Y。</p>
-<pre>X  Y
-/  \
-\  /
- Z
-</pre>
-<p><strong>多重继承示例</strong></p>
+<h1>异常处理</h1>
+<p>Solidity 是通过回退状态的方式来处理异常错误。</p>
+<p>Solidity 发生异常时，会撤消当前调用和所有子调用改变的状态，同时给调用者返回一个错误标识。</p>
+<p>Solidity 提供了require 、assert 和 revert 来处理异常。</p>
+<p>&nbsp;</p>
+<h2>1. require 示例</h2>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract X {
-    function x() external pure returns(string memory) {
-        return "x";
-    }
-}
-
-contract Y {
-    function y() external pure returns(string memory) {
-        return "y";
-    }
-}
-
-contract Z is X, Y {
-    function z() external pure returns(string memory) {
-        return "z";
+contract SolidityTest {
+    bool public flag;
+    function setFlag() external {
+        //  判断调用者地址，是否等于当前合约地址，成立则继续运行。
+        require(msg.sender == address(this));
+        flag = true;
     }
 }
 </pre>
-<p>派生合约 Z 继承了 X 的 x() 和 Y 的 y()，另外还定义了自己的函数 z()。</p>
-<p>第二种情况：派生类 Y 继承了基类 X，派生类 Z 同时继承了 X，Y。</p>
-<pre>  X 
-/   \
-Y   |
-\   /
-  Z
+<p>require 函数常常用来检查输入变量或状态变量是否满足条件，以及验证调用外部合约的返回值。</p>
+<p>require 可以有返回值，例如：require(condition, 'Something bad happened');</p>
+<p>require 的返回值不宜过长，因为返回信息需要消耗 gas。</p>
+<p>&nbsp;</p>
+<h2>2. require、assert、revert 共同点</h2>
+<p>assert()与require()语句都需要满足括号中的条件，才能进行后续操作，若不满足则抛出错误。</p>
+<p>以下三个语句的功能完全相同：</p>
+<pre>// revert
+if(msg.sender != owner) { 
+    revert();
+    }
+    
+// require
+require(msg.sender == owner);
+
+// assert
+assert(msg.sender == owner);
 </pre>
-<p>这种情况下，我们按照线性继承原则，理清继承顺序：X，Y，Z。</p>
-<p><strong>多重继承示例</strong></p>
+<p>&nbsp;</p>
+<h2>3. require、assert 不同点</h2>
+<p>assert(false) 编译为 0xfe，这是一个无效的操作码，所以会消耗掉所有剩余的 gas，并恢复所有的操作。</p>
+<p>require(false) 编译为 0xfd，这是revert()的操作码，所以会退还所有剩余的 gas，同时可以返回一个自定义的报错信息。</p>
+<p>require 的 gas 消耗要小于 assert，而且可以有返回值，使用更为灵活。</p>
+<p>&nbsp;</p>
+<h2>4. require、assert 使用场景</h2>
+<p>require() 函数用于检测输入变量或状态变量是否满足条件，以及验证调用外部合约的返回值。</p>
+<p>require() 语句的失败报错，应该被看作一个正常的判断语句流程不能通过的事件。</p>
+<p>assert()语句的失败报错，意味着发生了代码层面的错误事件，很大可能是合约中有一个bug需要修复。</p>
+<h3>使用 require() 的场景</h3>
+<ul>
+    <li>验证用户输入，例如：require(input_var&gt;100)</li>
+    <li>验证外部合约的调用结果，例如：require(external.send(amount))</li>
+    <li>在执行状态更改操作之前验证状态条件，例如：require(block.number &gt; 49999) 或 require(balance[msg.sender]&gt;=amount)</li>
+</ul>
+<p>一般来说，使用require()的频率更多，通常应用于函数的开头。</p>
+<h3>使用 assert() 的场景</h3>
+<ul>
+    <li>检查溢出</li>
+    <li>检查不变量</li>
+    <li>更改后验证状态</li>
+    <li>预防永远不会发生的情况</li>
+</ul>
+<p>一般来说，使用assert()的频率较少，通常用于函数的结尾。</p>
+<p>基本上，require() 应该用于检查条件，而 assert() 只是为了防止发生任何非常糟糕的事情。</p>
+<p>&nbsp;</p>
+<h2>5. try...catch</h2>
+<p>我们在当前合约发起对外部合约调用的话，如果外部合约调用执行失败被 revert，外部合约状态会被回滚，当前合约状态也会被回滚。</p>
+<p>但有时候我们并不想这样，要是能够捕获外部合约调用异常，然后根据情况做自己的处理不是更好吗？所以，这种场景下适应于使用 try...catch 语句。</p>
+<p><strong>require</strong> 示例如下：</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract X {
-    function foo() external pure virtual returns(string memory) {
-        return "x foo";
+contract Manager {
+    function count() public pure returns(int) {
+        require(1 == 2,"require error");
+        return 2;
     }
 
-    function bar() external pure virtual returns(string memory) {
-        return "x bar";
-    }
-
-    function x() external pure returns(string memory) {
-        return "x";
-    }
-}
-
-contract Y is X {
-    function foo() external pure virtual override returns(string memory) {
-        return "y foo";
-    }
-
-    function bar() external pure virtual override returns(string memory) {
-        return "y bar";
-    }
-
-    function y() external pure returns(string memory) {
-        return "y";
-    }
-}
-
-contract Z is X,Y {
-    function foo() external pure override(X,Y) returns(string memory) {
-        return "z foo";
-    }
-
-    function bar() external pure override(X,Y) returns(string memory) {
-        return "z bar";
-    }
-
-    function z() external pure returns(string memory) {
-        return "z";
+    function test() public view returns(string memory) {
+        try this.count() {
+            return "success";
+        } catch Error(string memory reason/* 出错原因 */) {
+            //  调用 count() 失败时执行，通常是不满足 require 语句条件或触发 revert 语句时所引起的调用失败
+            return reason;
+        } catch (bytes memory) {
+            //  调用 count() 异常时执行，通常是触发 assert 语句或除 0 等比较严重错误时会执行
+            return "assert error";
+        }
     }
 }
 </pre>
-<p>按照线性继承顺序，Z 继承了 Y，Y 继承了 X，那么 Z 的写法是 Z is X,Y。如果写成 Z is Y,X，编译器就会报错。</p>
-<p>Z 的方法 foo() ，覆盖了 X 和 Y 的方法 foo() ，所以需要写为 override(X,Y)。</p>
-<pre>   X 
- /   \
-Y     A
-|     |
-|     B
- \   / 
-   Z
+<p>以上代码将会触发 catch Error(string memory reason) ，最终输出 require error。</p>
+<p><strong>assert</strong> 示例如下：</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Manager {
+    function count() public pure returns(int) {
+        require(1 == 2);
+        return 2;
+    }
+
+    function test() public view returns(string memory) {
+        try this.count() {
+            return "success";
+        } catch Error(string memory reason/* 出错原因 */) {
+            //  调用 count() 失败时执行，通常是不满足 require 语句条件或触发 revert 语句时所引起的调用失败
+            return reason;
+        } catch (bytes memory) {
+            //  调用 count() 异常时执行，通常是触发 assert 语句或除 0 等比较严重错误时会执行
+            return "assert error";
+        }
+    }
+}
 </pre>
-<p>这种情况下，我们按照线性继承原则，理清继承顺序：X，Y，A，B，Z。</p>
+<p>以上代码将会触发 catch (bytes memory) ，最终输出 assert error。</p>
+
 
 
                                                                 </div>
@@ -145,8 +163,8 @@ Y     A
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./继承.html"><span aria-hidden="true">&larr;</span> 继承</a></li>
-                                                                                <li class="next"><a href="./多重继承的构造函数.html">多重继承的构造函数 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./调用父类函数.html"><span aria-hidden="true">&larr;</span> 调用父类函数</a></li>
+                                                                                <li class="next"><a href="./编程风格.html">编程风格 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -228,11 +246,11 @@ Y     A
                                                 <li><a href="./不可变量.html">不可变量</a></li>
                                                 <li><a href="./日志.html">日志</a></li>
                                                 <li><a href="./继承.html">继承</a></li>
-                                                <li class="active"><a href="./多重继承.html">多重继承</a></li>
+                                                <li><a href="./多重继承.html">多重继承</a></li>
                                                 <li><a href="./多重继承的构造函数.html">多重继承的构造函数</a></li>
                                                 <li><a href="./调用父类函数.html">调用父类函数</a></li>
-                                                <li><a href="">异常处理</a></li>
-                                                <li><a href="">编程风格</a></li>
+                                                <li class="active"><a href="./异常处理.html">异常处理</a></li>
+                                                <li><a href="./编程风格.html">编程风格</a></li>
                                                 <li><a href="">访问权限</a></li>
                                                 <li><a href="">存储位置</a></li>
                                                 <li><a href="">引用类型</a></li>
@@ -287,4 +305,3 @@ Y     A
 
         </body>
 </html>
-
