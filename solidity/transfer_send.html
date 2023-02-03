@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./引用类型.html"><span aria-hidden="true">&larr;</span> 引用类型</a></li>
-                                                                                <li class="next"><a href="./值类型与引用类型.html">值类型与引用类型 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./transfer_实现转账.html"><span aria-hidden="true">&larr;</span> transfer 实现转账</a></li>
+                                                                                <li class="next"><a href="./单位.html">单位 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,170 +40,57 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>值类型</h1>
-<!-- <p>&nbsp;</p> -->
-<p>本章节主要详细介绍solidity中值类型的属性以及注意点，包括: Boolean,Integer,Address,定长字节数组,Enums。</p>
-<p>&nbsp;</p>
-<h2>1. Boolean类型</h2>
-<p>bool：可以取值 true和 false。</p>
-<p>对应的运算符同 java 相同包括：！逻辑非，&amp;&amp;逻辑与，||逻辑或，==等于，!= 不等于，其中 &amp;&amp;，|| 为短路运算符。</p>
-<p>&nbsp;</p>
-<h2>2. Integer类型</h2>
-<p>int/uint: 有符号/无符号整型,支持从 uint8 到 uint256 及 int8 到 int256。int 和 uint 默认值为 int256 和 uint256。</p>
-<p><strong>注：</strong></p>
+<h1>transfer、send、call的区别和用法</h1>
+<p>transfer、send、call都可以在合约之间相互转账，但是用法有很大的不同！</p>
+<h2>1. transfer</h2>
 <ul>
-    <li>有符号：表示任何规定范围内的整数（例如：int8范围是-127 - 127）</li>
-    <li>无符号：只能表示非负数（例如：uint8范围是0 - 255）</li>
+<li>如果异常会转账失败，抛出异常(等价于require(send()))（合约地址转账）</li>
+<li>有gas限制，最大2300</li>
+<li>函数原型：&lt;address payable&gt;.transfer(uint256 amount)</li>
 </ul>
-<h3>支持运算符操作</h3>
+<h2>2. send</h2>
 <ul>
-    <li>比较运算符: &lt;= , &lt; , == , != , &gt;= , &gt; 比较结果的返回值为bool类型</li>
-    <li>位运算符：&amp; ，|，^（异或），~（非）</li>
-    <li>数学运算符：+，-，/，%（取余），*（次方），&lt;&lt;（左移），&gt;&gt;（右移）</li>
+<li>如果异常会转账失败，仅会返回false，不会终止执行（合约地址转账）</li>
+<li>有gas限制，最大2300</li>
+<li>函数原型：&lt;address payable&gt;.send(uint256 amount) returns (bool)</li>
 </ul>
-<h3>补充说明</h3>
-<p>（1）var声明：var类型表示第一次使用时所表示的类型</p>
-<p>（2）除法截断：整数的除法会被截断（例如：1/4结果为0）,但是使用字面量的方式不会被截断</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.4.0;
-
-contract IntegerTest {
-
-    function get() view returns (int) {
-        int a = 1;
-        int b = 4;
-        var c = 1 / 4 * 4;
-        return c;
-    }
-
-}
-</pre>
-<p>&nbsp;</p>
-<h2>3. Address 地址类型</h2>
-<p>表示一个账户的地址，在以太坊中地址的长度为20字节，一字节8位，一个 address 就是 160 位，所以 address 可以用 uint160 表示。</p>
+<h2>3. call</h2>
 <ul>
-    <li>支持运算符：</li>
+<li>如果异常会转账失败，仅会返回false，不会终止执行（调用合约的方法并转账）</li>
+<li>没有gas限制</li>
+<li>&lt;address&gt;.call(bytes memory) returns (bool, bytes memory)</li>
 </ul>
-<p>&gt;，&lt;，==，&gt;=，&lt;=，!=</p>
+<h2>4. 共同点</h2>
 <ul>
-    <li>地址类型的成员：</li>
+<li>addr.transfer(1 ether)、addr.send(1 ether)、addr.call.value(1 ether)的接收方都是addr。</li>
+<li>如果使用addr.transfer(1 ether)、addr.send(1 ether)，addr合约中必须增加fallback回退函数！</li>
+<li>如果使用addr.call.value(1 ether)，那么被调用的方法必须添加payable修饰符，否则转账失败！</li>
 </ul>
-<p>属性：balance</p>
-<p>函数：transfer()，send()，call()，callcode()，delegatecall()</p>
-<p>（1）.balance：它能得到以Wei为单位的地址类型的余额。</p>
 <pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.4.0;
+pragma solidity ^0.7.0;
 
-contract addressTest {
+contract cs {
 
-    function getBalance(address addr) view returns(uint) {
-        return addr.balance;
+    constructor() payable {
+    }
+
+    function getETH() public returns(bool) {
+        address payable _owner = msg.sender;
+        returns(_owner.send(1 ether));
+    }
+
+    //  如果使用 transfer 或 sned 函数必须添加 fallback 回退函数
+    fallback() external {
+    }
+
+    receive() payable external {
     }
 
 }
 </pre>
-<p>（2）.transfer(uint256 amount)：向地址类型发送数量为amount的Wei，失败时抛出异常，不可调节。</p>
-<p>（3）.send(uint256 amount) returns (bool)：向地址类型 发送数量为 amount 的 Wei，失败时返回 false，不可调节。</p>
-<p><strong>补充</strong>：send 与transfer对应，但send更底层。如果执行失败，transfer不会因异常停止，而send会返回false。send() 执行有一些风险：如果调用栈的深度超过1024或gas耗光，交易都会失败。因此，为了保证安全，必须检查send的返回值，如果交易失败，会回退以太币。如果用transfer会更好。</p>
-<p>（4）.call(&hellip;) returns (bool)：发出低级函数 CALL，失败时返回 false，发送所有可用 gas，可调节。</p>
-<p>（5）.callcode(&hellip;) returns (bool)：发出低级函数 CALLCODE，失败时返回 false，发送所有可用 gas，可调节。</p>
-<p>（6）.delegatecall(&hellip;) returns (bool)：发出低级函数 DELEGATECALL，失败时返回 false，发送所有可用 gas，可调节。</p>
-<p>上面的这三个方法call()，callcode()，delegatecall()都是底层的消息传递调用，最好仅在万不得已才进行使用，因为他们破坏了Solidity的类型安全。</p>
-<p><strong>注：</strong></p>
-<p>（1）msg.sender：表示当前调用方法时的发起人，调用方法的人很多，如何判断合约的拥有者？在第一次部署的时候进行定义，即在构造函数中定义：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.4.0;
-
-contract addressTest {
-
-    address public _owner;
-
-    function Test() {
-        _owner = msg.sender;
-    }
-
-}
-</pre>
-<p>（2）合约地址：合约部署后，会有一个合约地址，合约地址表示合约本身，可以用this表示：</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.4.0;
-
-contract addressTest {
-
-    address public _owner;
-
-    function Test() {
-        _owner = msg.sender;
-    }
-
-    function returnContractAddress() constant returns(address) {
-        return this;
-    }
-
-}
-</pre>
-<p>&nbsp;</p>
-<h2>4.定长字节数组（固定大小字节数组）</h2>
-<p>定义方式bytesN，其中N可取1~32中的任意整数，bytes1代表只能存储一个字节。一旦声明，其内部的字节长度不可修改，内部字节不可修改</p>
-<p><strong>运算符</strong></p>
-<p>比较：&lt;=，&lt;，==，!=，&gt;=，&gt;，返回值为bool类型。</p>
-<p>位运算符：&amp;，|，^(异或)，~非</p>
-<p>支持序号的访问，与大多数语言一样，取值范围(0, n)，其中n表示长度。</p>
-<p><strong>注：</strong></p>
-<p>可以通过 .length返回字节个数，可以通过索引读取对应索引的字节。</p>
-<p>&nbsp;</p>
-<h2>5.枚举（Enums）</h2>
-<p>枚举类型是在Solidity中的一种用户自定义类型。</p>
-<pre>enum ActionChoices { GoLeft, GoRight, GoStraight, SitStill }</pre>
-<p>ActionChoices 可以理解为一个自定义的整型，当枚举数量不够多时默认类型为uint8，此例子中可以理解成uint8，当枚举数量足够多时，它会自动变成uint16。</p>
-<p>&nbsp;</p>
-<h2>6.函数</h2>
-<ul>
-    <li>可以将一个函数赋值给一个变量，一个函数类型的变量。</li>
-    <li>还可以将一个函数作为参数进行传递。</li>
-    <li>也可以在函数调用中返回一个函数。</li>
-</ul>
-<p><strong>注：</strong>函数调用方式有两种，internal和external。（这里的external是调用方式，不要与访问权限中的那个混淆）</p>
-<p>内部函数(internal) &ndash; 默认是这种类型</p>
-<p>因为不能在当前合约的上下文环境以外的地方执行，内部函数只能在当前合约内被使用。如在当前的代码块内，包括内部库函数，和继承的函数中。</p>
-<p>外部函数(external) &ndash; 调用此函数需要用this：这个this是指合约。</p>
-<p>外部函数由地址和函数方法签名两部分组成。可作为外部函数调用的参数，或者由外部函数调用返回。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.4.0;
-
-contract FuntionTest {
-    function internalFunc() internal {}
-    function externalFunc() external {}
-    function callFunc() {
-        //  直接使用内部的方式调用
-        internalFunc();
-        //  不能在内部调用一个外部函数，会编译错误
-        // externalFunc();
-        //  不能通过'external'的方式调用一个'internal'
-        // this.internalFunc();
-        //  使用'this'以'external'的方式调用一个外部函数
-        this.externalFunc();
-    }
-}
-
-
-contract FuntionTest1 {
-    function externalCall(FuntionTest ft) {
-        //  调用另一个合约的外部函数
-        ft.externalFunc();
-        //  不能调用另一个合约的内部函数
-        // ft.internalFunc();
-    }
-}
-</pre>
-<h3>补：回退函数 fallback：</h3>
-<p>每一个合约都有，且仅有一个没有名字的函数。这个函数无参数，也无返回值。当调用的函数找不到时，就会调用默认的 fallback 函数</p>
-<pre>contract SimpleFallback {
-    function() {
-        // fallback function 
-    }
-}
-</pre>
+<p><img src="./picture/transfer_send/1.png" alt="1"></p>
+<p><img src="./picture/transfer_send/2.png" alt="2"></p>
+<p><img src="./picture/transfer_send/3.png" alt="3"></p>
 
 
                                                                 </div>
@@ -212,8 +99,8 @@ contract FuntionTest1 {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./引用类型.html"><span aria-hidden="true">&larr;</span> 引用类型</a></li>
-                                                                                <li class="next"><a href="./值类型与引用类型.html">值类型与引用类型 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./transfer_实现转账.html"><span aria-hidden="true">&larr;</span> transfer 实现转账</a></li>
+                                                                                <li class="next"><a href="./单位.html">单位 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -303,15 +190,15 @@ contract FuntionTest1 {
                                                 <li><a href="./访问权限.html">访问权限</a></li>
                                                 <li><a href="./存储位置.html">存储位置</a></li>
                                                 <li><a href="./引用类型.html">引用类型</a></li>
-                                                <li class="active"><a href="./值类型.html">值类型</a></li>
+                                                <li><a href="./值类型.html">值类型</a></li>
                                                 <li><a href="./值类型与引用类型.html">值类型与引用类型</a></li>
-                                                <li><a href="">合约结构</a></li>
-                                                <li><a href="">编写智能合约</a></li>
-                                                <li><a href="">delete</a></li>
-                                                <li><a href="">0.6重大变化</a></li>
-                                                <li><a href="">transfer 转账</a></li>
-                                                <li><a href="">transfer send</a></li>
-                                                <li><a href="">单位</a></li>
+                                                <li><a href="./合约结构.html">合约结构</a></li>
+                                                <li><a href="./编写智能合约.html">编写智能合约</a></li>
+                                                <li><a href="./delete.html">delete</a></li>
+                                                <li><a href="./0.6重大变化.html">0.6重大变化</a></li>
+                                                <li><a href="./transfer_实现转账.html">transfer 转账</a></li>
+                                                <li class="active"><a href="./transfer_send.html">transfer send</a></li>
+                                                <li><a href="./单位.html">单位</a></li>
                                                 <li><a href="">constant</a></li>
                                                 <li><a href="">this & sender</a></li>
                                                 <li><a href="">address</a></li>
