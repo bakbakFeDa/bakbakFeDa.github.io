@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./单位.html"><span aria-hidden="true">&larr;</span> 单位</a></li>
-                                                                                <li class="next"><a href="./this&sender.html">this & sender <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./constant.html"><span aria-hidden="true">&larr;</span> constant</a></li>
+                                                                                <li class="next"><a href="./address.html">address <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,48 +40,49 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>constant</h1>
-<p>constant、view 和 pure 三个修饰词有什么区别和联系？简单来说，在Solidity v4.17之前，只有constant，后来有人嫌constant这个词本身代表变量中的常量，不适合用来修饰函数，所以将constant拆成了view和pure。view的作用和constant一模一样，可以读取状态变量但是不能改；pure则更为严格，pure修饰的函数不能改也不能读状态变量，否则编译通不过。</p>
-<p>constant、view、pure 三个函数修饰词的作用是告诉编译器，函数不改变/不读取状态变量，这样函数执行就可以不消耗gas了，因为不需要矿工来验证。所以用好这几个关键词很重要，不言而喻，省gas就是省钱！</p>
-<p>&nbsp;</p>
-<h2>1. 为什么使用 constant</h2>
-<p>首先，我们要明白为什么用 constant？</p>
-<blockquote>
-<p>Functions can be declared constant in which case they promise not to modify the state.</p>
-</blockquote>
-<p>也就是说，当执行函数时不会去修改区块中的数据状态时，那么这个函数就可以被声明成 constant 的，比如说 getter 类的方法。</p>
-<p>同时，当函数被 constant 修饰时也是提示 web3js（或其他json-rpc客户端）调用此方法时要使用 eth_call 函数而不是 eth_sendTransaction。</p>
-<p>constant 需要编程时明确指定，即使状态不会改变，编译器也不会自动添加。一般情况下调用 constant 声明的方法不需要花费 gas，如果未使用 constant 修饰的函数在调用的过程中可能会生成一笔交易并且产生交易费用。</p>
-<p>&nbsp;</p>
-<h2>2. constant与view的区别</h2>
-<p>在Solidity 0.4.16中介绍 view 和 constant 时，文档是这样描述的：</p>
-<blockquote>
-<p>constant for functions: Same as view.</p>
-</blockquote>
-<p>也就是说，view 和 constant 效果是一样的。</p>
-<p>在最新版本的 Solidity 中是这样描述的：</p>
-<blockquote>
-<p>constant on functions is an alias to view, but this is deprecated and will be dropped in version 0.5.0.</p>
-<p>Getter methods are marked view.</p>
-</blockquote>
-<p>constant 是 view的别名，不过 constant 在 0.5.0 以上版本中已经被去掉。这也是我们在写智能合约时需要注意的事项。目前网络上的示例基本上还都采用constant来进行修饰。</p>
-<p>那么，文档中已经描述这两者是相同的，那么为什么要用view来替代constant呢？基本上原因是这样的，使用constant有一定的误导性，比如用constant修饰的方法返回的结果并不是常量，而是根据一定的情况有所变化。而且，用constant来修饰并不是那么细致入微。因此，引入了更有意义和更有用的view和pure来代替constant。</p>
-<p>&nbsp;</p>
-<h2>3. 替换前后的变化</h2>
-<p>替换当前：</p>
-<ul>
-<li>constant修饰的函数不应该修改状态；</li>
-<li>constant 修饰的变量（类中的变量而不是方法）每次调用时都会被重新计算；</li>
-</ul>
-<p>替换之后：</p>
-<ul>
-<li>关键词view用来修饰函数，替换掉 constant。调用view修饰的函数不能改变未来与任何合约交互的行为。这意味着被修饰的函数不能使用SSTORE，不能发送或接收以太币，只能调用其他view或pure修饰的函数。</li>
-<li>关键字pure用来修饰函数，是在view修饰函数上附加了一些限制，pure修饰的函数不能改也不能读状态变量，否则编译通不过。这意味着它不能使用SSTORE，SLOAD，不能发送或接收以太币，不能使用msg或block而只能调用其他pure函数。</li>
-<li>关键字 constant 针对函数无效。</li>
-<li>任何用 constant 修饰的变量将不能被修改。</li>
-</ul>
+<h1>this 和 msg.sender 的用法</h1>
+<p>Solidity 中 this 代表合约对象本身，可以通过 <code>address(this)</code> 获取合约地址。合约地址与合约创建者地址、合约调用者地址并不相同。</p>
+<p>Solidity 中 <code>msg.sender</code> 代表合约调用者地址。一个智能合约既可以被合约创建者调用，也可以被其它人调用。</p>
+<p>合约创建者，即合约拥有者，也就是指合约部署者，它的地址可以在合约的 <code>constructor()</code> 中，通过 <code>msg.sender</code> 获得，因为合约在部署的时候会首先调用 <code>constructor()</code>。</p>
+<h2>1. 范例</h2>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
+contract SolidityTest {
+    address public owner;
 
+    event log(address);
+
+    constructor() {
+        owner = msg.sender;
+        emit log(msg.sender);
+        emit log(address(this));
+    }
+}
+</pre>
+<p>owner 被赋值为合约部署者的地址。</p>
+<p>log(msg.sender) 在日志中输出了合约部署者的地址。</p>
+<p>log(address(this)) 在日志中输出了合约地址。</p>
+<p>查看合约在部署时的日志结果：</p>
+<pre>[
+	{
+		"from": "0xd9145CCE52D386f254917e481eB44e9943F39138",
+		"topic": "0x2c2ecbc2212ac38c2f9ec89aa5fcef7f532a5db24dbf7cad1f48bc82843b7428",
+		"event": "log",
+		"args": {   //  合约部署者的地址
+			"0": "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"
+		}
+	},
+	{
+		"from": "0xd9145CCE52D386f254917e481eB44e9943F39138",
+		"topic": "0x2c2ecbc2212ac38c2f9ec89aa5fcef7f532a5db24dbf7cad1f48bc82843b7428",
+		"event": "log",
+		"args": {   //  合约地址
+			"0": "0xd9145CCE52D386f254917e481eB44e9943F39138"
+		}
+	}
+]
+</pre>
 
 
                                                                 </div>
@@ -90,8 +91,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./单位.html"><span aria-hidden="true">&larr;</span> 单位</a></li>
-                                                                                <li class="next"><a href="./this&sender.html">this & sender <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./constant.html"><span aria-hidden="true">&larr;</span> constant</a></li>
+                                                                                <li class="next"><a href="./address.html">address <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -190,9 +191,9 @@
                                                 <li><a href="./transfer_实现转账.html">transfer 转账</a></li>
                                                 <li><a href="./transfer_send.html">transfer send</a></li>
                                                 <li><a href="./单位.html">单位</a></li>
-                                                <li class="active"><a href="./constant.html">constant</a></li>
-                                                <li><a href="./this&sender.html">this & sender</a></li>
-                                                <li><a href="">address</a></li>
+                                                <li><a href="./constant.html">constant</a></li>
+                                                <li class="active"><a href="./this&sender.html">this & sender</a></li>
+                                                <li><a href="./address.html">address</a></li>
                                                 <li><a href="">众筹智能合约</a></li>
                                                 <li><a href="">interface</a></li>
                                                 <li><a href="">gas使用模式</a></li>

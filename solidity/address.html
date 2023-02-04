@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./单位.html"><span aria-hidden="true">&larr;</span> 单位</a></li>
-                                                                                <li class="next"><a href="./this&sender.html">this & sender <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./this&sender.html"><span aria-hidden="true">&larr;</span> this & sender</a></li>
+                                                                                <li class="next"><a href="./众筹智能合约.html">众筹智能合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,48 +40,291 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>constant</h1>
-<p>constant、view 和 pure 三个修饰词有什么区别和联系？简单来说，在Solidity v4.17之前，只有constant，后来有人嫌constant这个词本身代表变量中的常量，不适合用来修饰函数，所以将constant拆成了view和pure。view的作用和constant一模一样，可以读取状态变量但是不能改；pure则更为严格，pure修饰的函数不能改也不能读状态变量，否则编译通不过。</p>
-<p>constant、view、pure 三个函数修饰词的作用是告诉编译器，函数不改变/不读取状态变量，这样函数执行就可以不消耗gas了，因为不需要矿工来验证。所以用好这几个关键词很重要，不言而喻，省gas就是省钱！</p>
-<p>&nbsp;</p>
-<h2>1. 为什么使用 constant</h2>
-<p>首先，我们要明白为什么用 constant？</p>
-<blockquote>
-<p>Functions can be declared constant in which case they promise not to modify the state.</p>
-</blockquote>
-<p>也就是说，当执行函数时不会去修改区块中的数据状态时，那么这个函数就可以被声明成 constant 的，比如说 getter 类的方法。</p>
-<p>同时，当函数被 constant 修饰时也是提示 web3js（或其他json-rpc客户端）调用此方法时要使用 eth_call 函数而不是 eth_sendTransaction。</p>
-<p>constant 需要编程时明确指定，即使状态不会改变，编译器也不会自动添加。一般情况下调用 constant 声明的方法不需要花费 gas，如果未使用 constant 修饰的函数在调用的过程中可能会生成一笔交易并且产生交易费用。</p>
-<p>&nbsp;</p>
-<h2>2. constant与view的区别</h2>
-<p>在Solidity 0.4.16中介绍 view 和 constant 时，文档是这样描述的：</p>
-<blockquote>
-<p>constant for functions: Same as view.</p>
-</blockquote>
-<p>也就是说，view 和 constant 效果是一样的。</p>
-<p>在最新版本的 Solidity 中是这样描述的：</p>
-<blockquote>
-<p>constant on functions is an alias to view, but this is deprecated and will be dropped in version 0.5.0.</p>
-<p>Getter methods are marked view.</p>
-</blockquote>
-<p>constant 是 view的别名，不过 constant 在 0.5.0 以上版本中已经被去掉。这也是我们在写智能合约时需要注意的事项。目前网络上的示例基本上还都采用constant来进行修饰。</p>
-<p>那么，文档中已经描述这两者是相同的，那么为什么要用view来替代constant呢？基本上原因是这样的，使用constant有一定的误导性，比如用constant修饰的方法返回的结果并不是常量，而是根据一定的情况有所变化。而且，用constant来修饰并不是那么细致入微。因此，引入了更有意义和更有用的view和pure来代替constant。</p>
-<p>&nbsp;</p>
-<h2>3. 替换前后的变化</h2>
-<p>替换当前：</p>
-<ul>
-<li>constant修饰的函数不应该修改状态；</li>
-<li>constant 修饰的变量（类中的变量而不是方法）每次调用时都会被重新计算；</li>
-</ul>
-<p>替换之后：</p>
-<ul>
-<li>关键词view用来修饰函数，替换掉 constant。调用view修饰的函数不能改变未来与任何合约交互的行为。这意味着被修饰的函数不能使用SSTORE，不能发送或接收以太币，只能调用其他view或pure修饰的函数。</li>
-<li>关键字pure用来修饰函数，是在view修饰函数上附加了一些限制，pure修饰的函数不能改也不能读状态变量，否则编译通不过。这意味着它不能使用SSTORE，SLOAD，不能发送或接收以太币，不能使用msg或block而只能调用其他pure函数。</li>
-<li>关键字 constant 针对函数无效。</li>
-<li>任何用 constant 修饰的变量将不能被修改。</li>
-</ul>
+<h1>address 地址</h1>
+<p>以太坊中的地址 address 的长度为20字节，一字节等于8位，一共160位，所以 address 也可以用 uint160 来声明。</p>
+<p>我的以太坊钱包地址为 0xDF12793CA392ff748adF013D146f8dA73df6E304，0x代表十六进制，我们将 DF12793CA392ff748adF013D146f8dA73df6E304拷贝，如下图所示，将其进行二进制转换，不难发现，它的二进制刚好160位。</p>
+<p><img src="./picture/address/1.png" alt="1"></p>
+<p>以太坊钱包地址是以 16 进制的形式呈现，我们知道一个十六进制的数字等于4 bit，所以以太坊钱包地址的十六进制表示法的长度为 160 ／ 4 = 40，例如：钱包地址DF12793CA392ff748adF013D146f8dA73df6E304的长度为40。</p>
+<p>以太坊钱包地址：</p>
+<pre>0xDF12793CA392ff748adF013D146f8dA73df6E304</pre>
+<p>通过工具对应的二进制为：</p>
+<pre>1101111100010010011110010011110010100011100100110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</pre>
+<p><img src="./picture/address/2.png" alt="2"></p>
+<p>通过工具转换的二进制可能存在问题，可以自己尝试转换。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.4;
+
+contract test {
+    address _owner;
+    uint160 _ownerUint;
+
+    function test() {
+        _owner = 0xDF12793CA392ff748adF013D146f8dA73df6E304;
+        _ownerUint = 1273516916528256943268872459582090959717186069252;
+    }
+
+    function owner() constant returns(address) {
+        return _owner;
+    }
+
+    function ownerUint160() constant returns(uint160) {
+        return uint160(_owner);
+    }
+
+    function ownerUintToAddress() constant returns(address) {
+        return address(_ownerUint);
+    }
+
+}
+//0x 16进制 45
+//B 2进制 0100 0101
+
+//1 + 2 + 4 + 8 + 16 + 32 + 64 + 128
+//1 + 0 + 4 + 0 + 0  + 0 + 64 + 0 = 69
+//D 10进制 69 
 
 
+//0x DF12793CA392ff748adF013D146f8dA73df6E304 
+//D 转换10进制 1273516916528256943268872459582090959717186069252
+
+//1 2 3 4 5 6 7 8 9 A B C D E F
+//40个 * 4位(二进制) =160位 
+//1101        1111           0001 0010 0111 10010011110010100011100100110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+//1+4+8=13 D  1+2+4+8=15 F   1    2    1+2+4=7 ....
+//address
+//uint160
+</pre>
+<p><img src="./picture/address/3.png" alt="3"></p>
+<p><strong>不可不知的几个常识</strong></p>
+<ul>
+<li>合约拥有者</li>
+</ul>
+<p>msg.sender就是当前调用方法时的发起人，一个合约部署后，通过钱包地址操作合约的人很多，但是如何正确判断谁是合约的拥有者，判断方式很简单，就是第一次部署合约时，谁出的gas，谁就对合约具有拥有权。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.4;
+
+contract Test {
+
+    address public _owner;
+
+    uint public _number;
+
+    function Test() {
+        _owner = msg.sender;
+        _number = 100;
+    }
+
+    function msgSenderAddress() constant returns(address) {
+        return msg.sender;
+    }
+
+    function setNumberAdd1() {
+        _number = _number + 5;
+    }
+
+    function setNumberAdd2() {
+        if (_owner == msg.sender) {
+            _number = _number + 10;
+        }
+    }
+
+}
+</pre>
+<ul>
+    <li>合约地址</li>
+</ul>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.4;
+
+contract Test {
+
+    address public _owner;
+
+    uint public _number;
+
+    function Test() {
+        _owner = msg.sender;
+        _number = 100;
+    }
+
+    function msgSenderAddress() constant returns(address) {
+        return msg.sender;
+    }
+
+    function setNumberAdd1() {
+        _number = _number + 5;
+    }
+
+    function setNumberAdd2() {
+        if (_owner == msg.sender) {
+            _number = _number + 10;
+        }
+    }
+
+    function returnContractAddress() constant returns(address) {
+        return this;
+    }
+
+}
+</pre>
+<p>一个合约部署后，会有一个合约地址，这个合约地址就代表合约自己。 <br />this在合约中到底是msg.sender还是合约地址，由上图不难看出，this即是当前合约地址。</p>
+<p><strong>部署</strong></p>
+<p>在Remix网页编辑器中点击部署(Deploy)按钮</p>
+<p><img src="./picture/address/4.png" alt="4"></p>
+<p>点击插件的submit</p>
+<p><img src="./picture/address/5.png" alt="5"></p>
+<p>显示部署挖矿成功，钱包中的测试以太币也相应的减去部署需要花费的gas</p>
+<p><img src="./picture/address/6.png" alt="6"></p>
+<p><img src="./picture/address/7.png" alt="7"></p>
+<p><strong>支持的运算符</strong></p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.4;
+
+contract Test {
+
+    address address1;
+    address address2;
+
+    function Test() {
+        address1 = 0xF055775eBD516e7419ae486C1d50C682d4170645;
+        address2 = 0xEAEC9B481c60e8cDc3cdF2D342082C349E5D6318;
+    }
+
+    function test1() constant returns (bool) {
+        return address1 &lt;= address2;
+    }
+
+    function test2() constant returns (bool) {
+        return address1 &lt; address2;
+    }
+
+    function test3() constant returns (bool) {
+        return address1 != address2;
+    }
+
+    function test4() constant returns (bool) {
+        return address1 &gt;= address2;
+    }
+
+    function test5() constant returns (bool) {
+        return address1 &gt; address2;
+    }
+
+}
+</pre>
+<p><img src="./picture/address/8.png" alt="8"></p>
+<ul>
+    <li>&lt;=，&lt;，==，!=，&gt;=，&gt;</li>
+</ul>
+<p><strong>成员变量和函数</strong></p>
+<ul>
+    <li>
+    <p>一、 balance</p>
+    <p>如果我们需要查看一个地址的余额，我们可以使用balance属性进行查看。</p>
+    </li>
+</ul>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.4;
+
+contract addressBalance {
+
+    function getBalance(address addr) constant returns (uint) {
+        return addr.balance;
+    }
+
+}
+</pre>
+<p><img src="./picture/address/9.png" alt="9"></p>
+<p>在Account一栏中，会自动生成测试钱包地址供我们测试使用，在我们点击Deploy按钮时，Account一栏选中的是钱包地址，我们部署合约时，花费的gas就从这个钱包地址里面扣除，【PS：这5个钱包地址每次都是系统临时生成，所以在我们开发测试过程中，每次的地址不会相同】。因为在本案例中，我们部署合约时，用的是第一个Account，所以gas自然从它里面扣除，大家会发现，其它四个钱包地址中的余额是ether，而第一个钱包地址中不到100个ether。</p>
+<p>当我们点击getBalance获取某个钱包地址的余额时，获取到的余额的单位是Wei，一个ether等于1000000000000000000Wei，Wei是最小单位，相当于我们的1元RMB等于100分。【PS：1ether等于10的18次方Wei】</p>
+<pre class="prettyprint">99999999999996890347 wei == 99.999999999996890347 ether</pre>
+<ul>
+    <li>二、this 查看当前合约地址余额</li>
+</ul>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.4;
+
+contract addressBalance {
+
+    function getBalance(address addr) constant returns (uint) {
+        return addr.balance;
+    }
+
+    function getBalance1() constant returns (uint) {
+        return this.balance;
+    }
+
+    function getContractAddress() constant returns (address) {
+        return this;
+    }
+    
+}
+</pre>
+<p><img src="./picture/address/10.png" alt="10"></p>
+<ul>
+    <li>三、transfer</li>
+</ul>
+<p>transfer：从合约发起方向某个地址转入以太币(单位是wei)，地址无效或者合约发起方余额不足时，代码将抛出异常并停止转账。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.4;
+
+contract PayableKeyword {
+
+    //  从合约发起方向 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB 地址转入 msg.value 个以太币，单位是 wei
+    function deposit() payable {
+        address Account2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
+        Account2.transfer(msg.value);
+    }
+
+    //  读取 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB 地址的余额
+    function getAccount2Balance() constant returns (uint) {
+        address Account2 = 0x78731D3Ca6b7E34aC0F824c42a7cC18A495cabaB;
+        return Account2.balance;
+    }
+
+    //  读取合约发起方的余额
+    function getOwnerBalance() constant returns (uint) {
+        address Owner = msg.sender;
+        return Owner.balance;
+    }
+
+}
+</pre>
+<p><img src="./picture/address/11.png" alt="11"></p>
+<ul>
+    <li>四、send</li>
+</ul>
+<p>send：send相对transfer方法较底层，不过使用方法和transfer相同，都是从合约发起方向某个地址转入以太币(单位是wei)，地址无效或者合约发起方余额不足时，send不会抛出异常，而是直接返回false。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.4;
+
+contract PayableKeyword {
+
+    function deposit() payable returns(bool) {
+        address Account2 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+        return Account2.send(msg.value);
+    }
+
+    function getAccount2Balance() constant returns(uint) {
+        address Account2 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+        return Account2.balance;
+    }
+
+    function getOwnerBalance() constant returns(uint) {
+        address Owner = msg.sender;
+        return Owner.balance;
+    }
+
+}
+</pre>
+<p>⚠️Warning</p>
+<p>send()方法执行时有一些风险</p>
+<ul>
+<li>调用递归深度不能超1024。</li>
+<li>如果gas不够，执行会失败。</li>
+<li>所以使用这个方法要检查成功与否。</li>
+<li>transfer相对send较安全。</li>
+</ul>
 
 
                                                                 </div>
@@ -90,8 +333,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./单位.html"><span aria-hidden="true">&larr;</span> 单位</a></li>
-                                                                                <li class="next"><a href="./this&sender.html">this & sender <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./this&sender.html"><span aria-hidden="true">&larr;</span> this & sender</a></li>
+                                                                                <li class="next"><a href="./众筹智能合约.html">众筹智能合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -190,10 +433,10 @@
                                                 <li><a href="./transfer_实现转账.html">transfer 转账</a></li>
                                                 <li><a href="./transfer_send.html">transfer send</a></li>
                                                 <li><a href="./单位.html">单位</a></li>
-                                                <li class="active"><a href="./constant.html">constant</a></li>
+                                                <li><a href="./constant.html">constant</a></li>
                                                 <li><a href="./this&sender.html">this & sender</a></li>
-                                                <li><a href="">address</a></li>
-                                                <li><a href="">众筹智能合约</a></li>
+                                                <li class="active"><a href="./address.html">address</a></li>
+                                                <li><a href="./众筹智能合约.html">众筹智能合约</a></li>
                                                 <li><a href="">interface</a></li>
                                                 <li><a href="">gas使用模式</a></li>
                                                 <li><a href="">常见编译错误</a></li>
