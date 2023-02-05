@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./众筹智能合约.html"><span aria-hidden="true">&larr;</span> 众筹智能合约</a></li>
-                                                                                <li class="next"><a href="./常见编译错误.html">常见编译错误 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
+                                                                                <li class="next"><a href="./调用合约.html">调用合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,122 +40,39 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>优化智能合约gas使用的模式</h1>
-<p>在以太坊区块链上，Gas被用来补偿矿工为智能合约的存储与执行所提供的算力。目前以太坊的利用在逐渐增长，而交易手续费成本也水涨船高 &mdash;&mdash; 现在每天的gas成本已经高达数百万美元。随着以太坊生态系统的扩大，Solidity智能合约开发者也需要关注gas利用的优化问题了。本文将介绍在使用Solidity开发以太坊智能合约时常用的一些Gas优化模式。</p>
-<h2>1、使用短路模式排序Solidity操作</h2>
-<p>短路（short-circuiting）是一种使用或/与逻辑来排序不同成本操作的solidity合约开发模式，它将低gas成本的操作放在前面，高gas成本的操作放在后面，这样如果前面的低成本操作可行，就可以跳过（短路）后面的高成本以太坊虚拟机操作了。</p>
-<pre>// f(x) 是低gas成本的操作
-// g(y) 是高gas成本的操作
+<h1>支付Eth payable</h1>
+<p>使用 payable 标记的 Solidity 函数可以用于发送和接收 Eth。payable 意味着在调用这个函数的消息中可以附带 Eth。</p>
+<p>使用 payable 标记的 Solidity 地址变量，允许发送和接收 Eth。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-// 按如下排序不同gas成本的操作
-f(x) || g(y)
-f(x) &amp;&amp; g(y)
-</pre>
-<h2>2、删减不必要的Solidity库</h2>
-<p>在开发Solidity智能合约时，我们引入的库通常只需要用到其中的部分功能，这意味着其中可能会包含大量对于你的智能合约而言其实是冗余的solidity代码。如果可以在你自己的合约里安全有效地实现所依赖的库功能，那么就能够达到优化solidity合约的gas利用的目的。</p>
-<p>例如，在下面的solidity代码中，我们的以太坊合约只是用到了SafeMath库的add方法：</p>
-<pre>import './SafeMath.sol' as SafeMath;
+contract Payable {
+    //  owner 可用于收费 eth
+    address payable public owner;
+    
+    constructor() {
+        //  msg.sender 默认不能收发 eth，需要转换  
+        owner = payable(msg.sender);
+    }
 
-contract SafeAddition {
-    function safeAdd(uint a, uint b) public pure returns(uint) {
-    return SafeMath.add(a, b);
+    function deposit() external payable {
     }
 }
 </pre>
-<p>通过参考SafeMath的这部分代码的实现，可以把对这个solidity库的依赖剔除掉：</p>
-<pre>contract SafeAddition {
-  function safeAdd(uint a, uint b) public pure returns(uint) {
-    uint c = a + b;
-    require(c &gt;= a, "Addition overflow");
-    return c;
-  }
-}
-</pre>
-<h2>3、显式声明Solidity合约函数的可见性</h2>
-<p>在Solidity合约开发中，显式声明函数的可见性不仅可以提高智能合约的安全性，同时也有利于优化合约执行的gas成本。例如，通过显式地标记函数为外部函数（External），可以强制将函数参数的存储位置设置为calldata，这会节约每次函数执行时所需的以太坊gas成本。</p>
-<h2>4、使用正确的Solidity数据类型</h2>
-<p>在Solidity中，有些数据类型要比另外一些数据类型的gas成本高。有必要了解可用数据类型的gas利用情况，以便根据你的需求选择效率最高的那种。下面是关于solidity数据类型gas消耗情况的一些规则：</p>
-<ul>
-    <li>在任何可以使用uint类型的情况下，不要使用string类型</li>
-    <li>存储uint256要比存储uint8的gas成本低，为什么？点击这里查看<a href="https://ethereum.stackexchange.com/questions/3067/why-does-uint8-cost-more-gas-than-uint256">原文</a></li>
-    <li>当可以使用bytes类型时，不要在solidity合约中使用byte[]类型</li>
-    <li>如果bytes的长度有可以预计的上限，那么尽可能改用bytes1~bytes32这些具有固定长度的solidity类型</li>
-    <li>bytes32所需的gas成本要低于string类型</li>
-</ul>
-<h2>5、避免Solidity智能合约中的死代码</h2>
-<p>死代码（Dead code）是指那些永远也不会执行的Solidity代码，例如那些执行条件永远也不可能满足的代码，就像下面的两个自相矛盾的条件判断里的Solidity代码块，消耗了以太坊gas资源但没有任何作用：</p>
-<pre>function deadCode(uint x) public pure {
-    if(x &lt; 1) {
-        if(x &gt; 2) {
-            return x;
-        }
-    }
-}
-</pre>
-<h2>6、避免使用不必要的条件判断</h2>
-<p>有些条件断言的结果不需要Solidity代码的执行就可以了解，那么这样的条件判断就可以精简掉。例如下面的Solidity合约代码中的两级判断条件，最外层的判断是在浪费宝贵的以太坊gas资源：</p>
-<pre>function opaquePredicate(uint x) public pure {
-    if(x &lt; 1) {
-        if(x &lt; 0) {
-            return x;
-        }
-    }
-}
-</pre>
-<h2>7、避免在循环中执行gas成本高的操作</h2>
-<p>由于SLOAD和SSTORE操作码的成本高昂，因此管理storage变量的gas成本要远远高于内存变量，所以要避免在循环中操作storage变量。例如下面的solidity代码中，num变量是一个storage变量，那么未知循环次数的若干次操作，很可能会造成solidity开发者意料之外的以太坊gas消耗黑洞：</p>
-<pre>uint num = 0;
+<p>payable 地址变量可以通过 balance 属性，来查看余额。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-function expensiveLoop(uint x) public {
-    for(uint i = 0; i &lt; x; i++) {
-        num += 1;
+contract Payable {
+    function deposit() external payable {
     }
-}
-</pre>
-<p>解决上述反模式以太坊合约代码的方法，是创建一个solidity临时变量来代替上述全局变量参与循环，然后在循环结束后重新将临时变量的值赋给全局变量：</p>
-<pre>uint num = 0;
 
-function lessExpensiveLoop(uint x) public {
-    uint temp = num;
-    for(uint i = 0; i &lt; x; i++) {
-        temp += 1;
-    }
-    num = temp;
-}
-</pre>
-<h2>8、避免为可预测的结果使用Solidity循环</h2>
-<p>如果一个循环计算的结果是无需编译执行Solidity代码就可以预测的，那么就不要使用循环，这可以可观地节省gas。例如下面的以太坊合约代码就可以直接设置num变量的值：</p>
-<pre>function constantOutcome() public pure returns(uint) {
-    uint num = 0;
-    for(uint i = 0; i &lt; 100; i++) {
-        num += 1;
-    }
-    return num;
-}
-</pre>
-<h2>9、循环合并模式</h2>
-<p>有时候在Solidity智能合约中，你会发现两个循环的判断条件一致，那么在这种情况下就没有理由不合并它们。例如下面的以太坊合约代码：</p>
-<pre>function loopFusion(uint x, uint y) public pure returns(uint) {
-    for(uint i = 0; i &lt; 100; i++) {
-        x += 1;
-    }
-    for(uint i = 0; i &lt; 100; i++) {
-        y += 1;
-    }
-    return x + y;
-}
-</pre>
-<h2>10、避免循环中的重复计算</h2>
-<p>如果循环中的某个Solidity表达式在每次迭代都产生同样的结果，那么就可以将其移出循环先行计算，从而节省掉循环中额外的gas成本。如果表达式中使用的变量是storage变量，这就更重要了。例如下面的智能合约代码中表达式a*b的值，并不需要每次迭代重新计算：</p>
-<pre>uint a = 4;
-uint b = 5;
-function repeatedComputations(uint x) public returns(uint) {
-    uint sum = 0;
-    for(uint i = 0; i &lt;= x; i++) {
-        sum = sum + a * b;
+    function getBalance() external view returns(uint) {
+        return address(this).balance;
     }
 }
 </pre>
+
 
 
                                                                 </div>
@@ -164,8 +81,8 @@ function repeatedComputations(uint x) public returns(uint) {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./众筹智能合约.html"><span aria-hidden="true">&larr;</span> 众筹智能合约</a></li>
-                                                                                <li class="next"><a href="./常见编译错误.html">常见编译错误 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
+                                                                                <li class="next"><a href="./调用合约.html">调用合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -269,11 +186,11 @@ function repeatedComputations(uint x) public returns(uint) {
                                                 <li><a href="./address.html">address</a></li>
                                                 <li><a href="./众筹智能合约.html">众筹智能合约</a></li>
                                                 <li><a href="./interface.html">interface</a></li>
-                                                <li class="active"><a href="./gas使用模式.html">gas使用模式</a></li>
+                                                <li><a href="./gas使用模式.html">gas使用模式</a></li>
                                                 <li><a href="./常见编译错误.html">常见编译错误</a></li>
-                                                <li><a href="">调用合约</a></li>
-                                                <li><a href="">支付Eth</a></li>
-                                                <li><a href="">fallback</a></li>
+                                                <li><a href="./调用合约.html">调用合约</a></li>
+                                                <li class="active"><a href="./支付Eth.html">支付Eth</a></li>
+                                                <li><a href="./fallback.html">fallback</a></li>
                                                 <li><a href="">receive</a></li>
                                                 <li><a href="">钱包合约</a></li>
                                                 <li><a href="">发送Eth</a></li>
