@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./address.html"><span aria-hidden="true">&larr;</span> address</a></li>
-                                                                                <li class="next"><a href="./interface.html">interface <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./众筹智能合约.html"><span aria-hidden="true">&larr;</span> 众筹智能合约</a></li>
+                                                                                <li class="next"><a href="./gas使用模式.html">gas使用模式 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,168 +40,94 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>众筹智能合约</h1>
-<p>Solidity 众筹智能合约，提供一个安全、完整的 Solidity 智能合约案例，用于通过众筹方式进行筹资。</p>
-<p>&nbsp;</p>
-<h2>1. 募资人 struct Donee</h2>
-<p>用于表示一个募资项目，其中包括募资人地址、目标金额、已筹集金额、捐赠者人数、项目状态以及所有的出资人。</p>
-<pre>struct Donee {  //  募资人
-    address addr;   //  募资人地址
-    uint goal;      //  募资目标金额
-    uint amount;    //  已筹集金额
-    uint donorCount;    //  捐赠者数量
-    bool status;    //  项目有效性：true 有效 false 无效
-    mapping(uint => Donor) donorMap;    //  出资人字典
-}
-</pre>
-<h2>2. 出资人 struct Donor</h2>
-<p>用于表示一个出资人，其中包括出资人地址、出资人金额。</p>
-<pre>struct Donor {  //  出资人
-    address addr;   //  出资人地址
-    uint amount;    //  出资人金额
-}
-</pre>
-<h2>3. 函数说明</h2>
-<p>Crowdfunding 智能合约的主要函数：</p>
+<h1>interface 接口</h1>
+<p>接口本意是物体之间连接的部位。例如：电脑的 usb 接口可以用来连接鼠标也可以连接U盘和硬盘。因此，使用标准的接口可以极大的拓展程序的功能。在 solidity 语言中，接口可以用来接受相同规则的合约，实现可更新的智能合约。</p>
+<p>interface 类似于抽象合约，但它们不能实现任何功能。还有其他限制：</p>
 <ul>
-    <li>1. 设置募资人和募资金额
-    <pre>function setDonee(address addr, uint goal) public onlyOwner</pre>
-    </li>
-    <li>2. 出资人捐赠投资
-    <pre>function donate(uint doneeID) public payable validDonee(doneeID)</pre>
-    </li>
-    <li>3. 完成筹集目标后转账给募资人
-    <pre>function transfer(uint doneeID) public payable onlyOwner validDonee(doneeID)</pre>
-    </li>
-    <li>4. 将合约账户中的资金提取到拥有者账户
-    <pre>function withdraw() public payable onlyOwner</pre>
-    </li>
+    <li>无法继承其他合约或接口。</li>
+    <li>所有声明的函数必须是 external 的。</li>
+    <li>无法定义构造函数。</li>
+    <li>无法定义变量。</li>
+    <li>无法定义结构。</li>
 </ul>
-<h2>4. 完整代码</h2>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.7.0;
-
-contract Crowdfunding {
-    
-    struct Donor {  //  出资人
-        address addr;   //  出资人地址
-        uint amount;    //  出资人金额
-    }
-    
-    struct Donee {  //  募资人
-        address addr;   //  募资人地址
-        uint goal;      //  募资目标金额
-        uint amount;    //  已筹集金额
-        uint donorCount;    //  捐赠者数量
-        bool status;    //  项目有效性：true 有效 false 无效
-        mapping(uint => Donor) donorMap;    //  出资人字典
-    }
-
-    uint doneeCount;    //  募资人数量
-    mapping(uint => Donee) doneeMap;    //  募资人字典
-
-    address payable owner;  //  合约拥有者
-
-    constructor() {     //  构造函数
-        owner = msg.sender; //  设置合约拥有者
-    }
-
-    function destroy() public onlyOwner {   //  销毁合约
-        selfdestruct(owner);
-    }
-
-    modifier onlyOwner() {  //  校验合约拥有者
-        require(msg.sender == owner);   //  判断函数调用者是否为owner
-        _;
-    }
-
-    modifier validDonee(uint doneeID) {     //  校验募资项目ID合法性
-        require(doneeID &gt; 0 &amp;&amp; doneeID &lt;= doneeCount);
-        _;
-    }
-
-    function setDonee(address addr, uint goal) public onlyOwner {   //  设置募资人和募资金额
-        for(uint i = 0; i &lt; doneeCount; i++) {
-            Donee storage d = doneeMap[i+1];
-            if(d.addr == addr){
-                d.goal = goal;
-                return ;
-            }
-        }
-
-        doneeCount++;
-        Donee storage donee = doneeMap[doneeCount];
-        donee.addr = addr;
-        donee.goal = goal;
-        donee.status = true;
-    }
-
-    function donate(uint doneeID) public payable validDonee(doneeID) {  //  出资人捐赠
-        Donee storage donee = doneeMap[doneeID];
-        require(donee.status);
-
-        donee.donorCount++;
-        donee.amount += msg.value;  //  出资人金额
-
-        Donor storage donor = donee.donorMap[donee.donorCount];
-        donor.addr = msg.sender;
-        donor.amount = msg.value;
-    }
-
-    function transfer(uint doneeID) public payable onlyOwner validDonee(doneeID) {  //  完成目标给募资人转账
-        Donee storage donee = doneeMap[doneeID];
-        if(donee.amount &gt;= donee.goal) {
-            payable(donee.addr).transfer(donee.goal);   //  给募资人转账
-        } else {
-            revert();       //  金额不足
-        }
-    }
-
-    function withdraw() public payable onlyOwner {      //  合约转账到拥有者
-        msg.sender.transfer(address(this).balance);
-    }
-
-    function getDoneeCount() public view returns(uint) {    //  查询募资人数量
-        return doneeCount;
-    }
-
-    function getDonee(uint doneeID) public view returns(address doneeAddr, uint doneeGoal, uint doneeAmount) {  //  获取募资人信息
-        return (doneeMap[doneeID].addr, doneeMap[doneeID].goal, doneeMap[doneeID].amount);
-    }
-
-    function getBalance() public view returns(uint) {   //  获取合约余额
-        return address(this).balance;
-    }
-
-    function setStatus(uint doneeID, bool status) public onlyOwner {    //  设定项目状态是否有效
-        Donee storage donee = doneeMap[doneeID];
-        donee.status = status;
-    }
-
-    function getStatus(uint doneeID) public view validDonee(doneeID) returns(bool) {    //  获取项目状态
-        Donee storage donee = doneeMap[doneeID];
-        return donee.status;
-    }
-
-    fallback() external {
-    }
-
-    receive() payable external {
-    }
-
+<h2>1. 接口定义</h2>
+<p>接口需要有interface关键字，并且内部只需要有函数的声明，不用实现。</p>
+<p>只要某合约中有和词接口相同的函数声明，就可以被此合约所接受。</p>
+<pre>interface 接口名{
+        函数声明;
+   }
+</pre>
+<p>例子：</p>
+<pre>interface animalEat{
+    function eat() public returns(string);
 }
 </pre>
-<p><strong>主要包含以下操作：</strong></p>
-<ol>
-    <li>设置合约拥有者：合约在构造函数中将拥有者设置为函数调用者。</li>
-    <li>设置募资人：合约拥有者可以通过调用<code> setDonee函数 </code>设置募资人地址和目标金额。</li>
-    <li>出资人捐赠：任意地址可以调用<code> donate函数 </code>向指定的募资人捐赠。</li>
-    <li>完成目标转账：合约拥有者可以通过调用<code> transfer函数 </code>将募资人的目标金额转账给募资人地址。</li>
-    <li>提现：合约拥有者可以通过调用<code> withdraw函数 </code>将合约内的资金转账到自己的地址。</li>
-    <li>查询募资人信息：通过调用<code> getDoneeCount函数 </code>查询募资人数量，通过调用<code> getDonee函数 </code>查询单个募资人的详细信息。</li>
-    <li>销毁合约：合约拥有者可以通过调用<code> destroy函数 </code>销毁合约。</li>
-</ol>
+<h2>2. 接口使用</h2>
+<p>在下面的例子中，定义了cat合约以及dog合约。他们都有eat方法.以此他们都可以被上面的animalEat接口所接收。</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.0;
 
+contract cat {
+    string name;
+    function eat() public view returns(string) {
+        return "cat eat fish";
+    }
+
+    function sleep() public view returns(string) {
+        return "sleep";
+    }
+}
+
+
+contract dog {
+    string name;
+    function eat() public view returns(string) {
+        return "dog miss you";
+    }
+
+    function swim() public view returns(string) {
+        return "swim";
+    }
+}
+
+
+interface animalEat {
+    function eat() public view returns(string);
+}
+
+contract animal {
+    function test(address _addr) returns(string) {
+        animalEat generalEat = animalEat(_addr);
+        return generalEat.eat();
+    }
+}
+</pre>
+<p>在合约 animal 中，调用函数 test，如果传递的是部署的 cat 的合约地址，那么我们在调用接口的 eat 方法时，实则调用了cat 合约的 eat 方法。 同理，如果传递的是部署的 dog 的合约地址，那么我们在调用接口的 eat 方法时，实则调用了 dog 合约的 eat 方法。</p>
+<h2>3. Uniswap使用示例</h2>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.0;
+
+interface UniswapV2Factory {
+    function getPair(address tokenA, address tokenB) external view returns(address pair);
+}
+
+interface UniswapV2Pair {
+    function getReserves() external view returns(uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
+}
+
+
+contract UniswapExample {
+    address private factory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address private dai = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address private weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+
+    function getTokenReserves() external view returns(uint, uint) {
+        address pair = UniswapV2Factory(factory).getPair(dai, weth);
+        (uint reserve0, uint reserve1, ) = UniswapV2Pair(pair).getReserves();
+        return (reserve0, reserve1); 
+    }
+}
+</pre>
 
                                                                 </div>
                                                         </div>
@@ -209,8 +135,8 @@ contract Crowdfunding {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./address.html"><span aria-hidden="true">&larr;</span> address</a></li>
-                                                                                <li class="next"><a href="./interface.html">interface <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./众筹智能合约.html"><span aria-hidden="true">&larr;</span> 众筹智能合约</a></li>
+                                                                                <li class="next"><a href="./gas使用模式.html">gas使用模式 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -312,9 +238,9 @@ contract Crowdfunding {
                                                 <li><a href="./constant.html">constant</a></li>
                                                 <li><a href="./this&sender.html">this & sender</a></li>
                                                 <li><a href="./address.html">address</a></li>
-                                                <li class="active"><a href="./众筹智能合约.html">众筹智能合约</a></li>
-                                                <li><a href="./interface.html">interface</a></li>
-                                                <li><a href="">gas使用模式</a></li>
+                                                <li><a href="./众筹智能合约.html">众筹智能合约</a></li>
+                                                <li class="active"><a href="./interface.html">interface</a></li>
+                                                <li><a href="./gas使用模式.html">gas使用模式</a></li>
                                                 <li><a href="">常见编译错误</a></li>
                                                 <li><a href="">调用合约</a></li>
                                                 <li><a href="">支付Eth</a></li>
