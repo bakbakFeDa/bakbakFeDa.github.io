@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
-                                                                                <li class="next"><a href="./fallback.html">fallback <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./fallback.html"><span aria-hidden="true">&larr;</span> fallback</a></li>
+                                                                                <li class="next"><a href="./钱包合约.html">钱包合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,40 +40,59 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>支付Eth payable</h1>
-<p>使用 payable 标记的 Solidity 函数可以用于发送和接收 Eth。payable 意味着在调用这个函数的消息中可以附带 Eth。</p>
-<p>使用 payable 标记的 Solidity 地址变量，允许发送和接收 Eth。</p>
+<h1>接收函数 receive</h1>
+<p>solidity 接收函数 receive 没有参数、没有返回值。</p>
+<p>solidity 向合约转账，发送 Eth，就会执行 receive 函数。</p>
+<p>如果没有定义接收函数 receive，就会执行 fallback 函数。</p>
+<h2>向合约转账</h2>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Payable {
-    //  owner 可用于收费 eth
-    address payable public owner;
-    
-    constructor() {
-        //  msg.sender 默认不能收发 eth，需要转换  
-        owner = payable(msg.sender);
+contract Receive {
+    event eventFallback(string);
+
+    fallback() external payable {
+        emit eventFallback("fallback");
     }
 
-    function deposit() external payable {
-    }
-}
-</pre>
-<p>payable 地址变量可以通过 balance 属性，来查看余额。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Payable {
-    function deposit() external payable {
+    receive() external payable {
+        emit eventFallback("receive");
     }
 
+    //  查看合约账户余额
     function getBalance() external view returns(uint) {
         return address(this).balance;
     }
+
 }
 </pre>
-
-
+<p>我们向合约 Fallback 发送一笔 1000 wei 的交易，查看日志：</p>
+<pre>[
+	{
+		"from": "0xb27A31f1b0AF2946B7F582768f03239b1eC07c2c",
+		"topic": "0x39684f4c14ee0aafaa34ed83629676cd0fbe71653659c3353ef0c33f630e7eab",
+		"event": "eventFallback",
+		"args": {
+			"0": "receive"
+		}
+	}
+]
+</pre>
+<p>我们调用合约 Fallback 的 getBalance 方法，查看合约地址的余额为 1000 wei。</p>
+<h2>receive 和 fallback 调用流程</h2>
+<p>向一个合约发送 Eth，何时调用 receive 或者 fallback 呢？下面是两者的调用流程。</p>
+<pre>     发送 Eth
+             |
+         msg.data 是否为空
+           /    \
+         是      否
+         /         \
+是否定义了receive   fallback
+       /  \
+      是   否
+      /      \
+receive     fallback
+</pre>
 
                                                                 </div>
                                                         </div>
@@ -81,8 +100,8 @@ contract Payable {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
-                                                                                <li class="next"><a href="./fallback.html">fallback <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./fallback.html"><span aria-hidden="true">&larr;</span> fallback</a></li>
+                                                                                <li class="next"><a href="./钱包合约.html">钱包合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -189,10 +208,10 @@ contract Payable {
                                                 <li><a href="./gas使用模式.html">gas使用模式</a></li>
                                                 <li><a href="./常见编译错误.html">常见编译错误</a></li>
                                                 <li><a href="./调用合约.html">调用合约</a></li>
-                                                <li class="active"><a href="./支付Eth.html">支付Eth</a></li>
+                                                <li><a href="./支付Eth.html">支付Eth</a></li>
                                                 <li><a href="./fallback.html">fallback</a></li>
-                                                <li><a href="">receive</a></li>
-                                                <li><a href="">钱包合约</a></li>
+                                                <li class="active"><a href="./receive.html">receive</a></li>
+                                                <li><a href="./钱包合约.html">钱包合约</a></li>
                                                 <li><a href="">发送Eth</a></li>
                                                 <li><a href="">自毁合约</a></li>
                                                 <li><a href="">哈希算法</a></li>

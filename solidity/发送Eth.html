@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
-                                                                                <li class="next"><a href="./fallback.html">fallback <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./钱包合约.html"><span aria-hidden="true">&larr;</span> 钱包合约</a></li>
+                                                                                <li class="next"><a href="./自毁合约.html">自毁合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,39 +40,89 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>支付Eth payable</h1>
-<p>使用 payable 标记的 Solidity 函数可以用于发送和接收 Eth。payable 意味着在调用这个函数的消息中可以附带 Eth。</p>
-<p>使用 payable 标记的 Solidity 地址变量，允许发送和接收 Eth。</p>
+<h1>发送Eth</h1>
+<p>transfer：使用 transfer 发送 Eth，会带有 2300 个gas，如果失败，就会 revert。</p>
+<p>send：使用 send 发送 Eth，会带有 2300 个gas，并且返回一个 bool 值表示是否成功。</p>
+<p>call：使用 call 发送 Eth，会发送所有剩余的 gas，并且返回表示是否成功 bool 值和 data 数据。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Payable {
-    //  owner 可用于收费 eth
-    address payable public owner;
-    
-    constructor() {
-        //  msg.sender 默认不能收发 eth，需要转换  
-        owner = payable(msg.sender);
+contract SendEther {
+    constructor() payable {}
+
+    //  允许接收 Eth 
+    receive() external payable {}
+
+    function transferEth(address payable _to) external payable {
+        _to.transfer(100);
     }
 
-    function deposit() external payable {
+    function sendEth(address payable _to) external payable {
+        bool success = _to.send(100);
+        require(success, "send failed");
+    }
+
+    function callEth(address payable _to) external payable {
+        (bool success, ) = _to.call{value:100}("");
+        require(success, "call failed");
+    }
+
+}
+
+
+contract ReceiveEther {
+    event log(uint amount, uint gas);
+
+    receive() external payable {    // 允许接收 Eth
+        emit log(msg.value, gasleft());
     }
 }
 </pre>
-<p>payable 地址变量可以通过 balance 属性，来查看余额。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Payable {
-    function deposit() external payable {
-    }
-
-    function getBalance() external view returns(uint) {
-        return address(this).balance;
-    }
-}
+<p>SendEther 合约的 transferEth 函数向合约 ReceiveEther 发送一笔 1000 wei 的交易，查看日志：</p>
+<pre>[
+	{
+		"from": "0xd2a5bC10698FD955D1Fe6cb468a17809A08fd005",
+		"topic": "0xf666715aa6b8e8ce32bd39173f51eea0643fdd246a826c4756c2f168022b6eb5",
+		"event": "log",
+		"args": {
+			"0": "100",
+			"1": "2260",
+			"amount": "100",
+			"gas": "2260"
+		}
+	}
+]
 </pre>
-
+<p>SendEther 合约的 sendEth 函数向合约 ReceiveEther 发送一笔 1000 wei 的交易，查看日志：</p>
+<pre>[
+	{
+		"from": "0xd2a5bC10698FD955D1Fe6cb468a17809A08fd005",
+		"topic": "0xf666715aa6b8e8ce32bd39173f51eea0643fdd246a826c4756c2f168022b6eb5",
+		"event": "log",
+		"args": {
+			"0": "100",
+			"1": "2260",
+			"amount": "100",
+			"gas": "2260"
+		}
+	}
+]
+</pre>
+<p>SendEther 合约的 callEth 函数向合约 ReceiveEther 发送一笔 1000 wei 的交易，查看日志：</p>
+<pre>[
+	{
+		"from": "0xd2a5bC10698FD955D1Fe6cb468a17809A08fd005",
+		"topic": "0xf666715aa6b8e8ce32bd39173f51eea0643fdd246a826c4756c2f168022b6eb5",
+		"event": "log",
+		"args": {
+			"0": "100",
+			"1": "6521",
+			"amount": "100",
+			"gas": "6521"
+		}
+	}
+]
+</pre>
 
 
                                                                 </div>
@@ -81,8 +131,8 @@ contract Payable {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
-                                                                                <li class="next"><a href="./fallback.html">fallback <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./钱包合约.html"><span aria-hidden="true">&larr;</span> 钱包合约</a></li>
+                                                                                <li class="next"><a href="./自毁合约.html">自毁合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -189,12 +239,12 @@ contract Payable {
                                                 <li><a href="./gas使用模式.html">gas使用模式</a></li>
                                                 <li><a href="./常见编译错误.html">常见编译错误</a></li>
                                                 <li><a href="./调用合约.html">调用合约</a></li>
-                                                <li class="active"><a href="./支付Eth.html">支付Eth</a></li>
+                                                <li><a href="./支付Eth.html">支付Eth</a></li>
                                                 <li><a href="./fallback.html">fallback</a></li>
-                                                <li><a href="">receive</a></li>
-                                                <li><a href="">钱包合约</a></li>
-                                                <li><a href="">发送Eth</a></li>
-                                                <li><a href="">自毁合约</a></li>
+                                                <li><a href="./receive.html">receive</a></li>
+                                                <li><a href="./钱包合约.html">钱包合约</a></li>
+                                                <li class="active"><a href="./发送Eth.html">发送Eth</a></li>
+                                                <li><a href="./自毁合约.html">自毁合约</a></li>
                                                 <li><a href="">哈希算法</a></li>
                                                 <li><a href="">工厂合约</a></li>
                                                 <li><a href="">库合约</a></li>

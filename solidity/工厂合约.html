@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
-                                                                                <li class="next"><a href="./fallback.html">fallback <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./哈希算法.html"><span aria-hidden="true">&larr;</span> 哈希算法</a></li>
+                                                                                <li class="next"><a href="./库合约.html">库合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,39 +40,44 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>支付Eth payable</h1>
-<p>使用 payable 标记的 Solidity 函数可以用于发送和接收 Eth。payable 意味着在调用这个函数的消息中可以附带 Eth。</p>
-<p>使用 payable 标记的 Solidity 地址变量，允许发送和接收 Eth。</p>
+<h1>工厂合约</h1>
+<p>Solidity 工厂合约是一种批量部署合约的方式。</p>
+<p>通过一个工厂合约创建部署合约，并记录下所有部署合约的地址。</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Payable {
-    //  owner 可用于收费 eth
-    address payable public owner;
-    
-    constructor() {
-        //  msg.sender 默认不能收发 eth，需要转换  
-        owner = payable(msg.sender);
-    }
+contract Account {
+    address public bank;
+    address public owner;
 
-    function deposit() external payable {
-    }
-}
-</pre>
-<p>payable 地址变量可以通过 balance 属性，来查看余额。</p>
-<pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-contract Payable {
-    function deposit() external payable {
+    constructor(address _owner) payable {
+        bank = msg.sender;
+        owner = _owner;
     }
 
     function getBalance() external view returns(uint) {
         return address(this).balance;
     }
 }
-</pre>
 
+
+contract Factory {
+    Account[] public account;
+
+    function createAccount(address owner) external payable {
+        account.push(new Account{value:123}(owner));
+        account.push(new Account{value:456}(owner));
+    }
+}
+</pre>
+<p>在创建账户前，需要先创建工厂。</p>
+<ol>
+    <li>部署工厂合约。</li>
+    <li>调用工厂合约中的 createAccount() 方法，并向该方法传递拥有者地址 owner 作为参数。</li>
+    <li>在工厂合约中调用 Account 合约并创建两个实例，同时将 owner 设置为参数，并向这两个账户分别转账 123 和 456 wei 的 eth。</li>
+    <li>可以通过工厂合约的 account 变量查询创建的两个账户的地址。</li>
+    <li>通过调用 bank 和 owner 字段，可以获取每个 Account 合约的银行和所有者信息。</li>
+</ol>
 
 
                                                                 </div>
@@ -81,8 +86,8 @@ contract Payable {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
-                                                                                <li class="next"><a href="./fallback.html">fallback <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./哈希算法.html"><span aria-hidden="true">&larr;</span> 哈希算法</a></li>
+                                                                                <li class="next"><a href="./库合约.html">库合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -189,15 +194,15 @@ contract Payable {
                                                 <li><a href="./gas使用模式.html">gas使用模式</a></li>
                                                 <li><a href="./常见编译错误.html">常见编译错误</a></li>
                                                 <li><a href="./调用合约.html">调用合约</a></li>
-                                                <li class="active"><a href="./支付Eth.html">支付Eth</a></li>
+                                                <li><a href="./支付Eth.html">支付Eth</a></li>
                                                 <li><a href="./fallback.html">fallback</a></li>
-                                                <li><a href="">receive</a></li>
-                                                <li><a href="">钱包合约</a></li>
-                                                <li><a href="">发送Eth</a></li>
-                                                <li><a href="">自毁合约</a></li>
-                                                <li><a href="">哈希算法</a></li>
-                                                <li><a href="">工厂合约</a></li>
-                                                <li><a href="">库合约</a></li>
+                                                <li><a href="./receive.html">receive</a></li>
+                                                <li><a href="./钱包合约.html">钱包合约</a></li>
+                                                <li><a href="./发送Eth.html">发送Eth</a></li>
+                                                <li><a href="./自毁合约.html">自毁合约</a></li>
+                                                <li><a href="./哈希算法.html">哈希算法</a></li>
+                                                <li class="active"><a href="./工厂合约.html">工厂合约</a></li>
+                                                <li><a href="./库合约.html">库合约</a></li>
                                                 <li><a href="">权限控制合约</a></li>
                                                 <li><a href="">验证签名</a></li>
 

@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
-                                                                                <li class="next"><a href="./fallback.html">fallback <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./自毁合约.html"><span aria-hidden="true">&larr;</span> 自毁合约</a></li>
+                                                                                <li class="next"><a href="./工厂合约.html">工厂合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -40,39 +40,52 @@
                                                                 <div
                                                                         class="markdown-body">      
                                                                         <!--内容-->
-<h1>支付Eth payable</h1>
-<p>使用 payable 标记的 Solidity 函数可以用于发送和接收 Eth。payable 意味着在调用这个函数的消息中可以附带 Eth。</p>
-<p>使用 payable 标记的 Solidity 地址变量，允许发送和接收 Eth。</p>
+<h1>哈希算法 keccak256</h1>
+<p>Solidity 的哈希算法使用一个内置函数 keccak256。</p>
+<p>keccak256函数原型：</p>
+<pre>keccak256(bytes) returns (bytes32)</pre>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Payable {
-    //  owner 可用于收费 eth
-    address payable public owner;
-    
-    constructor() {
-        //  msg.sender 默认不能收发 eth，需要转换  
-        owner = payable(msg.sender);
-    }
-
-    function deposit() external payable {
+contract Hash {
+    function hash(string memory _text, uint _num, address _addr) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_text, _num, _addr));
     }
 }
 </pre>
-<p>payable 地址变量可以通过 balance 属性，来查看余额。</p>
+<p>我们通常使用 abi.encodePacked 打包所有数据，然后再进行 keccak256 哈希。</p>
+<p>但是，我们使用 abi.encodePacked 要非常小心，当将多个动态数据类型传递给 abi.encodePacked 时，可能会发生哈希冲突。</p>
+<p>abi 编码函数除了 abi.encodePacked 外，还有函数 abi.encode。 abi.encodePacked 只是将参数转为 16 进制，再直接进行拼接，而 abi.encode 需要先进行补零 ，再进行转码拼接。</p>
+<p>我们可以看一个例子：</p>
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract Payable {
-    function deposit() external payable {
+contract Hash {
+    function encode1() external pure returns(bytes memory) {
+        return abi.encodePacked("aa","bb");
     }
 
-    function getBalance() external view returns(uint) {
-        return address(this).balance;
+    function encode2() external pure returns(bytes memory) {
+        return abi.encodePacked("aab","b");
     }
 }
 </pre>
+<p>两个方法返回的内容都是0x61616262，但两者的输入参数并不同。在这种情况下，您应该使用 abi.encode 代替。</p>
+<p>或者使用 encodePacked，但是在两个参数之间再添加一个固定数字参数即可。</p>
+<p>例如：</p>
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
+contract Hash {
+    function encode1() external pure returns(bytes memory) {
+        return abi.encodePacked("aa",uint(1),"bb");
+    }
+
+    function encode2() external pure returns(bytes memory) {
+        return abi.encodePacked("aab",uint(1),"b");
+    }
+}
+</pre>
 
 
                                                                 </div>
@@ -81,8 +94,8 @@ contract Payable {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./调用合约.html"><span aria-hidden="true">&larr;</span> 调用合约</a></li>
-                                                                                <li class="next"><a href="./fallback.html">fallback <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./自毁合约.html"><span aria-hidden="true">&larr;</span> 自毁合约</a></li>
+                                                                                <li class="next"><a href="./工厂合约.html">工厂合约 <span aria-hidden="true">&rarr;</span></a></li>
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -189,14 +202,14 @@ contract Payable {
                                                 <li><a href="./gas使用模式.html">gas使用模式</a></li>
                                                 <li><a href="./常见编译错误.html">常见编译错误</a></li>
                                                 <li><a href="./调用合约.html">调用合约</a></li>
-                                                <li class="active"><a href="./支付Eth.html">支付Eth</a></li>
+                                                <li><a href="./支付Eth.html">支付Eth</a></li>
                                                 <li><a href="./fallback.html">fallback</a></li>
-                                                <li><a href="">receive</a></li>
-                                                <li><a href="">钱包合约</a></li>
-                                                <li><a href="">发送Eth</a></li>
-                                                <li><a href="">自毁合约</a></li>
-                                                <li><a href="">哈希算法</a></li>
-                                                <li><a href="">工厂合约</a></li>
+                                                <li><a href="./receive.html">receive</a></li>
+                                                <li><a href="./钱包合约.html">钱包合约</a></li>
+                                                <li><a href="./发送Eth.html">发送Eth</a></li>
+                                                <li><a href="./自毁合约.html">自毁合约</a></li>
+                                                <li class="active"><a href="./哈希算法.html">哈希算法</a></li>
+                                                <li><a href="./工厂合约.html">工厂合约</a></li>
                                                 <li><a href="">库合约</a></li>
                                                 <li><a href="">权限控制合约</a></li>
                                                 <li><a href="">验证签名</a></li>
