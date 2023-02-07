@@ -29,8 +29,8 @@
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./库合约.html"><span aria-hidden="true">&larr;</span> 库合约</a></li>
-                                                                                <li class="next"><a href="./验证签名.html">验证签名 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./权限控制合约.html"><span aria-hidden="true">&larr;</span> 权限控制合约</a></li>
+                                                                                <!-- <li class="next"><a href="./权限控制合约.html">权限控制合约 <span aria-hidden="true">&rarr;</span></a></li> -->
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -41,54 +41,58 @@
                                                                         class="markdown-body">      
                                                                         <!--内容-->
 <h1>权限控制合约</h1>
-<p>Solidity 合约中一般会有多种针对不同数据的操作，例如对于存证内容的增加、更新及查询，所以需要制定一套符合要求的权限控制。</p>
-<p>如何对合约的权限进行划分？我们针对Solidity语言设计了一套通过地址标记的解决方案。</p>
-<p>合约中划分了角色和账户两级权限，如下所示：</p>
+<p>Solidity有一个<code>ecrecover</code> 指令，可以根据消息<code>hash</code> 和签名，返回签名者的地址：</p>
+<pre>ecrecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) returns (address)</pre>
+<p>根据恢复的签名地址，与验证地址对比，就可以验证签名。</p>
 <pre>// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.3;
 
-contract Access {
-    event GrantRole(bytes32 indexed role, address indexed account);
-    event RevokeRole(bytes32 indexed role, address indexed account);
+/*
+0.  message to sign
+1.  hash(message)
+2.  sing(hash(message), private key) | offchain
+3.  ecrecover(hash(message), signature) == signer
+*/
 
-    //  role => account => bool
-    mapping(bytes32 => mapping(address => bool)) public roles;
+contract VerifySig {
+    //  验证函数
+    //  _singer：签名人地址     _message：消息原文      _sig：签名结果
+    function verify(address _signer, string memory _message, bytes memory _sig) external pure returns (bool) {
+        bytes32 messageHash = getMessageHash(_message);
+        bytes32 ethSignedMessageHsah = getEthSignerMessageHash(messageHash);
 
-    // 0xf23ec0bb4210edd5cba85afd05127efcd2fc6a781bfed49188da1081670b22d8
-    bytes32 constant private ADMIN = keccak256(abi.encodePacked("admin"));
-
-    // 0xcb61ad33d3763aed2bc16c0f57ff251ac638d3d03ab7550adfd3e166c2e7adb6
-    bytes32 constant private USER = keccak256(abi.encodePacked("user"));
-
-    //  授权合约部署者 ADMIN 权限
-    constructor() {
-        _grantRole(ADMIN, msg.sender);
+        return recover(ethSignedMessageHsah, _sig) == _signer;
     }
 
-    modifier onlyRole(bytes32 _role) {
-        require(roles[_role][msg.sender], "not authorized");
-        _;
+    //  将消息哈希运算
+    //  _message：消息原文
+    function getMessageHash(string memory _message) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_message));
+    } 
+
+    //  消息再进行一次哈希运算
+    function getEthSignerMessageHash(bytes32 _messageHash) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _messageHash));
     }
 
-    //  内部使用
-    function _grantRole(bytes32 _role, address _account) internal {
-        roles[_role][_account] = true;
-        emit GrantRole(_role, _account);
+    //  恢复函数
+    function recover(bytes32 _ethSignedMessageHsah, bytes memory _sig) public pure returns (address) {
+        (bytes32 r, bytes32 s, uint8 v) = _split(_sig);
+        return ecrecover(_ethSignedMessageHsah, v, r, s);
     }
 
-    //  授权    外部使用
-    function grantRole(bytes32 _role, address _account) external onlyRole(ADMIN) {
-        _grantRole(_role, _account);
-    }
+    //  分割函数
+    function _split(bytes memory _sig) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
+        require(_sig.length == 65,"invalid signature length");
 
-    //  撤销授权
-    function revokeRole(bytes32 _role, address _account) external onlyRole(ADMIN) {
-        roles[_role][_account] = false;
-        emit RevokeRole(_role, _account);
+        assembly {
+            r := mload(add(_sig, 32))
+            s := mload(add(_sig, 64))
+            v := byte(0, mload(add(_sig, 96)))
+        }
     }
 }
 </pre>
-
 
 
                                                                 </div>
@@ -97,8 +101,8 @@ contract Access {
                                                         <div class="infos tutorial-panel-heading panel-heading">
                                                                 <nav aria-label="...">
                                                                         <ul class="tutorial-pager pager">
-                                                                                <li class="previous"><a href="./库合约.html"><span aria-hidden="true">&larr;</span> 库合约</a></li>
-                                                                                <li class="next"><a href="./验证签名.html">权限控制合约 <span aria-hidden="true">&rarr;</span></a></li>
+                                                                                <li class="previous"><a href="./权限控制合约.html"><span aria-hidden="true">&larr;</span> 权限控制合约</a></li>
+                                                                                <!-- <li class="next"><a href="./权限控制合约.html">权限控制合约 <span aria-hidden="true">&rarr;</span></a></li> -->
                                                                         </ul>
                                                                 </nav>
                                                         </div>
@@ -214,8 +218,8 @@ contract Access {
                                                 <li><a href="./哈希算法.html">哈希算法</a></li>
                                                 <li><a href="./工厂合约.html">工厂合约</a></li>
                                                 <li><a href="./库合约.html">库合约</a></li>
-                                                <li class="active"><a href="./权限控制合约.html">权限控制合约</a></li>
-                                                <li><a href="./验证签名.html">验证签名</a></li>
+                                                <li><a href="./权限控制合约.html">权限控制合约</a></li>
+                                                <li class="active"><a href="./验证签名.html">验证签名</a></li>
 
                                                                         </ul>
                                                                 </nav>
